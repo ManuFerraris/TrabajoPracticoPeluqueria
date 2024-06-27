@@ -1,0 +1,38 @@
+### obtener todos los peluqueros
+GET http://localhost:3000/api/peluqueros
+
+### obtener un peluquero
+GET http://localhost:3000/api/peluqueros/88
+
+### crear nuevo peluquero
+POST http://localhost:3000/api/peluqueros
+Content-Type: application/json
+
+{
+    "nombre": "Leon",
+    "codigo": 88,
+    "fechaingreso": "2006-02-26T00:00:00Z",
+    "tipo": ["Sucursal"]
+}
+
+### modificar peluquero (PUT - recurso completo e idempotente)
+PUT http://localhost:3000/api/peluqueros/78
+Content-Type: application/json
+
+{
+    "nombre": "Julieta",
+    "fechaingreso": "2008-02-26T00:00:00Z",
+    "tipo": ["Sucursal"]
+}
+
+### modificar peluquero (PATCH - recurso PARCIAL)
+PATCH  http://localhost:3000/api/peluqueros/45
+Content-Type: application/json
+
+{
+    "nombre": "Cornelio",
+    "tipo": ["A domicilio"]
+}
+
+###Borrar un Peluquero
+DELETE http://localhost:3000/api/peluqueros/11
