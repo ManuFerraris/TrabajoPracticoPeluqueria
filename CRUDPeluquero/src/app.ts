@@ -1,8 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { Peluquero } from './peluquero.js';
-
+import { Peluquero } from './peluqueros.js';
 import { Producto } from './productos.js';
-
+import { Cliente } from './clientes.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -17,7 +16,15 @@ app.use(express.json())//Para que express.json funcione para todos
 ///***PELUQUERO***///
 ///***************///
 
-const peluqueros: Peluquero[] = []; //Inicializando como un arreglo vacio
+//Peluquero de prueba para ver si es devuelto
+const peluqueros: Peluquero[] = [
+    new Peluquero(
+    "Leon",
+    88,
+    new Date("2006-02-26T00:00:00Z"),
+    ["Sucursal"]
+    ),
+]
 
 //Creamos una funcion que actue como un meddleware
 function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
@@ -47,7 +54,7 @@ app.get('/api/peluqueros/:codigo', (req, res) => {
     const codigo = parseInt(req.params.codigo, 10); // Convertimos req.params.codigo a número
     const peluquero = peluqueros.find((peluquero)=> peluquero.codigo === codigo);
     if(!peluquero){
-        return res.status(404).send({message: 'Peluquero not found' }) 
+        return res.status(404).send({message: 'Peluquero no encontrado' }) 
     };
     res.json({data: peluquero});
 });
@@ -75,11 +82,11 @@ app.put('/api/peluqueros/:codigo',sanitizePeluqueroInput ,(req, res) => {
     const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
 
     if(peluqueroCodigox === -1){ //no lo encontro
-        return res.status(404).send({message: 'Peluquero not found' })
+        return res.status(404).send({message: 'Peluquero no encontrado' })
     }
     
     peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...req.body.sanitizedInput}
-    return res.status(200).send({message:'peluquero updated successfully', data: peluqueros[peluqueroCodigox]})
+    return res.status(200).send({message:'Actualizacion exitosa', data: peluqueros[peluqueroCodigox]})
 });
 
 app.patch('/api/peluqueros/:codigo',sanitizePeluqueroInput ,(req, res) => {
@@ -87,11 +94,11 @@ app.patch('/api/peluqueros/:codigo',sanitizePeluqueroInput ,(req, res) => {
     const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
 
     if(peluqueroCodigox === -1){ //no lo encontro
-        return res.status(404).send({message: 'Peluquero not found' })
+        return res.status(404).send({message: 'Peluquero no encontrado' })
     }
     Object.assign(peluqueros[peluqueroCodigox], req.body.sanitizedInput)
     peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...req.body.sanitizedInput}
-    return res.status(200).send({message:'peluquero updated successfully', data: peluqueros[peluqueroCodigox]})
+    return res.status(200).send({message:'Actualizacion exitosa', data: peluqueros[peluqueroCodigox]})
 });
 
 app.delete('/api/peluqueros/:codigo', (req, res) => {
@@ -99,10 +106,10 @@ app.delete('/api/peluqueros/:codigo', (req, res) => {
     const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
 
     if(peluqueroCodigox===-1){
-        res.status(404).send({message: 'Peluquero not found' })
+        res.status(404).send({message: 'Peluquero no encontrado' })
     } else{
     peluqueros.splice(peluqueroCodigox,1)
-    res.status(200).send({message: 'peluquero deleted succesffully'})
+    res.status(200).send({message: 'Peluquero borrado exitosamente'})
     }
 });
 
@@ -179,24 +186,122 @@ app.delete('/api/productos/:codigo', (req, res)=> {
     return res.status(200).send({message: 'Producto borrado exitosamente'})
 })
 
+
+
+///***CLIENTE***///
+///**************///
+
+//Cliente de prueba para ver si es devuelto
+const clientes: Cliente[] = [
+    new Cliente(
+    45521084,
+    "Jose",
+    "Chavez",
+    "17 y 41 nro 975",
+    "ferrarismanu@gmail.com",
+    "2473448855"
+    ),
+]
+
+function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
+    req.body.sanitizedInput = {
+        dni: req.body.dni,
+        nombre: req.body.nombre,
+        apellido: req.body.apellido,
+        direccion: req.body.direccion,
+        mail: req.body.mail,
+        telefono: req.body.telefono,
+    }
+    //Mas validaciones para la seguridad e integridad de los datos
+    //Para quitar el elemento que no queremos:
+    Object.keys(req.body.sanitizedInput).forEach(key => {
+        if(req.body.sanitizedInput[key] === undefined) {
+            delete req.body.sanitizedInput[key]}
+    })
+    next()
+}
+
+//GET ALL DE CLIENTES
+app.get('/api/clientes', (req, res) => {
+    res.json({data: clientes});
+});
+
+//GET DE CLIENTE
+app.get('/api/clientes/:dni', (req, res ) => {
+    const dni = parseInt(req.params.dni, 10); // Convertir el parámetro dni a número
+    const cliente = clientes.find(cliente => cliente.dni === dni);
+    if(!cliente){
+        return res.status(404).send({ message: 'Cliente no encontrado' }); // Agregué el return aca
+    }
+    res.json({data: cliente})
+});
+
+//POST DE CLIENTE
+app.post('/api/clientes', sanitizeClienteInput, (req, res) => {
+    const input = req.body.sanitizedInput;
+
+    const cliente = new Cliente(
+        parseInt(input.dni, 10),
+        input.nombre,
+        input.apellido,
+        input.direccion,
+        input.mail,
+        input.telefono,
+    )
+    clientes.push(cliente)
+    return res.status(201).send({message: 'Cliente Creado', data: cliente});
+})
+
+//PUT DE CLIENTE
+app.put('/api/clientes/:dni', sanitizeClienteInput,(req, res) => {
+    const dni = parseInt(req.params.dni, 10);
+    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni);
+
+    if (dniClienteIndex === -1) {
+        return res.status(404).send({ message: 'Cliente no encontrado' });
+    }
+
+    // Actualizar los datos del cliente
+    clientes[dniClienteIndex] = {...clientes[dniClienteIndex], ...req.body.sanitizedInput}
+    // Enviar respuesta con el cliente actualizado
+    res.status(200).send({ message: 'Cliente actualizado', data: clientes[dniClienteIndex] });
+});
+
+//PATCH DE CLIENTE
+app.patch('/api/clientes/:dni',sanitizeClienteInput ,(req, res) => {
+    const dni = parseInt(req.params.dni, 10);
+    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni)
+
+    if(dniClienteIndex === -1){ //no lo encontro
+        return res.status(404).send({message: 'Cliente no encontrado' })
+    }
+    Object.assign(clientes[dniClienteIndex], req.body.sanitizedInput)
+    clientes[dniClienteIndex] = {...clientes[dniClienteIndex], ...req.body.sanitizedInput}
+    return res.status(200).send({message:'Cliente actualizado exitosamente', data: clientes[dniClienteIndex]})
+});
+
+//DELETE DE CLIENTE
+app.delete('/api/clientes/:dni', (req, res) => {
+    const dni = parseInt(req.params.dni, 10);
+    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni)
+
+    if(dniClienteIndex===-1){
+        res.status(404).send({message: 'Cliente no encontrado' })
+    } else{
+    clientes.splice(dniClienteIndex,1)
+    res.status(200).send({message: 'Cliente eliminado exitosamente'})
+    }
+});
+
 app.use((req,res)=>{
     res.status(404).send({message:"Recurso no encontrado"})
 })
-
-
-
 
 //Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
 app.use('/',(req, res) => {
     res.send('<h1>Hola!!</h1>');
 });
 
-//Para los errores de rutas incorrectas
-app.use((_, res)=> {
-    return res.status(404).send({message: 'Resource not found'})
-})
-
 app.listen(3000, ()=> {
     console.log('Server running on http://localhost:3000/');
 });
-
