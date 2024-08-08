@@ -1,7 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { Peluquero } from './peluqueros.js';
-import { Producto } from './productos.js';
-import { Cliente } from './clientes.js';
+import { Peluquero } from './peluquero/peluqueros.entity.js';
+import { Producto } from './producto/productos.js';
+import { Cliente } from './cliente/clientes.js';
+import { PeluqueroRepository } from './peluquero/peluquero.repository.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -13,8 +14,11 @@ app.use(express.json())//Para que express.json funcione para todos
 // put & patch para mdificar recursos
 
 
+
 ///***PELUQUERO***///
 ///***************///
+
+const repository = new PeluqueroRepository()
 
 //Peluquero de prueba para ver si es devuelto
 const peluqueros: Peluquero[] = [
@@ -47,12 +51,12 @@ function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
 
 
 app.get('/api/peluqueros', (req, res) => {
-    res.json({data:peluqueros}); //Enviamos la lista de peluqueros como respuesta
+    res.json({data:repository.findAll() }); //Enviamos la lista de peluqueros como respuesta
 })
 
 app.get('/api/peluqueros/:codigo', (req, res) => {
     const codigo = parseInt(req.params.codigo, 10); // Convertimos req.params.codigo a número
-    const peluquero = peluqueros.find((peluquero)=> peluquero.codigo === codigo);
+    const peluquero = repository.getOne({codigo})
     if(!peluquero){
         return res.status(404).send({message: 'Peluquero no encontrado' }) 
     };
@@ -66,49 +70,48 @@ app.post('/api/peluqueros',sanitizePeluqueroInput, (req, res) => {
 
     //Procedemos a crear nuestro nuevo peluquero con la nueva informacion.
     // elementos que recuperamos del body
-    const peluquero = new Peluquero(
+    const peluqueroInput = new Peluquero(
         input.nombre,
         parseInt(input.codigo, 10), 
         new Date(input.fechaingreso),
         input.tipo); 
         
 
-    peluqueros.push(peluquero) //lo agregamos al contenido de nuestra coleccion
+    const peluquero = repository.add(peluqueroInput) //lo agregamos al contenido de nuestra coleccion
     return res.status(201).send({message: 'Peluquero Creado', data: peluquero}); //Este states indica que se creo' el recurso.
 });
 
 app.put('/api/peluqueros/:codigo',sanitizePeluqueroInput ,(req, res) => {
-    const codigo = parseInt(req.params.codigo, 10);
-    const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
+    const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
+    const input = req.body.sanitizedInput
+    input.codigo = codigo
+    const peluquero = repository.update(input)
 
-    if(peluqueroCodigox === -1){ //no lo encontro
+    if(!peluquero){ //no lo encontro
         return res.status(404).send({message: 'Peluquero no encontrado' })
     }
-    
-    peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...req.body.sanitizedInput}
-    return res.status(200).send({message:'Actualizacion exitosa', data: peluqueros[peluqueroCodigox]})
+    return res.status(200).send({message:'Actualizacion exitosa', data: peluquero})
 });
 
 app.patch('/api/peluqueros/:codigo',sanitizePeluqueroInput ,(req, res) => {
-    const codigo = parseInt(req.params.codigo, 10);
-    const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
+    const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
+    const input = req.body.sanitizedInput
+    input.codigo = codigo
+    const peluquero = repository.update(input)
 
-    if(peluqueroCodigox === -1){ //no lo encontro
+    if(!peluquero){ //no lo encontro
         return res.status(404).send({message: 'Peluquero no encontrado' })
     }
-    Object.assign(peluqueros[peluqueroCodigox], req.body.sanitizedInput)
-    peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...req.body.sanitizedInput}
-    return res.status(200).send({message:'Actualizacion exitosa', data: peluqueros[peluqueroCodigox]})
+    return res.status(200).send({message:'Actualizacion exitosa', data: peluquero})
 });
 
 app.delete('/api/peluqueros/:codigo', (req, res) => {
     const codigo = parseInt(req.params.codigo, 10);
-    const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === codigo)
+    const peluquero = repository.delete({codigo})
 
-    if(peluqueroCodigox===-1){
+    if(!peluquero){
         res.status(404).send({message: 'Peluquero no encontrado' })
     } else{
-    peluqueros.splice(peluqueroCodigox,1)
     res.status(200).send({message: 'Peluquero borrado exitosamente'})
     }
 });

@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/peluqueros
 
 ### obtener un peluquero
-GET http://localhost:3000/api/peluqueros/8
+GET http://localhost:3000/api/peluqueros/88
 
 ### crear nuevo peluquero
 POST http://localhost:3000/api/peluqueros
@@ -35,4 +35,4 @@ Content-Type: application/json
 }
 
 ###Borrar un Peluquero
-DELETE http://localhost:3000/api/peluqueros/10
+DELETE http://localhost:3000/api/peluqueros/88
