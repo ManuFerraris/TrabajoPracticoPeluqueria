@@ -10,7 +10,6 @@ function sanitizeProductoInput(req:Request, res:Response, next:NextFunction){
         nombre: req.body.nombre,
         stock: req.body.stock
     }
-    next()
     Object.keys(req.body.sanitizedInput).forEach(key => {
         if(req.body.sanitizedInput[key] === undefined) {
             delete req.body.sanitizedInput[key]}

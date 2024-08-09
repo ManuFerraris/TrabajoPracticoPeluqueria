@@ -10,19 +10,16 @@ app.use(express.json())//Para que express.json funcione para todos
 ///***PELUQUERO***///
 ///***************///
 app.use('/api/peluqueros', peluqueroRouter) //Decimos que use peluqueroRouter para que use todas las peticiones que llegan a esta ruta (definidas en la aplicacion).
-app.use('/api/peluqueros/:codigo', peluqueroRouter)
 
 
 ///***PRODUCTO***///
 ///**************///
 app.use('/api/productos', productoRouter)
-app.use('/api/productos/:codigo', productoRouter)
 
 
 ///***CLIENTE***///
 ///*************///
 app.use('/api/clientes', clienteRouter)
-app.use('/api/clientes/:codigo', clienteRouter)
 
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
