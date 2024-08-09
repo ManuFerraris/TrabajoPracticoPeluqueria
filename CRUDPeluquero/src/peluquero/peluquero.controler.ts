@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { PeluqueroRepository } from "./peluquero.repository.js"
 import { Peluquero } from "./peluqueros.entity.js"
 

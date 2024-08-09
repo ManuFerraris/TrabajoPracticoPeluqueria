@@ -1,9 +1,10 @@
 import express, { NextFunction, Request, Response } from 'express';
 
 import { Producto } from './producto/productos.js';
-import { Cliente } from './cliente/clientes.js';
+import { Cliente } from './cliente/clientes.entity.js';
 
 import { peluqueroRouter } from './peluquero/peluquero.routes.js';
+import { clienteRouter } from './cliente/cliente.routes.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -11,8 +12,9 @@ app.use(express.json())//Para que express.json funcione para todos
 ///***PELUQUERO***///
 ///***************///
 
-app.use('/api/peluqueros', peluqueroRouter) //Decimos que use peluqueroRouter para que use todas las peticiones
-                                            //que llegan a esta ruta (definidas en la aplicacion).
+app.use('/api/peluqueros', peluqueroRouter) 
+//Decimos que use peluqueroRouter para que use todas las peticiones
+//que llegan a esta ruta (definidas en la aplicacion).
 app.use('/api/peluqueros/:codigo', peluqueroRouter)
 
 ///***PRODUCTO***///
@@ -90,109 +92,12 @@ app.delete('/api/productos/:codigo', (req, res)=> {
 
 
 ///***CLIENTE***///
-///**************///
+///*************///
+app.use('/api/clientes', clienteRouter)
+app.use('/api/clientes/:codigo', clienteRouter)
 
-//Cliente de prueba para ver si es devuelto
-const clientes: Cliente[] = [
-    new Cliente(
-    45521084,
-    "Jose",
-    "Chavez",
-    "17 y 41 nro 975",
-    "ferrarismanu@gmail.com",
-    "2473448855"
-    ),
-]
-
-function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
-    req.body.sanitizedInput = {
-        dni: req.body.dni,
-        nombre: req.body.nombre,
-        apellido: req.body.apellido,
-        direccion: req.body.direccion,
-        mail: req.body.mail,
-        telefono: req.body.telefono,
-    }
-    //Mas validaciones para la seguridad e integridad de los datos
-    //Para quitar el elemento que no queremos:
-    Object.keys(req.body.sanitizedInput).forEach(key => {
-        if(req.body.sanitizedInput[key] === undefined) {
-            delete req.body.sanitizedInput[key]}
-    })
-    next()
-}
-
-//GET ALL DE CLIENTES
-app.get('/api/clientes', (req, res) => {
-    res.json({data: clientes});
-});
-
-//GET DE CLIENTE
-app.get('/api/clientes/:dni', (req, res ) => {
-    const dni = parseInt(req.params.dni, 10); // Convertir el parámetro dni a número
-    const cliente = clientes.find(cliente => cliente.dni === dni);
-    if(!cliente){
-        return res.status(404).send({ message: 'Cliente no encontrado' }); // Agregué el return aca
-    }
-    res.json({data: cliente})
-});
-
-//POST DE CLIENTE
-app.post('/api/clientes', sanitizeClienteInput, (req, res) => {
-    const input = req.body.sanitizedInput;
-
-    const cliente = new Cliente(
-        parseInt(input.dni, 10),
-        input.nombre,
-        input.apellido,
-        input.direccion,
-        input.mail,
-        input.telefono,
-    )
-    clientes.push(cliente)
-    return res.status(201).send({message: 'Cliente Creado', data: cliente});
-})
-
-//PUT DE CLIENTE
-app.put('/api/clientes/:dni', sanitizeClienteInput,(req, res) => {
-    const dni = parseInt(req.params.dni, 10);
-    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni);
-
-    if (dniClienteIndex === -1) {
-        return res.status(404).send({ message: 'Cliente no encontrado' });
-    }
-
-    // Actualizar los datos del cliente
-    clientes[dniClienteIndex] = {...clientes[dniClienteIndex], ...req.body.sanitizedInput}
-    // Enviar respuesta con el cliente actualizado
-    res.status(200).send({ message: 'Cliente actualizado', data: clientes[dniClienteIndex] });
-});
-
-//PATCH DE CLIENTE
-app.patch('/api/clientes/:dni',sanitizeClienteInput ,(req, res) => {
-    const dni = parseInt(req.params.dni, 10);
-    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni)
-
-    if(dniClienteIndex === -1){ //no lo encontro
-        return res.status(404).send({message: 'Cliente no encontrado' })
-    }
-    Object.assign(clientes[dniClienteIndex], req.body.sanitizedInput)
-    clientes[dniClienteIndex] = {...clientes[dniClienteIndex], ...req.body.sanitizedInput}
-    return res.status(200).send({message:'Cliente actualizado exitosamente', data: clientes[dniClienteIndex]})
-});
-
-//DELETE DE CLIENTE
-app.delete('/api/clientes/:dni', (req, res) => {
-    const dni = parseInt(req.params.dni, 10);
-    const dniClienteIndex = clientes.findIndex(cliente => cliente.dni === dni)
-
-    if(dniClienteIndex===-1){
-        res.status(404).send({message: 'Cliente no encontrado' })
-    } else{
-    clientes.splice(dniClienteIndex,1)
-    res.status(200).send({message: 'Cliente eliminado exitosamente'})
-    }
-});
+///***RESPUESTAS PARA TODAS LAS CRUDS***///
+///*************************************///
 
 app.use((req,res)=>{
     res.status(404).send({message:"Recurso no encontrado"})

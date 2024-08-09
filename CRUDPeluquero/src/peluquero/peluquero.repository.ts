@@ -28,7 +28,7 @@ export class PeluqueroRepository implements repository<Peluquero>{
 
     public update(item: Peluquero): Peluquero | undefined {
         const peluqueroCodigox = peluqueros.findIndex((peluquero) => peluquero.codigo === item.codigo)
-
+        
         if(peluqueroCodigox !== -1){ //no lo encontro
             peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...item}
             return peluqueros[peluqueroCodigox]
