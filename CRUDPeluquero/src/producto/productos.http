@@ -24,5 +24,13 @@ Content-Type: application/json
     "stock": 8
 }
 
+### modificar un producto (PATCH)
+PATCH  http://localhost:3000/api/productos/55
+Content-Type: application/json
+
+{
+    "nombre": "Protector Solar"
+}
+
 ### borrar un producto
-DELETE http://localhost:3000/api/productos/60
+DELETE http://localhost:3000/api/productos/55

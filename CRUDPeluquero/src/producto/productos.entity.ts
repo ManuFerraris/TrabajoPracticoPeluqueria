@@ -1,6 +1,6 @@
 export class Producto{
     constructor(
-        public codigo:string,
+        public codigo:number,
         public nombre:string, 
         public stock:number
     ) {}
