@@ -9,7 +9,7 @@ function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
         nombre: req.body.nombre,
         codigo: req.body.codigo,
-        fechaingreso: req.body.fechaingreso,
+        fecha_Ingreso: req.body.fecha_Ingreso,
         tipo: req.body.tipo,
     }
     //Mas validaciones para la seguridad e integridad de los datos
@@ -44,7 +44,7 @@ async function add(req: Request, res:Response){
     const peluqueroInput = new Peluquero(
         input.nombre,
         parseInt(input.codigo, 10), 
-        new Date(input.fechaingreso),
+        new Date(input.fecha_Ingreso),
         input.tipo)
     const peluquero = await repository.add(peluqueroInput) //lo agregamos al contenido de nuestra coleccion
     return res.status(201).send({message: 'Peluquero Creado', data: peluquero}); //Este states indica que se creo' el recurso.
@@ -53,11 +53,20 @@ async function add(req: Request, res:Response){
 async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
     const input = req.body.sanitizedInput
+
+    // Validacion de fecha antes de pasarla al repositorio
+    if (input.fecha_Ingreso) {
+        const parsedDate = new Date(input.fecha_Ingreso);
+        if (isNaN(parsedDate.getTime())) {
+            return res.status(400).send({ message: 'Invalid date format for fecha_Ingreso' });
+        }
+        input.fecha_Ingreso = parsedDate.toISOString(); // Ajustar formato de fecha si es necesario
+    } 
     input.codigo = codigo
     const peluquero = await repository.update(input)
 
-    if(!peluquero){ //no lo encontro
-        return res.status(404).send({message: 'Peluquero no encontrado' })
+    if (!peluquero) {
+        return res.status(404).send({ message: 'Peluquero no encontrado' });
     }
     return res.status(200).send({message:'Actualizacion exitosa', data: peluquero})
 };
