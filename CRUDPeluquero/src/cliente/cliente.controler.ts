@@ -8,8 +8,7 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
         codigo: req.body.codigo,
         dni: req.body.dni,
-        nombre: req.body.nombre,
-        apellido: req.body.apellido,
+        NomyApe: req.body.NomyApe,
         direccion: req.body.direccion,
         mail: req.body.mail,
         telefono: req.body.telefono,
@@ -41,8 +40,7 @@ function add(req: Request, res:Response){
     const clienteInput = new Cliente(
         parseInt(input.codigo, 10),
         parseInt(input.dni, 10),
-        input.nombre,
-        input.apellido,
+        input.NomyApe,
         input.direccion,
         input.mail,
         input.telefono

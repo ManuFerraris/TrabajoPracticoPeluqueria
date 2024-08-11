@@ -6,8 +6,7 @@ const clientes: Cliente[] = [
     new Cliente(
     45,
     45521084,
-    "Jose",
-    "Chavez",
+    "Jose Chavez",
     "17 y 41 nro 975",
     "ferrarismanu@gmail.com",
     "2473448855"

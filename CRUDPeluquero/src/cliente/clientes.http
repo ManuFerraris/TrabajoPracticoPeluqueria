@@ -11,8 +11,7 @@ Content-Type: application/json
 {
     "codigo": 8,
     "dni": 889944559,
-    "nombre": "Carlos",
-    "apellido": "Potmop",
+    "NomyApe": "Carlos Potmop",
     "direccion": "Calle A 23",
     "mail": "carlitos@example.com",
     "telefono": 2477123456
@@ -25,8 +24,7 @@ Content-Type: application/json
 {
     "codigo":8,
     "dni": 987654321,
-    "nombre": "Martin",
-    "apellido": "Palermo",
+    "NomyApe": "Martin Palermo",
     "direccion": "Brandsen 805",
     "mail": "boca@example.com",
     "telefono": 11666666
@@ -37,9 +35,9 @@ PATCH  http://localhost:3000/api/clientes/45
 Content-Type: application/json
 
 {
-    "nombre": "Cornelio",
+    "NomyApe": "Augusto Navarro",
     "direccion": "Calle 48 entre 20 y 21"
 }
 
 ###Borrar un Cliente
-DELETE http://localhost:3000/api/clientes/45
+DELETE http://localhost:3000/api/clientes/8
