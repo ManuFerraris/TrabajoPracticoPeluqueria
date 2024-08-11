@@ -2,6 +2,7 @@ import express from 'express';
 import { peluqueroRouter } from './peluquero/peluquero.routes.js';
 import { clienteRouter } from './cliente/cliente.routes.js';
 import { productoRouter } from './producto/producto.routes.js';
+import { turnoRouter } from './turno/turno.routes.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -20,6 +21,10 @@ app.use('/api/productos', productoRouter)
 ///***CLIENTE***///
 ///*************///
 app.use('/api/clientes', clienteRouter)
+
+///***TURNO***///
+///***********///
+app.use('/api/turnos', turnoRouter)
 
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///

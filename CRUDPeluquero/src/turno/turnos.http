@@ -1,0 +1,41 @@
+### obtener todos los turnos
+GET http://localhost:3000/api/turnos
+
+### obtener un turno
+GET http://localhost:3000/api/turnos/78
+
+### crear turno
+POST http://localhost:3000/api/turnos
+Content-Type: application/json
+
+{
+    "codigo": 60,
+    "fecha_hora": "2010-05-13T16:00:00.000Z",
+    "tipo_turno": "Sucursal",
+    "porcentaje": 25,
+    "estado": "Activo"
+}
+
+###Modificar un turno (PUT)
+PUT http://localhost:3000/api/turnos/78
+Content-Type: application/json
+
+{
+    "codigo": 90,
+    "fecha_hora": "2010-08-11T00:00:00.000Z",
+    "tipo_turno": "Sucursal",
+    "porcentaje": 25,
+    "estado": "Inactivo"
+}
+
+### modificar Turno (PATCH)
+PATCH  http://localhost:3000/api/turnos/80
+Content-Type: application/json
+
+{
+    "fecha_hora": "20010-06-13T00:15:30.000Z",
+    "tipo_turno": "A domicilio"
+}
+
+###Borrar un Turno
+DELETE http://localhost:3000/api/turnos/78
