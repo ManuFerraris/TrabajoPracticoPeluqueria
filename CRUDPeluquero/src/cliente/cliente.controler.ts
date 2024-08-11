@@ -22,20 +22,20 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
     next()
 }
 
-function findAll(req:Request, res:Response){
-    res.json({data:repository.findAll() })
+async function findAll(req:Request, res:Response){
+    res.json({data:await repository.findAll() })
 };
 
-function getOne(req: Request, res:Response ){
+async function getOne(req: Request, res:Response ){
     const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
-    const cliente = repository.getOne({codigo})
+    const cliente = await repository.getOne({codigo})
     if(!cliente){
         return res.status(404).send({message: 'Cliente no encontrado' }) 
     };
     res.json({data: cliente});
 };
 
-function add(req: Request, res:Response){
+async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
     const clienteInput = new Cliente(
         parseInt(input.codigo, 10),
@@ -45,15 +45,15 @@ function add(req: Request, res:Response){
         input.mail,
         input.telefono
     )
-    const cliente = repository.add(clienteInput) //lo agregamos al contenido de nuestra coleccion
+    const cliente = await repository.add(clienteInput) //lo agregamos al contenido de nuestra coleccion
     return res.status(201).send({message: 'Cliente Creado', data: cliente}); //Este states indica que se creo el recurso.
 };
 
-function update(req: Request, res: Response){
+async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
     const input = req.body.sanitizedInput
     input.codigo = codigo
-    const cliente = repository.update(input)
+    const cliente = await repository.update(input)
 
     if(!cliente){ //no lo encontro
         return res.status(404).send({message: 'Cliente no encontrado' })
@@ -61,9 +61,9 @@ function update(req: Request, res: Response){
     return res.status(200).send({message:'Actualizacion exitosa', data: cliente})
 };
 
-function remove(req: Request, res: Response){
+async function remove(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
-    const cliente = repository.delete({codigo})
+    const cliente = await repository.delete({codigo})
 
     if(!cliente){
         res.status(404).send({message: 'Cliente no encontrado' })

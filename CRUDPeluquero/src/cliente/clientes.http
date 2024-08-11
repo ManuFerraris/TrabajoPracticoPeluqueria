@@ -22,7 +22,7 @@ PUT http://localhost:3000/api/clientes/45
 Content-Type: application/json
 
 {
-    "codigo":8,
+    "codigo":45,
     "dni": 987654321,
     "NomyApe": "Martin Palermo",
     "direccion": "Brandsen 805",

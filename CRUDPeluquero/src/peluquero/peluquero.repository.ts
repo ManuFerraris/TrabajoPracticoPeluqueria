@@ -13,21 +13,21 @@ const peluqueros: Peluquero[] = [
 
 export class PeluqueroRepository implements repository<Peluquero>{
 
-    public findAll(): Peluquero[] | undefined {
-        return peluqueros
+    public async findAll(): Promise<Peluquero[] | undefined>{
+        return await peluqueros
     }
 
-    public getOne(item: { codigo: number; }): Peluquero | undefined {
-        return peluqueros.find((peluquero)=> peluquero.codigo === item.codigo)
+    public async getOne(item: { codigo: number; }): Promise<Peluquero | undefined> {
+        return await peluqueros.find((peluquero)=> peluquero.codigo === item.codigo)
     }
 
-    public add(item: Peluquero): Peluquero | undefined {
-        peluqueros.push(item)
+    public async add(item: Peluquero): Promise<Peluquero | undefined> {
+        await peluqueros.push(item)
         return item
     }
 
-    public update(item: Peluquero): Peluquero | undefined {
-        const peluqueroCodigox = peluqueros.findIndex((peluquero) => peluquero.codigo === item.codigo)
+    public async update(item: Peluquero): Promise<Peluquero | undefined> {
+        const peluqueroCodigox = await peluqueros.findIndex((peluquero) => peluquero.codigo === item.codigo)
         
         if(peluqueroCodigox !== -1){ //no lo encontro
             peluqueros[peluqueroCodigox] = {...peluqueros[peluqueroCodigox], ...item}
@@ -35,8 +35,8 @@ export class PeluqueroRepository implements repository<Peluquero>{
     }return undefined; // Devuelve undefined si no se encuentra el peluquero
     }
 
-    public delete(item: { codigo: number; }): Peluquero | undefined {
-        const peluqueroCodigox = peluqueros.findIndex(peluquero => peluquero.codigo === item.codigo)
+    public async delete(item: { codigo: number; }): Promise<Peluquero | undefined> {
+        const peluqueroCodigox = await peluqueros.findIndex(peluquero => peluquero.codigo === item.codigo)
 
         if(peluqueroCodigox !== -1){
             const deletedPeluqueros = peluqueros[peluqueroCodigox]

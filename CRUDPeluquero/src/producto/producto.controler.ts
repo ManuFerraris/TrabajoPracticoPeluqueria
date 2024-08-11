@@ -4,7 +4,7 @@ import { Producto } from "./productos.entity.js";
 
 const repository = new ProductoRepository()
 
-function sanitizeProductoInput(req:Request, res:Response, next:NextFunction){
+async function sanitizeProductoInput(req:Request, res:Response, next:NextFunction){
     req.body.sanitizedInput = {
         codigo: req.body.codigo,
         nombre: req.body.nombre,
@@ -17,20 +17,20 @@ function sanitizeProductoInput(req:Request, res:Response, next:NextFunction){
     next()
 }
 
-function findAll(req: Request, res:Response){
-    res.json({data:repository.findAll() });
+async function findAll(req: Request, res:Response){
+    res.json({data: await repository.findAll() });
 }
 
-function getOne(req:Request, res:Response){
+async function getOne(req:Request, res:Response){
     const codigo = parseInt(req.params.codigo, 10);
-    const producto = repository.getOne({codigo})
+    const producto = await repository.getOne({codigo})
     if(!producto){
         return res.status(404).send({message: 'Producto no encontrado' }) 
     };
     res.json({data: producto});
 };
 
-function add(req: Request, res:Response){
+async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
 
     const productoInput = new Producto(
@@ -38,15 +38,15 @@ function add(req: Request, res:Response){
         parseInt(input.codigo, 10),
         input.nombre, 
         input.stock)
-    const producto = repository.add(productoInput) 
+    const producto = await repository.add(productoInput) 
     return res.status(201).send({message: 'Producto Creado', data: producto});
 };
 
-function update(req: Request, res: Response){
+async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
     const input = req.body.sanitizedInput
     input.codigo = codigo
-    const producto = repository.update(input)
+    const producto = await repository.update(input)
 
     if(!producto){
         return res.status(404).send({message: 'Producto no encontrado' })
@@ -54,9 +54,9 @@ function update(req: Request, res: Response){
     return res.status(200).send({message:'Actualizacion exitosa', data: producto})
 };
 
-function remove(req: Request, res: Response){
+async function remove(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
-    const producto = repository.delete({codigo})
+    const producto = await repository.delete({codigo})
 
     if(!producto){
         res.status(404).send({message: 'Producto no encontrado' })

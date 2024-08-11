@@ -11,21 +11,21 @@ const productos: Producto[] = [
 
 export class ProductoRepository implements repository<Producto>{
 
-    public findAll(): Producto[] | undefined {
-        return productos
+    public async findAll(): Promise<Producto[] | undefined> {
+        return await productos
     }
 
-    public getOne(item: { codigo: number; }): Producto | undefined {
-        return productos.find((producto)=> producto.codigo === item.codigo)
+    public async getOne(item: { codigo: number; }): Promise<Producto | undefined> {
+        return await productos.find((producto)=> producto.codigo === item.codigo)
     }
 
-    public add(item: Producto): Producto | undefined {
-        productos.push(item)
+    public async add(item: Producto): Promise<Producto | undefined> {
+        await productos.push(item)
         return item
     }
 
-    public update(item: Producto): Producto | undefined {
-        const productoCodx = productos.findIndex((producto) => producto.codigo === item.codigo)
+    public async update(item: Producto): Promise<Producto | undefined> {
+        const productoCodx = await productos.findIndex((producto) => producto.codigo === item.codigo)
         
         if(productoCodx !== -1){
             productos[productoCodx] = {...productos[productoCodx], ...item}
@@ -33,8 +33,8 @@ export class ProductoRepository implements repository<Producto>{
     }return undefined;
     }
 
-    public delete(item: { codigo: number; }): Producto | undefined {
-        const productoCodx = productos.findIndex(producto => producto.codigo === item.codigo)
+    public async delete(item: { codigo: number; }): Promise<Producto | undefined> {
+        const productoCodx = await productos.findIndex(producto => producto.codigo === item.codigo)
 
         if(productoCodx !== -1){
             const deletedproductos = productos[productoCodx]

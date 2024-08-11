@@ -21,13 +21,13 @@ function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
     next()
 }
 
-function findAll(req: Request, res:Response){
-    res.json({data:repository.findAll() }); //Enviamos la lista de peluqueros como respuesta
+async function findAll(req: Request, res:Response){
+    res.json({data: await repository.findAll() }); //Enviamos la lista de peluqueros como respuesta
 }
 
-function getOne(req:Request, res:Response){
+async function getOne(req:Request, res:Response){
     const codigo = parseInt(req.params.codigo, 10); // Convertimos req.params.codigo a número
-    const peluquero = repository.getOne({codigo})
+    const peluquero = await repository.getOne({codigo})
     if(!peluquero){
         return res.status(404).send({message: 'Peluquero no encontrado' }) 
     };
@@ -35,7 +35,7 @@ function getOne(req:Request, res:Response){
 };
 
 //Debemos incluir un middleware para que forme req.body y pasar toda la informacion hacia el app.post
-function add(req: Request, res:Response){
+async function add(req: Request, res:Response){
     //info disponible dentro de la req.body
     const input = req.body.sanitizedInput
 
@@ -46,15 +46,15 @@ function add(req: Request, res:Response){
         parseInt(input.codigo, 10), 
         new Date(input.fechaingreso),
         input.tipo)
-    const peluquero = repository.add(peluqueroInput) //lo agregamos al contenido de nuestra coleccion
+    const peluquero = await repository.add(peluqueroInput) //lo agregamos al contenido de nuestra coleccion
     return res.status(201).send({message: 'Peluquero Creado', data: peluquero}); //Este states indica que se creo' el recurso.
 };
 
-function update(req: Request, res: Response){
+async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
     const input = req.body.sanitizedInput
     input.codigo = codigo
-    const peluquero = repository.update(input)
+    const peluquero = await repository.update(input)
 
     if(!peluquero){ //no lo encontro
         return res.status(404).send({message: 'Peluquero no encontrado' })
@@ -62,9 +62,9 @@ function update(req: Request, res: Response){
     return res.status(200).send({message:'Actualizacion exitosa', data: peluquero})
 };
 
-function remove(req: Request, res: Response){
+async function remove(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
-    const peluquero = repository.delete({codigo})
+    const peluquero = await repository.delete({codigo})
 
     if(!peluquero){
         res.status(404).send({message: 'Peluquero no encontrado' })

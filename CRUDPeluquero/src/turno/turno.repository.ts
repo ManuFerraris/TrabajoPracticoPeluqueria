@@ -12,21 +12,21 @@ const turnos: Turno[] = [
 ]
 
 export class TurnoRepository implements repository<Turno>{
-    public findAll(): Turno[] | undefined {
-        return turnos
+    public async findAll(): Promise<Turno[] | undefined> {
+        return await turnos
     }
 
-    public getOne(item: { codigo: number; }): Turno | undefined {
-        return turnos.find((turno)=> turno.codigo === item.codigo)
+    public async getOne(item: { codigo: number; }): Promise<Turno | undefined> {
+        return await turnos.find((turno)=> turno.codigo === item.codigo)
     }
 
-    public add(item: Turno): Turno | undefined {
-        turnos.push(item)
+    public async add(item: Turno): Promise<Turno | undefined> {
+        await turnos.push(item)
         return item
     }
 
-    public update(item: Turno): Turno | undefined {
-        const codigoTurnoIndex = turnos.findIndex((turno) => turno.codigo === item.codigo);
+    public async update(item: Turno): Promise<Turno | undefined> {
+        const codigoTurnoIndex = await turnos.findIndex((turno) => turno.codigo === item.codigo);
 
         if(codigoTurnoIndex !== -1){ //no lo encontro
             turnos[codigoTurnoIndex] = {...turnos[codigoTurnoIndex], ...item}
@@ -34,8 +34,8 @@ export class TurnoRepository implements repository<Turno>{
     }return undefined;
     }
 
-    public delete(item: { codigo: number; }): Turno | undefined {
-        const codigoTurnoIndex = turnos.findIndex(turno => turno.codigo === item.codigo)
+    public async delete(item: { codigo: number; }): Promise<Turno | undefined> {
+        const codigoTurnoIndex = await turnos.findIndex(turno => turno.codigo === item.codigo)
 
         if(codigoTurnoIndex !== -1){
             const deletedTurnos = turnos[codigoTurnoIndex]

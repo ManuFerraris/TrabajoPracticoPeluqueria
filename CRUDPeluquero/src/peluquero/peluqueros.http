@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/peluqueros
 
 ### obtener un peluquero
-GET http://localhost:3000/api/peluqueros/10
+GET http://localhost:3000/api/peluqueros/88
 
 ### crear nuevo peluquero
 POST http://localhost:3000/api/peluqueros

@@ -19,20 +19,20 @@ function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     next()
 }
 
-function findAll(req:Request, res:Response){
-    res.json({data:repository.findAll() })
+async function findAll(req:Request, res:Response){
+    res.json({data:await repository.findAll() })
 };
 
-function getOne(req: Request, res:Response ){
+async function getOne(req: Request, res:Response ){
     const codigo = parseInt(req.params.codigo, 10);
-    const turno = repository.getOne({codigo})
+    const turno = await repository.getOne({codigo})
     if(!turno){
         return res.status(404).send({message: 'Turno no encontrado' }) 
     };
     res.json({data: turno});
 };
 
-function add(req: Request, res:Response){
+async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
     const turnoInput = new Turno(
         parseInt(input.codigo, 10),
@@ -41,15 +41,15 @@ function add(req: Request, res:Response){
         input.porcentaje,
         input.estado
     )
-    const turno = repository.add(turnoInput)
+    const turno = await repository.add(turnoInput)
     return res.status(201).send({message: 'Turno Creado', data: turno});
 };
 
-function update(req: Request, res: Response){
+async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
     const input = req.body.sanitizedInput
     input.codigo = codigo
-    const turno = repository.update(input)
+    const turno = await repository.update(input)
 
     if(!turno){ //no lo encontro
         return res.status(404).send({message: 'Turno no encontrado' })
@@ -57,9 +57,9 @@ function update(req: Request, res: Response){
     return res.status(200).send({message:'Actualizacion exitosa', data: turno})
 };
 
-function remove(req: Request, res: Response){
+async function remove(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10);
-    const turno = repository.delete({codigo})
+    const turno = await repository.delete({codigo})
 
     if(!turno){
         res.status(404).send({message: 'Turno no encontrado' })

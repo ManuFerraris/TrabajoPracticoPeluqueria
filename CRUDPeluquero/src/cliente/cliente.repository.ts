@@ -15,21 +15,21 @@ const clientes: Cliente[] = [
 
 export class ClienteRepository implements repository<Cliente>{
 
-    public findAll(): Cliente[] | undefined {
-        return clientes
+    public async findAll(): Promise<Cliente[] | undefined> {
+        return await clientes
     }
 
-    public getOne(item: { codigo: number; }): Cliente | undefined {
-        return clientes.find((cliente)=> cliente.codigo === item.codigo)
+    public async getOne(item: { codigo: number; }): Promise<Cliente | undefined> {
+        return await clientes.find((cliente)=> cliente.codigo === item.codigo)
     }
 
-    public add(item: Cliente): Cliente | undefined {
-        clientes.push(item)
+    public async add(item: Cliente): Promise<Cliente | undefined> {
+        await clientes.push(item)
         return item
     }
 
-    public update(item: Cliente): Cliente | undefined {
-        const codigoClienteIndex = clientes.findIndex((cliente) => cliente.codigo === item.codigo);
+    public async update(item: Cliente): Promise<Cliente | undefined> {
+        const codigoClienteIndex = await clientes.findIndex((cliente) => cliente.codigo === item.codigo);
 
         if(codigoClienteIndex !== -1){ //no lo encontro
             clientes[codigoClienteIndex] = {...clientes[codigoClienteIndex], ...item}
@@ -37,8 +37,8 @@ export class ClienteRepository implements repository<Cliente>{
     }return undefined; // Devuelve undefined si no se encuentra el peluquero
     }
 
-    public delete(item: { codigo: number; }): Cliente | undefined {
-        const codigoClienteIndex = clientes.findIndex(clientes => clientes.codigo === item.codigo)
+    public async delete(item: { codigo: number; }): Promise<Cliente | undefined> {
+        const codigoClienteIndex = await clientes.findIndex(clientes => clientes.codigo === item.codigo)
 
         if(codigoClienteIndex !== -1){
             const deletedClientes = clientes[codigoClienteIndex]
