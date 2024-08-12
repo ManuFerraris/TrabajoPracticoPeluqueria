@@ -7,6 +7,8 @@ const repository = new TurnoRepository()
 function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
         codigo: req.body.codigo,
+        codigo_pel:req.body.codigo_pel,
+        codigo_cli:req.body.codigo_cli,
         fecha_hora: req.body.fecha_hora,
         tipo_turno: req.body.tipo_turno,
         porcentaje: req.body.porcentaje,
@@ -36,6 +38,8 @@ async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
     const turnoInput = new Turno(
         parseInt(input.codigo, 10),
+        parseInt(input.codigo_pel, 10),
+        parseInt(input.codigo_cli, 10),
         input.fecha_hora,
         input.tipo_turno,
         input.porcentaje,
