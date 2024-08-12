@@ -4,7 +4,7 @@ export class Cliente {
         public dni: number,
         public NomyApe: string,
         public direccion: string,
-        public mail: string,
+        public email: string,
         public telefono: string
     ) {}
 }

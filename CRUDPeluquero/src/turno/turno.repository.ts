@@ -9,9 +9,10 @@ const turnos: Turno[] = [
         25,
         'Activo'
     ),
-]
+] 
 
 export class TurnoRepository implements repository<Turno>{
+    
     public async findAll(): Promise<Turno[] | undefined> {
         return await turnos
     }

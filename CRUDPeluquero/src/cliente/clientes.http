@@ -2,27 +2,25 @@
 GET http://localhost:3000/api/clientes
 
 ### obtener un cliente
-GET http://localhost:3000/api/clientes/45
+GET http://localhost:3000/api/clientes/1
 
 ### crear cliente
 POST http://localhost:3000/api/clientes
 Content-Type: application/json
 
 {
-    "codigo": 8,
     "dni": 889944559,
     "NomyApe": "Carlos Potmop",
     "direccion": "Calle A 23",
-    "mail": "carlitos@example.com",
+    "email": "carlitos@example.com",
     "telefono": 2477123456
 }
 
 ### modificar cliente (PUT)
-PUT http://localhost:3000/api/clientes/45
+PUT http://localhost:3000/api/clientes/2
 Content-Type: application/json
 
 {
-    "codigo":45,
     "dni": 987654321,
     "NomyApe": "Martin Palermo",
     "direccion": "Brandsen 805",
@@ -31,7 +29,7 @@ Content-Type: application/json
 }
 
 ### modificar Cliente (PATCH - recurso PARCIAL)
-PATCH  http://localhost:3000/api/clientes/45
+PATCH  http://localhost:3000/api/clientes/2
 Content-Type: application/json
 
 {
@@ -40,4 +38,4 @@ Content-Type: application/json
 }
 
 ###Borrar un Cliente
-DELETE http://localhost:3000/api/clientes/8
+DELETE http://localhost:3000/api/clientes/2

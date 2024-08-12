@@ -10,7 +10,7 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
         dni: req.body.dni,
         NomyApe: req.body.NomyApe,
         direccion: req.body.direccion,
-        mail: req.body.mail,
+        email: req.body.email,
         telefono: req.body.telefono,
     }
     //Mas validaciones para la seguridad e integridad de los datos
@@ -19,7 +19,7 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
         if(req.body.sanitizedInput[key] === undefined) {
             delete req.body.sanitizedInput[key]}
     })
-    next()
+    next() 
 }
 
 async function findAll(req:Request, res:Response){
@@ -37,12 +37,13 @@ async function getOne(req: Request, res:Response ){
 
 async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
+
     const clienteInput = new Cliente(
         parseInt(input.codigo, 10),
         parseInt(input.dni, 10),
         input.NomyApe,
         input.direccion,
-        input.mail,
+        input.email,
         input.telefono
     )
     const cliente = await repository.add(clienteInput) //lo agregamos al contenido de nuestra coleccion
@@ -53,6 +54,7 @@ async function update(req: Request, res: Response){
     const codigo = parseInt(req.params.codigo, 10); // Convertir el parámetro codigo a número
     const input = req.body.sanitizedInput
     input.codigo = codigo
+    
     const cliente = await repository.update(input)
 
     if(!cliente){ //no lo encontro
