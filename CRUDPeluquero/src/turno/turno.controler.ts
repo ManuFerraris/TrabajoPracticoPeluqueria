@@ -1,14 +1,19 @@
 import { Request, Response, NextFunction} from "express";
 import { TurnoRepository } from "./turno.repository.js";
 import { Turno } from "./turno.entity.js";
+import { PeluqueroRepository } from "../peluquero/peluquero.repository.js";
+import { ClienteRepository } from "../cliente/cliente.repository.js";
 
 const repository = new TurnoRepository()
+const peluqueroRepository = new PeluqueroRepository() //Instanciar el repositorio peluquero
+const clienteRepository = new ClienteRepository()     //Instanciar el repositorio cliente
+
 
 function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
         codigo: req.body.codigo,
-        codigo_pel:req.body.codigo_pel,
-        codigo_cli:req.body.codigo_cli,
+        codigo_peluquero:req.body.codigo_peluquero,
+        codigo_cliente:req.body.codigo_cliente,
         fecha_hora: req.body.fecha_hora,
         tipo_turno: req.body.tipo_turno,
         porcentaje: req.body.porcentaje,
@@ -36,11 +41,34 @@ async function getOne(req: Request, res:Response ){
 
 async function add(req: Request, res:Response){
     const input = req.body.sanitizedInput
+
+    // Validar la existencia del peluquero
+    const cod_pel = parseInt(input.codigo_peluquero, 10)
+    const peluqueroExistente = await peluqueroRepository.getOne({ codigo: cod_pel });
+    if (!peluqueroExistente) {
+        return res.status(404).send({ message: 'Peluquero no encontrado' });
+    }
+
+    // Validar la existencia del cliente
+    const cod_cli =parseInt(input.codigo_cliente, 10)
+    const clienteExistente = await clienteRepository.getOne({ codigo: cod_cli });
+    if (!clienteExistente) {
+        return res.status(404).send({ message: 'Cliente no encontrado' });
+    }
+
+    // Validar el formato de la fecha
+    const fechaHora = new Date(input.fecha_hora);
+    if (isNaN(fechaHora.getTime())) {
+        return res.status(400).send({ message: 'Formato de fecha no válido' });
+    }
+    // Convertir la fecha al formato YYYY-MM-DD HH:MM:SS
+    const fechaHoraFormateada = fechaHora.toISOString().slice(0, 19).replace('T', ' ');
+
     const turnoInput = new Turno(
         parseInt(input.codigo, 10),
-        parseInt(input.codigo_pel, 10),
-        parseInt(input.codigo_cli, 10),
-        input.fecha_hora,
+        parseInt(input.codigo_peluquero, 10),
+        parseInt(input.codigo_cliente, 10),
+        fechaHoraFormateada,
         input.tipo_turno,
         input.porcentaje,
         input.estado
@@ -50,15 +78,27 @@ async function add(req: Request, res:Response){
 };
 
 async function update(req: Request, res: Response){
-    const codigo = parseInt(req.params.codigo, 10);
-    const input = req.body.sanitizedInput
-    input.codigo = codigo
-    const turno = await repository.update(input)
+    try {
+        const codigo = parseInt(req.params.codigo, 10);
+        const input = req.body.sanitizedInput;
+        input.codigo = codigo;
+        const turno = await repository.update(input); // Llamar al método update en el repositorio
 
-    if(!turno){ //no lo encontro
-        return res.status(404).send({message: 'Turno no encontrado' })
+        if (!turno) { // No se encontró el turno para actualizar
+            return res.status(404).send({ message: 'Turno no encontrado' });
+        }
+
+        // Devolver respuesta exitosa
+        return res.status(200).send({ message: 'Actualización exitosa', data: turno });
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error al actualizar el turno:', error.message);
+            return res.status(400).send({ message: error.message });
+        } else {
+            console.error('Error inesperado al actualizar el turno:', error);
+            return res.status(500).send({ message: 'Error inesperado' });
+        }
     }
-    return res.status(200).send({message:'Actualizacion exitosa', data: turno})
 };
 
 async function remove(req: Request, res: Response){

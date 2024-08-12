@@ -2,17 +2,18 @@
 GET http://localhost:3000/api/turnos
 
 ### obtener un turno
-GET http://localhost:3000/api/turnos/78
+GET http://localhost:3000/api/turnos/1
 
 ### crear turno
 POST http://localhost:3000/api/turnos
 Content-Type: application/json
 
 {
-    "codigo": 60,
+    "codigo_peluquero": 1,
+    "codigo_cliente": 1,
     "fecha_hora": "2010-05-13T16:00:00.000Z",
     "tipo_turno": "Sucursal",
-    "porcentaje": 25,
+    "porcentaje": 0,
     "estado": "Activo"
 }
 
