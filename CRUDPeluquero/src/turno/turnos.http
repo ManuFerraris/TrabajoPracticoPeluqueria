@@ -5,12 +5,12 @@ GET http://localhost:3000/api/turnos
 GET http://localhost:3000/api/turnos/1
 
 ### crear turno
-POST http://localhost:3000/api/turnos
+POST http://localhost:3000/api/turnos/3
 Content-Type: application/json
 
 {
     "codigo_peluquero": 1,
-    "codigo_cliente": 1,
+    "codigo_cliente": 2,
     "fecha_hora": "2010-05-13T16:00:00.000Z",
     "tipo_turno": "Sucursal",
     "porcentaje": 0,
@@ -18,25 +18,28 @@ Content-Type: application/json
 }
 
 ###Modificar un turno (PUT)
-PUT http://localhost:3000/api/turnos/78
+PUT http://localhost:3000/api/turnos/3
 Content-Type: application/json
 
 {
-    "codigo": 90,
-    "fecha_hora": "2010-08-11T00:00:00.000Z",
-    "tipo_turno": "Sucursal",
+    "codigo_peluquero": 1,
+    "codigo_cliente": 3,
+    "fecha_hora": "2010-05-14T16:00:00.000Z",
+    "tipo_turno": "A domicilio",
     "porcentaje": 25,
-    "estado": "Inactivo"
+    "estado": "Incactivo"
 }
 
 ### modificar Turno (PATCH)
-PATCH  http://localhost:3000/api/turnos/80
+PATCH  http://localhost:3000/api/turnos/3
 Content-Type: application/json
 
 {
-    "fecha_hora": "20010-06-13T00:15:30.000Z",
-    "tipo_turno": "A domicilio"
+    "codigo_peluquero": 1,
+    "codigo_cliente": 3,
+    "fecha_hora": "2010-05-13T16:00:00.000Z",
+    "estado": "Activo"
 }
 
 ###Borrar un Turno
-DELETE http://localhost:3000/api/turnos/78
+DELETE http://localhost:3000/api/turnos/3

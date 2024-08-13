@@ -1,0 +1,44 @@
+### obtener todos los costos
+GET http://localhost:3000/api/costos
+
+### obtener un costo
+GET http://localhost:3000/api/costos/1
+
+### crear costo
+POST http://localhost:3000/api/costos/
+Content-Type: application/json
+
+{
+    "codigo_turno": 1, 
+    "monto": 8000.00,
+    "estado": "Activo",
+    "adicional_adom": 0,
+    "ausencia_cliente": "No",
+    "medio_pago": "Mercado Pago"
+}
+
+###Modificar un costo (PUT)
+PUT http://localhost:3000/api/costos/4
+Content-Type: application/json
+
+{
+    "codigo_turno": 1, 
+    "monto": 6000.00,
+    "estado": "Inactivo",
+    "adicional_adom": 0,
+    "ausencia_cliente": "No",
+    "medio_pago": "Efectivo"
+}
+
+### modificar costo (PATCH)
+PATCH  http://localhost:3000/api/costos/3
+Content-Type: application/json
+
+{
+    "monto": 10000.00,
+    "estado": "Pendiente",
+    "adicional_adom": 2000.00
+}
+
+###Borrar un costo
+DELETE http://localhost:3000/api/costos/3
