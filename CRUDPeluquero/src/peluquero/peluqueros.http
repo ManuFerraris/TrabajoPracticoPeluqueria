@@ -15,22 +15,14 @@ Content-Type: application/json
 }
 
 ### modificar peluquero (PUT - recurso completo e idempotente)
-PUT http://localhost:3000/api/peluqueros/2
+PUT http://localhost:3000/api/peluqueros/4
 Content-Type: application/json
 
 {
     "nombre": "Maria Gutierrez",
     "fecha_Ingreso": "2008-02-26T00:00:00Z",
-    "tipo": ["Sucursal"]
-}
-
-### modificar peluquero (PATCH - recurso PARCIAL)
-PATCH  http://localhost:3000/api/peluqueros/2
-Content-Type: application/json
-
-{
-    "nombre": "Marcelo Tevez"
+    "tipo": "Sucursal"
 }
 
 ###Borrar un Peluquero
-DELETE http://localhost:3000/api/peluqueros/3
+DELETE http://localhost:3000/api/peluqueros/2

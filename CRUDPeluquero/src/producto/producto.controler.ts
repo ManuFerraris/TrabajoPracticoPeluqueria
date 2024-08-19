@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+/*import { Request, Response, NextFunction } from "express";
 import { ProductoRepository } from "./producto.repository.js";
 import { Producto } from "./productos.entity.js";
 
@@ -65,4 +65,4 @@ async function remove(req: Request, res: Response){
     }
 };
 
-export {sanitizeProductoInput, findAll, getOne, add, update, remove}
+export {sanitizeProductoInput, findAll, getOne, add, update, remove}*/

@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { sanitizeClienteInput, findAll, getOne, add, update, remove} from "./cliente.controler.js";
+import { findAll, getOne, add, update, remove} from "./cliente.controler.js";
 
 export const clienteRouter = Router()
 
 clienteRouter.get('/', findAll)
-clienteRouter.get('/:codigo', getOne)
-clienteRouter.post('/', sanitizeClienteInput, add)
-clienteRouter.put('/:codigo', sanitizeClienteInput, update)
-clienteRouter.patch('/:codigo', sanitizeClienteInput, update)
-clienteRouter.delete('/:codigo', remove)
+clienteRouter.get('/:codigo_cliente', getOne)
+clienteRouter.post('/', add)
+clienteRouter.put('/:codigo_cliente', update)
+clienteRouter.delete('/:codigo_cliente', remove)

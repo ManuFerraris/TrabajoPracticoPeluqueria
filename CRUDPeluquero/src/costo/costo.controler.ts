@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+/*import { Request, Response, NextFunction } from "express";
 import { CostoRepository } from "./costo.repository.js"; 
 import { Costo } from "./costo.entity.js";
 
@@ -94,4 +94,4 @@ async function remove(req: Request, res: Response){
     }
 };
 
-export {sanitizeCostoInput, findAll, getOne, add, update, remove}
+export {sanitizeCostoInput, findAll, getOne, add, update, remove}*/

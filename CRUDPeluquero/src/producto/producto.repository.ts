@@ -1,4 +1,4 @@
-import { repository } from "../shared/repository.js";
+/*import { repository } from "../shared/repository.js";
 import { Producto } from "./productos.entity.js";
 
 const productos: Producto[] = [
@@ -42,4 +42,4 @@ export class ProductoRepository implements repository<Producto>{
             return deletedproductos
         }
     }
-}
+}*/

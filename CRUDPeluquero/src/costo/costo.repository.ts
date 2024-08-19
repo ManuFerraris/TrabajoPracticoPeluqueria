@@ -1,4 +1,4 @@
-import { repository } from "../shared/repository.js";
+/*import { repository } from "../shared/repository.js";
 import { Costo } from "./costo.entity.js";
 import { pool } from "../shared/db/conn.mysql.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -102,4 +102,4 @@ export class CostoRepository implements repository <Costo>{
             throw new Error(`Incapaz de eliminar el costo: ${error.message}`);
         }
     }
-}
+}*/
