@@ -1,4 +1,4 @@
-export class Costo{
+export class Servicio{
     constructor(
         public codigo: number,
         public codigo_turno:number, //FK del turno
