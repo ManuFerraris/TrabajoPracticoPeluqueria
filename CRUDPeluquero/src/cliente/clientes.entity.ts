@@ -1,5 +1,6 @@
-import { Entity, Property, OneToMany, Collection, PrimaryKey } from "@mikro-orm/core"
+import { Entity, Property, OneToMany, Collection, PrimaryKey, ManyToOne,Rel } from "@mikro-orm/core"
 import { Turno } from "../turno/turno.entity.js"
+import { Localidad } from "../localidad/localidad.entity.js";
 
 @Entity()
 export class Cliente{
@@ -24,4 +25,7 @@ export class Cliente{
 
     @OneToMany(() => Turno, turno => turno.cliente)
     turnos = new Collection<Turno>(this);
+
+    @ManyToOne(() => Localidad, { nullable: true })
+    localidad!: Rel<Localidad>;
 }

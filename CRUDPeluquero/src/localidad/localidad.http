@@ -1,0 +1,32 @@
+###Obtener todas las localidades
+GET http://localhost:3000/api/localidades
+
+###Obtener una localidad
+GET http://localhost:3000/api/localidades/1
+
+###Dar de alta una Localidad
+POST http://localhost:3000/api/localidades
+Content-Type: application/json
+
+{
+    "nombre": "Pergamino",
+    "provincia": "Buenos Aires",
+    "codigo_postal": "perruno",
+    "pais": "Argentina",
+    "descripcion": "Tenemos el arroyo mas contaminado del pais"
+}
+
+###Actualizar localidad
+PUT http://localhost:3000/api/localidades/1
+Content-Type: application/json
+
+{
+    "nombre": "Colon",
+    "provincia": "Buenos Aires",
+    "codigo_postal": "2720",
+    "pais": "Argentina",
+    "descripcion": "Capital del Mate y hogar del unico Faro Pampeano"
+}
+
+###Eliminar localidad
+DELETE http://localhost:3000/api/localidades/3

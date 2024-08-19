@@ -4,11 +4,12 @@ import { MySqlDriver } from "@mikro-orm/mysql"; //Driver necesario para conectar
 import { Peluquero } from "../../peluquero/peluqueros.entity.js";
 import { Cliente } from "../../cliente/clientes.entity.js";
 import { Turno } from "../../turno/turno.entity.js";
+import { Localidad } from "../../localidad/localidad.entity.js";
 
 
 
 export const orm = await MikroORM.init({
-    entities: [Cliente, Turno, Peluquero],
+    entities: [Cliente, Turno, Peluquero, Localidad],
     entitiesTs: ['src/**/*.entity.ts'],
     dbName: 'peluqueria',
     driver: MySqlDriver, // Usamos la propiedad 'driver' en lugar de 'type'

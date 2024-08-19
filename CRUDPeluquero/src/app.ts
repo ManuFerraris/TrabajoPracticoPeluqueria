@@ -6,6 +6,7 @@ import { RequestContext } from '@mikro-orm/core';
 import { clienteRouter } from './cliente/cliente.routes.js';
 //import { productoRouter } from './producto/producto.routes.js';
 import { turnoRouter } from './turno/turno.routes.js';
+import { localidadRouter } from './localidad/localidad.routes.js';
 //import { costoRouter } from './costo/costo.routes.js';
 
 const app = express() //app va a ser del tipo express
@@ -16,6 +17,8 @@ app.use((req, res, next) => {
     RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
 })
 //Antes de las rutas y middlewares de negocio
+
+
 
 ///***PELUQUERO***///
 ///***************///
@@ -41,6 +44,10 @@ app.use('/api/turnos', turnoRouter)
 ///***********///
 //app.use('/api/costos', costoRouter)
 
+
+///***LOCALIDAD***///
+///**************///
+app.use('/api/localidades', localidadRouter)
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///
