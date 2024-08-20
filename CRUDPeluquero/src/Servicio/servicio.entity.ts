@@ -1,27 +1,30 @@
-import { Entity, Property, OneToOne, Rel, PrimaryKey } from "@mikro-orm/core";
+import { Entity, Property, OneToOne, OneToMany, Rel, PrimaryKey, Collection } from "@mikro-orm/core";
 import { Turno } from "../turno/turno.entity.js";
+import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
 
 @Entity()
-export class Servicio{
+export class Servicio {
     @PrimaryKey()
     codigo!: number;
 
-    @Property({nullable:false})
-    monto!:number;
+    @Property({ nullable: false })
+    monto!: number;
 
-    @Property({nullable:false})
+    @Property({ nullable: false })
     estado!: string;
 
-    @Property({nullable:true})
+    @Property({ nullable: true })
     adicional_adom!: number;
 
-    @Property({nullable:true})
+    @Property({ nullable: true })
     ausencia_cliente!: string;
 
-    @Property({nullable:false})
-    medio_pago!: string
+    @Property({ nullable: false })
+    medio_pago!: string;
 
-    @OneToOne(() => Turno, turno => turno.servicio, { owner: true, nullable:true })
+    @OneToOne(() => Turno, turno => turno.servicio, { owner: true, nullable: true })
     turno!: Rel<Turno>;
-    
+
+    @OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)
+    tiposServicios = new Collection<TipoServicio>(this);
 }

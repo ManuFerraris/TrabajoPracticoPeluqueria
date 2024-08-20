@@ -1,0 +1,32 @@
+### obtener todos los tipos de servicio
+GET http://localhost:3000/api/tiposervicio
+
+### obtener un tipo de servicio
+GET http://localhost:3000/api/tiposervicio/1
+
+### crear tipo de servicio
+POST http://localhost:3000/api/tiposervicio
+Content-Type: application/json
+
+{
+    "nombre": "Corte de cabello",
+    "descripcion": "Corte de cabello básico",
+    "duracion_estimada": 30,
+    "precio_base": 25.00,
+    "servicio_codigo": 1
+}
+
+### modificar cliente (PUT)
+PUT http://localhost:3000/api/clientes/7
+Content-Type: application/json
+
+{
+    "nombre": "Corte de cabello",
+    "descripcion": "Corte de cabello básico",
+    "duracion_estimada": 30,
+    "precio_base": 25.00,
+    "servicio_codigo": 1
+}
+
+###Borrar un Cliente
+DELETE http://localhost:3000/api/clientes/3

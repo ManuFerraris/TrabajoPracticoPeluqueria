@@ -8,6 +8,7 @@ import { clienteRouter } from './cliente/cliente.routes.js';
 import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
+import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -48,6 +49,11 @@ app.use('/api/servicios', servicioRouter)
 ///***LOCALIDAD***///
 ///**************///
 app.use('/api/localidades', localidadRouter)
+
+
+///***TIPO SERVICIO***///
+///*******************///
+app.use('/api/tiposervicio', tipoServicioRouter);
 
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
