@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/turnos
 
 ### obtener un turno
-GET http://localhost:3000/api/turnos/1
+GET http://localhost:3000/api/turnos/4
 
 ### crear turno
 POST http://localhost:3000/api/turnos
@@ -13,12 +13,13 @@ Content-Type: application/json
     "tipo_turno": "Sucursal",
     "porcentaje": 0,
     "estado": "Inactivo",
-    "codigo_cliente": 9,
-    "codigo_peluquero": 9
+    "codigo_cliente": 7,
+    "codigo_peluquero": 1,
+    "servicio": 1
 }
 
 ###Modificar un turno (PUT)
-PUT http://localhost:3000/api/turnos/3
+PUT http://localhost:3000/api/turnos/4
 Content-Type: application/json
 
 {

@@ -1,11 +1,27 @@
+import { Entity, Property, OneToOne, Rel, PrimaryKey } from "@mikro-orm/core";
+import { Turno } from "../turno/turno.entity.js";
+
+@Entity()
 export class Servicio{
-    constructor(
-        public codigo: number,
-        public codigo_turno:number, //FK del turno
-        public monto:number,
-        public estado: string,
-        public adicional_adom: number,
-        public ausencia_cliente: string,
-        public medio_pago: string
-    ){}
+    @PrimaryKey()
+    codigo!: number;
+
+    @Property({nullable:false})
+    monto!:number;
+
+    @Property({nullable:false})
+    estado!: string;
+
+    @Property({nullable:true})
+    adicional_adom!: number;
+
+    @Property({nullable:true})
+    ausencia_cliente!: string;
+
+    @Property({nullable:false})
+    medio_pago!: string
+
+    @OneToOne(() => Turno, turno => turno.servicio, { owner: true, nullable:true })
+    turno!: Rel<Turno>;
+    
 }

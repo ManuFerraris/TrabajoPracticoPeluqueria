@@ -7,7 +7,7 @@ import { clienteRouter } from './cliente/cliente.routes.js';
 //import { productoRouter } from './producto/producto.routes.js';
 import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
-//import { costoRouter } from './costo/costo.routes.js';
+import { servicioRouter } from './Servicio/servicio.routes.js';
 
 const app = express() //app va a ser del tipo express
 app.use(express.json())//Para que express.json funcione para todos 
@@ -40,14 +40,15 @@ app.use('/api/clientes', clienteRouter)
 app.use('/api/turnos', turnoRouter)
 
 
-///***COSTO***///
+///***SERVICIO***///
 ///***********///
-//app.use('/api/costos', costoRouter)
+app.use('/api/servicios', servicioRouter)
 
 
 ///***LOCALIDAD***///
 ///**************///
 app.use('/api/localidades', localidadRouter)
+
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///

@@ -1,30 +1,32 @@
-import { Entity, Property, ManyToOne, Rel, PrimaryKey } from "@mikro-orm/core";
+import { Entity, Property, ManyToOne, Rel, PrimaryKey, OneToOne } from "@mikro-orm/core";
 import { Cliente } from "../cliente/clientes.entity.js";
 import { Peluquero } from "../peluquero/peluqueros.entity.js";
-
-
+import { Servicio } from "../Servicio/servicio.entity.js";
 
 @Entity()
-export class Turno{
+export class Turno {
 
     @PrimaryKey()
-    codigo_turno!:number;
+    codigo_turno!: number;
 
-    @Property({nullable: false})
+    @Property({ nullable: false })
     fecha_hora!: string;
 
-    @Property({nullable: false})
+    @Property({ nullable: false })
     tipo_turno!: string;
     
-    @Property({nullable: true})
+    @Property({ nullable: true })
     porcentaje!: number;
 
-    @Property({nullable: false})
-    estado!: string
+    @Property({ nullable: false })
+    estado!: string;
 
-    @ManyToOne(() => Cliente, {nullable: false})
+    @ManyToOne(() => Cliente, { nullable: false })
     cliente!: Rel<Cliente>;
 
-    @ManyToOne(() => Peluquero, {nullable: false})
+    @ManyToOne(() => Peluquero, { nullable: false })
     peluquero!: Rel<Peluquero>;
+
+    @OneToOne(() => Servicio, servicio => servicio.turno, { nullable:true })
+    servicio!: Rel<Servicio>;
 }
