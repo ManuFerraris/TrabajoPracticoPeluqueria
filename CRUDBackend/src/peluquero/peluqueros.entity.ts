@@ -10,7 +10,7 @@ export class Peluquero{
     @Property({ nullable: false })
     nombre!: string;
 
-    @Property({ nullable: false })
+    @Property({type: 'date', nullable: false })
     fecha_Ingreso!: Date;
 
     @Property({ nullable: false })

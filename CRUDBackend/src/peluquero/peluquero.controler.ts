@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { orm } from "../shared/db/orm.js"
 import { Peluquero } from "./peluqueros.entity.js"
+import { Turno } from "../turno/turno.entity.js"
 
 const em = orm.em
 
@@ -31,13 +32,26 @@ async function getOne(req:Request, res:Response){  //FUNCIONAL
     }
 };
 
-async function add(req: Request, res:Response){ //FUNCIONAL
-    try{
-        const peluquero = em.create(Peluquero, req.body)
-        await em.flush()
-        res.status(201).json({message: 'Peluquero creado', data: peluquero})
-    }catch(error:any){
-        res.status(500).json({message: error.message})
+async function add(req: Request, res:Response){ //REVISAR
+    try {
+        const { nombre, fecha_Ingreso, tipo } = req.body;
+        // Validación de campos
+        if (!nombre || !fecha_Ingreso || !tipo) {
+            return res.status(400).json({ message: 'Todos los campos son requeridos' });
+        }
+        if (isNaN(Date.parse(fecha_Ingreso))) {
+            return res.status(400).json({ message: 'Fecha de ingreso inválida' });
+        }
+        const peluquero = new Peluquero()
+        peluquero.nombre = nombre,
+        peluquero.fecha_Ingreso = new Date(fecha_Ingreso),
+        peluquero.tipo = tipo
+
+        em.persist(peluquero);
+        await em.flush();
+        res.status(201).json({ message: 'Peluquero creado', data: peluquero });
+    }catch(error: any) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -69,11 +83,14 @@ async function remove(req: Request, res: Response){
         }
         const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
         if(!peluquero){
-            res.status(404).json({ message: 'Peluquero no encontrado' })
-        } else{
-            await em.removeAndFlush(peluquero)
-            res.status(200).json({message: 'Peluquero borrado Exitosamente'})
+            return res.status(404).json({ message: 'Peluquero no encontrado' })
+        } 
+        const turnos = await em.find(Turno, { peluquero });
+        if (turnos.length > 0) {
+            return res.status(400).json({ message: 'No se puede eliminar el peluquero porque tiene turnos asignados' });
         }
+        await em.removeAndFlush(peluquero)
+        res.status(200).json({message: 'Peluquero borrado Exitosamente'})
     }catch(error:any){
         res.status(500).json({message: error.message})
     }

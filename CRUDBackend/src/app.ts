@@ -9,8 +9,10 @@ import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
+import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
+app.use(cors()); // Habilita CORS para todas las rutas
 app.use(express.json())//Para que express.json funcione para todos 
 
 //luego de los middleware base
