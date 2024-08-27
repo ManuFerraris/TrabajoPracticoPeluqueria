@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express';
 import { peluqueroRouter } from './peluquero/peluquero.routes.js';
 import { orm, syncSchema } from './shared/db/orm.js';
 import { RequestContext } from '@mikro-orm/core';
@@ -60,9 +60,18 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///
+
+// Middleware para manejar errores 404
 app.use((req,res)=>{
     res.status(404).send({message:"Recurso no encontrado"})
 })
+
+
+// Middleware para manejar errores internos del servidor
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Error interno del servidor', details: err.message });
+});
 
 //Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
 app.use('/',(req, res) => {

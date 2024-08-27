@@ -1,3 +1,6 @@
-Anotaciones necesarias:
-    ->
-    ->
+Anotaciones necesarias (Frontend):
+    -> Hay que mejorar el feedback del frontend de peluquero
+    -> Realizar validaciones a la hora de ingresar datos
+    -> Poner mensajes aclaratorios sobre que se esta haciendo mal
+    -> Reestructurar la crud del Peluquero para una mejor organizacion [✓]
+    -> 
