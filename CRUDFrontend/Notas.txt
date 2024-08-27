@@ -3,4 +3,8 @@ Anotaciones necesarias (Frontend):
     -> Realizar validaciones a la hora de ingresar datos
     -> Poner mensajes aclaratorios sobre que se esta haciendo mal
     -> Reestructurar la crud del Peluquero para una mejor organizacion [✓]
-    -> 
+    -> Terminar de estructurar parcialmente el Frontend [✓]
+
+    -> 1.Crear las CRUDs de Localidad -> Cliente, Servicio y luego Turno, ultimo TipoServicio
+    -> 2.Organizar las paginas (menu o lo que sea)
+    -> 3.Pensar el frontend para que el cliente saque su turno

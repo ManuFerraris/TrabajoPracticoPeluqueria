@@ -13,7 +13,6 @@ const PeluqueroPage = () => {
 
     const fetchPeluqueros = async () => {
         const data = await getAllPeluqueros();
-        console.log(data);
         setPeluqueros(data);
     };
 
