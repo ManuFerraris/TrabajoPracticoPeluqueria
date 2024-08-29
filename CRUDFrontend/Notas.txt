@@ -1,10 +1,16 @@
 Anotaciones necesarias (Frontend):
-    -> Hay que mejorar el feedback del frontend de peluquero
-    -> Realizar validaciones a la hora de ingresar datos
-    -> Poner mensajes aclaratorios sobre que se esta haciendo mal
-    -> Reestructurar la crud del Peluquero para una mejor organizacion [✓]
-    -> Terminar de estructurar parcialmente el Frontend [✓]
+    []-> Hay que mejorar el feedback del frontend de peluquero. 
+    []-> Realizar validaciones a la hora de ingresar datos. 
+    []-> Poner mensajes aclaratorios sobre que se esta haciendo mal. 
+    [✓]-> Reestructurar la crud del Peluquero para una mejor organizacion 
+    [✓]-> Terminar de estructurar parcialmente el Frontend 
+    []-> Buscar Pel/Tur/Cli por ID. 
+    []-> Eatablecer nevegacion entre las paginas. 
+    []-> Enviar mail al cliente para que sepa de la asignacion del turno y sus datos. 
+    []-> Ver API de MP para que el cliente pueda pagar. 
+    []-> Agregar contraseña del cliente.
 
-    -> 1.Crear las CRUDs de Localidad -> Cliente, Servicio y luego Turno, ultimo TipoServicio
-    -> 2.Organizar las paginas (menu o lo que sea)
-    -> 3.Pensar el frontend para que el cliente saque su turno
+    []-> 1.Crear las CRUDs de Localidad -> Cliente, Servicio y luego Turno, ultimo TipoServicio.
+    []-> 2.Organizar las paginas (menu o lo que sea). 
+    []-> 3.Pensar el frontend para que el cliente saque su turno. 
+    []-> 
