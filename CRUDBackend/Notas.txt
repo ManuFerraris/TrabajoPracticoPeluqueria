@@ -1,6 +1,5 @@
 Anotaciones necesarias (Backend):
-    -> Realizar todas las validaciones necesarias en las CRUDS
-    -> Determinar si el peluquero necesita mas atributos
-    -> Poner mensajes aclaratorios sobre lo qus esta ocurriendo
-    -> 
-    -> 
+    []-> Realizar todas las validaciones necesarias en las CRUDS
+    []-> Poner mensajes aclaratorios sobre lo que esta ocurriendo
+    []-> Manejo de errores (Todos)
+    []-> 
