@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react'; //Hook que permite hacer efectos secundarios en componentes funcionales (lo usamos para carga y actualizacion de datos).
-                                                    //Hook que permite gestionar el estado local dentro de un componente funcional.
-import 'bootstrap/dist/css/bootstrap.min.css';      //Importa el archovo CDD de bootstrap, nosotros usamos.
-import Axios from 'axios'; //Biblioteca para hacer peticiones HTTP, (conecta el Front con el Back)
-//FALTAN IMPORTACIONES DEL SERVIE PARA MODULARIZAR
+import React, { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Axios from 'axios';
 
-function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqueros
-    const [peluqueros, setPeluqueros] = useState([]); // Lista de Peluqueros
-    const [loading, setLoading] = useState(true); //Estado que indica que los datos se estan cargando
-    const [error, setError] = useState(null); //Cualquier error que ocurra durante la carga de datos.
-    const [errors, setErrors] = useState({}); //Errores de validacion del formulario.
+function PeluqueroList() {
+    const [peluqueros, setPeluqueros] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [errors, setErrors] = useState({});
     const [nombre, setNombre] = useState(''); 
     const [fecha_Ingreso, setFechaIngreso] = useState('');
     const [tipo, setTipo] = useState('');
-    const [editar, setEditar] = useState(false); //Indica si esta en modo de edicion
-    const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState(null); //Indica el pekuquero que se selecciono
+    const [editar, setEditar] = useState(false);
+    const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState(null);
+    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
 
-    useEffect(() => { //Se ejecuta cuando el componente se monta por primera vez, hace una peticion a la API y obtiene la lista de peluqueros
+    useEffect(() => {
         const fetchPeluqueros = async () => {
             try {
                 const response = await fetch('http://localhost:3000/api/peluqueros');
@@ -33,15 +32,15 @@ function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqu
         fetchPeluqueros();
     }, []);
 
-    useEffect(() => { //Actualiza los campos del peluquero seleccionado
+    useEffect(() => {
         if (peluqueroSeleccionado) {
             setNombre(peluqueroSeleccionado.nombre || '');
             setFechaIngreso(peluqueroSeleccionado.fecha_Ingreso || '');
             setTipo(peluqueroSeleccionado.tipo || '');
         }
     }, [peluqueroSeleccionado]);
- 
-    const getPeluqueros = async () => { //Hace la peticion GET a la API
+
+    const getPeluqueros = async () => {
         try {
             const response = await Axios.get('http://localhost:3000/api/peluqueros');
             const peluqueros = response.data.data;
@@ -54,7 +53,7 @@ function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqu
         }
     };
 
-    const validateForm = () => { //Valida los datos ingresados al formulario
+    const validateForm = () => {
         const errors = {};
         const today = new Date().toISOString().split('T')[0];
 
@@ -79,7 +78,7 @@ function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqu
         return errors;
     };
 
-    const handleSubmit = async (e) => { //Maneja el envio del formulario, validando los datos y enviandolos a la API (Para el PUT o POST)
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
@@ -94,14 +93,14 @@ function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqu
                     fecha_Ingreso: new Date(fecha_Ingreso).toISOString().split('T')[0],
                     tipo: tipo
                 });
-                alert('Peluquero Actualizado');
+                setAlerta({ tipo: 'success', mensaje: 'Peluquero Actualizado' });
             } else {
                 await Axios.post('http://localhost:3000/api/peluqueros', {
                     nombre: nombre,
                     fecha_Ingreso: new Date(fecha_Ingreso).toISOString().split('T')[0],
                     tipo: tipo
                 });
-                alert('Peluquero Registrado');
+                setAlerta({ tipo: 'success', mensaje: 'Peluquero Registrado' });
             }
             getPeluqueros();
             setNombre("");
@@ -111,122 +110,132 @@ function PeluqueroList() { //Maneja la logica y renderizacion de la lista peluqu
             setEditar(false);
         } catch (error) {
             console.error('Error al guardar el peluquero:', error);
-            alert('Error al guardar el peluquero');
+            setAlerta({ tipo: 'danger', mensaje: 'Error al guardar el peluquero' });
         }
     };
 
     const eliminarPeluquero = (codigo_peluquero) => {
         const confirmar = window.confirm(`¿Estás seguro de que deseas eliminar el peluquero con código ${codigo_peluquero}?`);
         if (confirmar) {
-            console.log('Eliminando peluquero con código:', codigo_peluquero);
             Axios.delete(`http://localhost:3000/api/peluqueros/${codigo_peluquero}`)
                 .then(() => {
                     getPeluqueros();
-                    alert('Peluquero Eliminado');
+                    setAlerta({ tipo: 'success', mensaje: 'Peluquero Eliminado' });
                 })
                 .catch(error => {
                     console.error('Error al eliminar el peluquero:', error);
-                    alert('Error al eliminar el peluquero');
+                    setAlerta({ tipo: 'danger', mensaje: 'Error al eliminar el peluquero' });
                 });
         } else {
             console.log('Eliminación cancelada por el usuario.');
         }
     };
 
-    //Renderizado condicional
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="container">
-            <div className="card">
-                
-                <div className="card-header">
-                    GESTION DE PELUQUEROS
+        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
+            <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
+                <div className="card-header text-center bg-primary text-white">
+                    <h3>Gestión de Peluqueros</h3>
                 </div>
-
-                <div className="card-body">
-                    <form onSubmit={handleSubmit}>
-
-                        <div className="input-group mb-3">
-                            <span className="input-group-text" id="basic-addon1">Nombre y Apellido:</span>
-                            <input type="text"
-                                onChange={(event) => setNombre(event.target.value)}
-                                className="form-control" value={nombre || ""} placeholder="Nombre y Apellido" aria-label="Nombre y Apellido" aria-describedby="basic-addon1" />
-                            {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
-                        </div>
-
-                        <div className="input-group mb-3">
-                            <span className="input-group-text" id="basic-addon1">Fecha de Ingreso:</span>
-                            <input type="date"
-                                onChange={(event) => setFechaIngreso(event.target.value)}
-                                className="form-control" value={fecha_Ingreso || ""} aria-label="Fecha de Ingreso" aria-describedby="basic-addon1" />
-                            {errors.fecha_Ingreso && <div className="text-danger">{errors.fecha_Ingreso}</div>}
-                        </div>
-
-                        <div className="input-group mb-3">
-                            <span className="input-group-text" id="basic-addon1">Tipo:</span>
-                            <select
-                                className="form-select"
-                                onChange={(event) => setTipo(event.target.value)}
-                                value={tipo || ""}
-                                aria-label="Tipo">
-                                <option value="">Seleccione su tipo</option>
-                                <option value="Domicilio">Domicilio</option>
-                                <option value="Sucursal">Sucursal</option>
-                            </select>
-                            {errors.tipo && <div className="text-danger">{errors.tipo}</div>}
-                        </div>
-
-                        <div>
-                            {
-                                editar ?
-                                    <div>
-                                        <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                        <button type="button" className='btn btn-info m-2' onClick={() => setEditar(false)}>Cancelar</button>
-                                    </div>
-                                    :
-                                    <button type="submit" className='btn btn-success'>Registrar</button>
-                            }
-                        </div>
-
-                    </form>
+    
+                <div className="card-body d-flex flex-column" style={{ maxHeight: 'calc(100vh - 100px)', overflow: 'hidden' }}>
+                    <div className="form-container" style={{ padding: '20px', boxSizing: 'border-box' }}>
+                        <form onSubmit={handleSubmit}>
+                            <div className="row mb-3">
+                                <div className="col-md-6">
+                                    <label className="form-label">Nombre y Apellido:</label>
+                                    <input
+                                        type="text"
+                                        onChange={(event) => setNombre(event.target.value)}
+                                        className="form-control"
+                                        value={nombre || ""}
+                                        placeholder="Nombre y Apellido"
+                                    />
+                                    {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
+                                </div>
+                                <div className="col-md-6">
+                                    <label className="form-label">Fecha de Ingreso:</label>
+                                    <input
+                                        type="date"
+                                        onChange={(event) => setFechaIngreso(event.target.value)}
+                                        className="form-control"
+                                        value={fecha_Ingreso || ""}
+                                    />
+                                    {errors.fecha_Ingreso && <div className="text-danger">{errors.fecha_Ingreso}</div>}
+                                </div>
+                            </div>
+    
+                            <div className="row mb-3">
+                                <div className="col-md-6">
+                                    <label className="form-label">Tipo:</label>
+                                    <select
+                                        className="form-select"
+                                        onChange={(event) => setTipo(event.target.value)}
+                                        value={tipo || ""}
+                                    >
+                                        <option value="">Seleccione su tipo</option>
+                                        <option value="Domicilio">Domicilio</option>
+                                        <option value="Sucursal">Sucursal</option>
+                                    </select>
+                                    {errors.tipo && <div className="text-danger">{errors.tipo}</div>}
+                                </div>
+                            </div>
+    
+                            <div className="text-center">
+                                {
+                                    editar ?
+                                        <div>
+                                            <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                        </div>
+                                        :
+                                        <button type="submit" className='btn btn-success'>Registrar</button>
+                                }
+                            </div>
+                        </form>
+                    </div>
+    
+                    <div className="table-container" style={{ flex: 1, overflowY: 'auto', marginTop: '20px' }}>
+                        <table className="table table-hover">
+                            <thead className="table-primary sticky-top">
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Nombre y Apellido</th>
+                                    <th scope="col">Fecha de Ingreso</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    peluqueros.map(val => (
+                                        <tr key={val.codigo_peluquero}>
+                                            <th>{val.codigo_peluquero}</th>
+                                            <td>{val.nombre}</td>
+                                            <td>{new Date(val.fecha_Ingreso).toLocaleDateString()}</td>
+                                            <td>{val.tipo}</td>
+                                            <td>
+                                                <button className="btn btn-primary btn-sm" onClick={() => { setPeluqueroSeleccionado(val); setEditar(true); }}>Editar</button>
+                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarPeluquero(val.codigo_peluquero)}>Eliminar</button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div className="card-footer text-muted"></div>
             </div>
-
-            <table className="table table-striped mt-3">
-
-                <thead>
-                    <tr>
-                        <th scope="col">Codigo</th>
-                        <th scope="col">Nombre y Apellido</th>
-                        <th scope="col">Fecha de Ingreso</th>
-                        <th scope="col">Tipo</th>
-                        <th scope="col">ACCIONES</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {
-                        peluqueros.map(val => (
-                            <tr key={val.codigo_peluquero}>
-                                <th>{val.codigo_peluquero}</th>
-                                <td>{val.nombre}</td>
-                                <td>{val.fecha_Ingreso}</td>
-                                <td>{val.tipo}</td>
-                                <td>
-                                    <div className="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" onClick={() => { setPeluqueroSeleccionado(val); setEditar(true); }} className="btn btn-info">Editar</button>
-                                        <button type="button" onClick={() => eliminarPeluquero(val.codigo_peluquero)} className="btn btn-danger">Eliminar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))
-                    }
-                </tbody>
-
-            </table>
+    
+            {alerta.mensaje && (
+                <div className={`alert alert-${alerta.tipo} alert-dismissible fade show`} role="alert" style={{ position: 'fixed', bottom: '0', width: '100%', zIndex: 1050 }}>
+                    {alerta.mensaje}
+                    <button type="button" className="btn-close" onClick={() => setAlerta({ tipo: '', mensaje: '' })}></button>
+                </div>
+            )}
         </div>
     );
 }
