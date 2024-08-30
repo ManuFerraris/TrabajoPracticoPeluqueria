@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 function PeluqueroList() {
     const [peluqueros, setPeluqueros] = useState([]);
@@ -85,7 +87,7 @@ function PeluqueroList() {
             setErrors(validationErrors);
             return;
         }
-
+    
         try {
             if (editar) {
                 await Axios.put(`http://localhost:3000/api/peluqueros/${peluqueroSeleccionado.codigo_peluquero}`, {
@@ -93,14 +95,26 @@ function PeluqueroList() {
                     fecha_Ingreso: new Date(fecha_Ingreso).toISOString().split('T')[0],
                     tipo: tipo
                 });
-                setAlerta({ tipo: 'success', mensaje: 'Peluquero Actualizado' });
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Actualización exitosa',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             } else {
                 await Axios.post('http://localhost:3000/api/peluqueros', {
                     nombre: nombre,
                     fecha_Ingreso: new Date(fecha_Ingreso).toISOString().split('T')[0],
                     tipo: tipo
                 });
-                setAlerta({ tipo: 'success', mensaje: 'Peluquero Registrado' });
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Peluquero registrado',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
             getPeluqueros();
             setNombre("");
@@ -110,26 +124,89 @@ function PeluqueroList() {
             setEditar(false);
         } catch (error) {
             console.error('Error al guardar el peluquero:', error);
-            setAlerta({ tipo: 'danger', mensaje: 'Error al guardar el peluquero' });
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al guardar el peluquero.',
+                confirmButtonText: 'Aceptar',
+                position: 'center'
+            });
         }
     };
 
     const eliminarPeluquero = (codigo_peluquero) => {
-        const confirmar = window.confirm(`¿Estás seguro de que deseas eliminar el peluquero con código ${codigo_peluquero}?`);
-        if (confirmar) {
-            Axios.delete(`http://localhost:3000/api/peluqueros/${codigo_peluquero}`)
-                .then(() => {
-                    getPeluqueros();
-                    setAlerta({ tipo: 'success', mensaje: 'Peluquero Eliminado' });
-                })
-                .catch(error => {
-                    console.error('Error al eliminar el peluquero:', error);
-                    setAlerta({ tipo: 'danger', mensaje: 'Error al eliminar el peluquero' });
+        // Realiza una consulta para verificar si el peluquero tiene un turno asignado
+        Axios.get(`http://localhost:3000/api/turnos?codigo_peluquero=${codigo_peluquero}`)
+            .then(response => {
+                console.log('Respuesta de la API de turnos:', response.data);
+                const turnosAsignados = response.data;
+    
+                if (turnosAsignados.length > 0) {
+                    // Si el peluquero tiene turnos asignados, mostrar alerta y detener eliminación
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se puede eliminar',
+                        text: `No se puede eliminar el peluquero con código ${codigo_peluquero} porque tiene turnos asignados.`,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.log('Turnos asignados encontrados:', turnosAsignados);
+                } else {
+                    // Si no tiene turnos asignados, proceder con la eliminación
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'No podrás revertir esta acción',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, eliminarlo'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Axios.delete(`http://localhost:3000/api/peluqueros/${codigo_peluquero}`)
+                                .then(() => {
+                                    getPeluqueros();
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Eliminado',
+                                        text: 'El peluquero ha sido eliminado con éxito.',
+                                        confirmButtonText: 'Aceptar'
+                                    });
+                                    console.log('Peluquero eliminado con éxito.');
+                                })
+                                .catch(error => {
+                                    console.error('Error al eliminar el peluquero:', error);
+                                    // Verifica si el error tiene un mensaje específico
+                                    if (error.response && error.response.data && error.response.data.message) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: error.response.data.message,
+                                            confirmButtonText: 'Aceptar'
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'Error al eliminar el peluquero',
+                                            confirmButtonText: 'Aceptar'
+                                        });
+                                    }
+                                });
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al verificar los turnos del peluquero:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al verificar los turnos del peluquero',
+                    confirmButtonText: 'Aceptar'
                 });
-        } else {
-            console.log('Eliminación cancelada por el usuario.');
-        }
+            });
     };
+
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;

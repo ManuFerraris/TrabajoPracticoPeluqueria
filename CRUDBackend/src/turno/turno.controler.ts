@@ -27,7 +27,7 @@ async function findAll(req:Request, res:Response){ //FUNCIONAL
     try{
         const turno = await em.find(Turno, {}, { populate: ['cliente', 'peluquero']})
         if(!turno){
-            res.status(404).json({message: 'No hay turnos cargados'})
+            return res.status(404).json({message: 'No hay turnos cargados'})
         }
         res.status(200).json({message:'Todos los turnos encontados', data: turno})
     }catch(error:any){
@@ -45,7 +45,7 @@ async function getOne(req: Request, res:Response ){ //FUNCIONAL
         if (!turno) {
             return res.status(404).json({ message: 'Turno no encontrado' });
         }
-        res.status(201).json({message:'Turno encontrado', data:turno})
+        res.status(200).json({message:'Turno encontrado', data:turno})
     }catch(error:any){
         res.status(500).json({ message: error.message })
     }
