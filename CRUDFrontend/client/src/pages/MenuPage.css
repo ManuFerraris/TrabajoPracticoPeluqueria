@@ -1,0 +1,22 @@
+.menu-container {
+    background-color: #6a0dad; /* Fondo morado */
+    padding: 20px;
+    border-radius: 15px;
+}
+
+h1 {
+    color: #ffffff; /* Texto blanco para el título */
+}
+
+.card {
+    background-color: #f8f9fa; /* Fondo claro para las tarjetas */
+    border-radius: 10px;
+}
+
+.card-title {
+    color: #333333; /* Color oscuro para el título de la tarjeta */
+}
+
+.card-text {
+    color: #555555; /* Color gris para el texto de la tarjeta */
+}
