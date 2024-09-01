@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Localidad } from "./localidad.entity.js";
+import { Cliente } from "../cliente/clientes.entity.js";
 
 const em = orm.em
 
@@ -70,11 +71,15 @@ async function remove(req: Request, res: Response){
         }
         const localidad = await em.findOne(Localidad, { codigo });
         if(!localidad){
-            res.status(404).json({ message: 'Localidad no encontrada' })
-        } else{
-            await em.removeAndFlush(localidad)
-            res.status(200).json({message: 'Localidad eliminada'})
+            return res.status(404).json({ message: 'Localidad no encontrada' })
         }
+        const clientes = await em.find(Cliente, { localidad });
+        if (clientes.length > 0) {
+            return res.status(400).json({ message: 'No se puede eliminar la localidad porque tiene clientes asignados' });
+        }
+        await em.removeAndFlush(localidad)
+        res.status(200).json({message: 'Localidad eliminada'})
+        
     }catch(error:any){
         res.status(500).json({message: error.message})
     }
