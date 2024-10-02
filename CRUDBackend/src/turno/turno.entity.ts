@@ -14,7 +14,7 @@ export class Turno {
 
     @Property({ nullable: false })
     tipo_turno!: string;
-    
+
     @Property({ nullable: true })
     porcentaje!: number;
 
@@ -27,6 +27,6 @@ export class Turno {
     @ManyToOne(() => Peluquero, { nullable: false })
     peluquero!: Rel<Peluquero>;
 
-    @OneToOne(() => Servicio, servicio => servicio.turno, { nullable:true })
+    @OneToOne(() => Servicio, servicio => servicio.turno, { nullable: true, orphanRemoval: true })
     servicio!: Rel<Servicio>;
 }

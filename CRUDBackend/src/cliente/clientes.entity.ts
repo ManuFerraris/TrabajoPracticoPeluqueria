@@ -9,7 +9,7 @@ export class Cliente{
     codigo_cliente!:number;
 
     @Property({nullable: false})
-    dni!: number;
+    dni!: string;
 
     @Property({nullable: false})
     NomyApe!: string;

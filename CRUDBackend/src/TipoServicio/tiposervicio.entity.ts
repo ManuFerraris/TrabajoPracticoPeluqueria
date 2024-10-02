@@ -3,7 +3,7 @@ import { Servicio } from "../Servicio/servicio.entity.js";
 
 @Entity()
 export class TipoServicio {
-    
+
     @PrimaryKey()
     codigo_tipo!: number;
 
@@ -20,6 +20,6 @@ export class TipoServicio {
     precio_base?: number;
 
     // Relación ManyToOne con Servicio
-    @ManyToOne(() => Servicio, { nullable: false })
-    servicio!: Rel<Servicio>;
+    @ManyToOne(() => Servicio, { nullable: true })
+    servicio!: Rel<Servicio>; 
 }
