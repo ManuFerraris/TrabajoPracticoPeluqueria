@@ -22,7 +22,7 @@ export class Servicio {
     @Property({ nullable: false })
     medio_pago!: string;
 
-    @OneToOne(() => Turno, turno => turno.servicio, { owner: true, nullable: true })
+    @OneToOne(() => Turno, {nullable: false})
     turno!: Rel<Turno>;
 
     @OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)

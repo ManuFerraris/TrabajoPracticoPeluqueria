@@ -27,6 +27,6 @@ export class Turno {
     @ManyToOne(() => Peluquero, { nullable: false })
     peluquero!: Rel<Peluquero>;
 
-    @OneToOne(() => Servicio, servicio => servicio.turno, { nullable:true })
+    @OneToOne(() => Servicio, servicio => servicio.turno, { nullable: true, orphanRemoval: true })
     servicio!: Rel<Servicio>;
 }

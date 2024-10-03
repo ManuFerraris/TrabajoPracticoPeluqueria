@@ -20,6 +20,6 @@ export class TipoServicio {
     precio_base?: number;
 
     // Relación ManyToOne con Servicio
-    @ManyToOne(() => Servicio, { nullable: false })
+    @ManyToOne(() => Servicio, { nullable: true })
     servicio!: Rel<Servicio>;
 }
