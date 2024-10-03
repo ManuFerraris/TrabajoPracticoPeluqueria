@@ -1,6 +1,3 @@
-import { Entity, PrimaryKey, Property, ManyToOne, Rel } from "@mikro-orm/core";
-import { Servicio } from "../Servicio/servicio.entity.js";
-
 @Entity()
 export class TipoServicio {
 
@@ -21,5 +18,5 @@ export class TipoServicio {
 
     // Relación ManyToOne con Servicio
     @ManyToOne(() => Servicio, { nullable: true })
-    servicio!: Rel<Servicio>; 
+    servicio!: Rel<Servicio>;
 }

@@ -19,3 +19,4 @@ export class Peluquero{
     @OneToMany(() => Turno, turno => turno.peluquero)
     turnos = new Collection<Turno>(this);
 }
+//Queda igual

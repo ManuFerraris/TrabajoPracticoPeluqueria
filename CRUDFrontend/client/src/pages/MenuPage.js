@@ -9,6 +9,7 @@ const MenuPage = () => {
         <Container className="menu-container d-flex flex-column justify-content-center align-items-center min-vh-100">
             <h1 className="text-white mb-4">Bienvenido al Sistema de Gestión de Peluqueria</h1>
             <Row className="justify-content-center">
+
                 <Col xs={12} sm={6} md={4} className="mb-4">
                     <Card className="text-center">
                         <Card.Body>
@@ -18,6 +19,7 @@ const MenuPage = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+                
                 <Col xs={12} sm={6} md={4} className="mb-4">
                     <Card className="text-center">
                         <Card.Body>
@@ -27,6 +29,17 @@ const MenuPage = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+
+                <Col xs={12} sm={6} md={4} className="mb-4">
+                    <Card className="text-center">
+                        <Card.Body>
+                            <Card.Title>Alta Tipo de Servicio</Card.Title>
+                            <Card.Text>Administra los tipos de servicios disponibles.</Card.Text>
+                            <Button variant="primary" onClick={() => navigate('/tiposervicio')}>Ir al Alta Tipo de servicio</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
             </Row>
         </Container>
     );

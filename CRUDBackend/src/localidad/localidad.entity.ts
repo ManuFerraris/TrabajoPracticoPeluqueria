@@ -25,3 +25,4 @@ export class Localidad {
     clientes = new Collection<Cliente>(this);
 
 }
+//Queda igual

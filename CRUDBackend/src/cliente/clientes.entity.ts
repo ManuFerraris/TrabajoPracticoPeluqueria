@@ -29,3 +29,4 @@ export class Cliente{
     @ManyToOne(() => Localidad, { nullable: true })
     localidad!: Rel<Localidad>;
 }
+//Queda igual
