@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
 import { Localidad } from "../localidad/localidad.entity.js";
+import { Turno } from "../turno/turno.entity.js";
 
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
 
@@ -21,6 +22,38 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
     })
     next()
 }
+//Funciones para validar:
+//----------------------//
+function validarTelefono(telefono:string) {
+    const regex = /^+?[0-9]{10,15}$/; // Solo números y opcionalmente el símbolo +
+
+    if (telefono.length < 10 || telefono.length > 15) {
+      return false; // Longitud inválida
+    }
+
+    if (!regex.test(telefono)) {
+      return false; // Formato inválido
+    }
+
+    return true; // Teléfono válido
+}
+
+function validarDni(dni: string): boolean {
+    return dni.length >= 7 && dni.length <= 8;
+}
+
+function validarNomyApe(NomyApe: string): boolean {
+    return NomyApe.length <= 40;
+}
+
+function validarEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validarDireccion(direccion: string): boolean {
+    return direccion.length <= 80;
+}
 
 async function findAll(req:Request, res:Response){  //FUNCIONAL
     try{
@@ -37,7 +70,7 @@ async function getOne(req: Request, res:Response ){  //FUNCIONAL
         if (isNaN(codigo_cliente)) {// Verifica si el parámetro es un número válido
             return res.status(400).json({ message: 'Código de cliente inválido' });
         }
-        // Buscar el cliente usando `findOne` en lugar de `findOneOrFail`
+        // Buscar el cliente usando findOne en lugar de findOneOrFail
         const cliente = await em.findOne(Cliente, { codigo_cliente }, { populate: ['localidad'] });
 
         // Maneja el caso cuando el cliente no se encuentra
@@ -49,15 +82,47 @@ async function getOne(req: Request, res:Response ){  //FUNCIONAL
     }catch(error:any){
         res.status(500).json({ message: 'Error interno del servidor', details: error.message });
     }
-}; 
+};
 
-async function add(req: Request, res:Response){  //FUNCIONAL
-    try{
+async function add(req: Request, res: Response) {
+    try {
+        // Extraer datos del cuerpo de la solicitud
         const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = req.body.sanitizedInput;
-        const localidad = await em.findOne(Localidad, { codigo: codigo_localidad })
-        if(!localidad){
-            return res.status(404).json({message: 'Localidad no encontrada'})
+        // Agregar logs para verificar los datos recibidos
+        console.log("Datos recibidos:", req.body.sanitizedInput);
+        // Validar que todos los campos requeridos estén presentes
+        if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono) {
+            return res.status(400).json({ message: 'Faltan campos requeridos' });
         }
+        // Buscar la localidad
+        const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
+        if (!localidad) {
+            return res.status(400).json({ message: 'Localidad no encontrada' });
+        }
+
+        //VALIDACIONES//
+        //**//
+        if (!validarDni(dni)) {
+            return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres'})
+        }
+
+        if (!validarNomyApe(NomyApe)) {
+            return res.status(400).json({ message: 'El nombre y apellido no puede tener más de 40 caracteres.' });
+        }
+
+        if (!validarEmail(email)) {
+            return res.status(400).json({ message: 'El formato del email es inválido.' });
+        }
+
+        if (!validarDireccion(direccion)) {
+            return res.status(400).json({ message: 'La direccion no puede tener más de 80 caracteres.' });
+        }
+
+        if (!validarTelefono(telefono)) {
+            return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
+        }
+
+        // Crear una nueva instancia de Cliente
         const cliente = new Cliente();
         cliente.localidad = localidad;
         cliente.dni = dni;
@@ -65,45 +130,72 @@ async function add(req: Request, res:Response){  //FUNCIONAL
         cliente.email = email;
         cliente.direccion = direccion;
         cliente.telefono = telefono;
-
+        // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
-        res.status(201).json({message:'Cliente creado'})
-
-    }catch(error:any){
-        res.status(500).json({message: error.message})
+        res.status(201).json({ message: 'Cliente creado' });
+    } catch (error: any) {
+        // Manejo de errores
+        console.error("Error al crear el cliente:", error);
+        res.status(500).json({ message: error.message });
     }
-};
-
-async function update(req: Request, res: Response){ //FUNCIONAL
-    try{
-        const codigo_cliente = Number.parseInt(req.params.codigo_cliente)
-        if(isNaN(codigo_cliente)){
+}
+async function update(req: Request, res: Response) {
+    try {
+        const codigo_cliente = Number.parseInt(req.params.codigo_cliente);
+        if (isNaN(codigo_cliente)) {
             return res.status(400).json({ message: 'Código de cliente inválido' });
         }
-        const clienteAActualizar = await em.findOne(Cliente, { codigo_cliente });
 
-        if(!clienteAActualizar){
-            return res.status(404).json({ message: 'Cliente no encontrado' })
+        const clienteAActualizar = await em.findOne(Cliente, { codigo_cliente });
+        if (!clienteAActualizar) {
+            return res.status(404).json({ message: 'Cliente no encontrado' });
         }
-        console.log("Datos sanitizados:", req.body.sanitizedInput);
-        if (!req.body.sanitizedInput || Object.keys(req.body.sanitizedInput).length === 0) {
+
+        const datosSanitizados = req.body.sanitizedInput;
+        if (!datosSanitizados || Object.keys(datosSanitizados).length === 0) {
             return res.status(400).json({ message: 'No hay datos para actualizar' });
         }
 
-        const { codigo_localidad } = req.body.sanitizedInput;
-        const localidad = await em.findOne(Localidad, { codigo: codigo_localidad })
-        if(!localidad){
-            return res.status(404).json({message: 'Localidad no encontrada'})
+        //VALIDACIONES//
+        //**//
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = datosSanitizados;
+
+        if (!validarDni(dni)) {
+            return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres' });
         }
-        clienteAActualizar.localidad = localidad;
-        em.assign(clienteAActualizar!, req.body.sanitizedInput)
-        await em.flush()
-        
-        res.status(200).json({message: 'Cliente actualizado', data:clienteAActualizar})
-    }catch(error:any){
-        res.status(500).json({message: error.message})
+
+        if (!validarNomyApe(NomyApe)) {
+            return res.status(400).json({ message: 'El nombre y apellido no puede tener más de 40 caracteres.' });
+        }
+
+        if (!validarEmail(email)) {
+            return res.status(400).json({ message: 'El formato del email es inválido.' });
+        }
+
+        if (!validarDireccion(direccion)) {
+            return res.status(400).json({ message: 'La direccion no puede tener más de 80 caracteres.' });
+        }
+
+        if (!validarTelefono(telefono)) {
+            return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
+        }
+//Validacion del codigo de localidad:
+        if (codigo_localidad !== undefined && codigo_localidad !== null) {
+            const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
+            if (!localidad) {
+                return res.status(404).json({ message: 'Localidad no encontrada' });
+            }
+            clienteAActualizar.localidad = localidad;
+        }
+
+        em.assign(clienteAActualizar, datosSanitizados);
+        await em.flush();
+
+        res.status(200).json({ message: 'Cliente actualizado', data: clienteAActualizar });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
     }
-};
+}
 
 async function remove(req: Request, res: Response){ //FUNCIONAL
     try{
@@ -113,8 +205,12 @@ async function remove(req: Request, res: Response){ //FUNCIONAL
         }
         const cliente = await em.findOne(Cliente, { codigo_cliente });
         if(!cliente){
-            res.status(404).json({ message: 'Cliente no encontrado' })
-        } else{
+            return res.status(404).json({ message: 'Cliente no encontrado' })
+        } 
+        const turnos = await em.find(Turno, { cliente });
+        if (turnos.length > 0) {
+            return res.status(400).json({ message: 'No se puede eliminar el cliente porque tiene turnos asignados' });
+        }else{
             await em.removeAndFlush(cliente)
             res.status(200).json({message: 'Cliente borrado Exitosamente'})
         }
@@ -124,3 +220,4 @@ async function remove(req: Request, res: Response){ //FUNCIONAL
 };
 
 export { sanitizeClienteInput, findAll, getOne, add, update, remove}
+
