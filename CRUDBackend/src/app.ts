@@ -4,7 +4,6 @@ import { peluqueroRouter } from './peluquero/peluquero.routes.js';
 import { orm, syncSchema } from './shared/db/orm.js';
 import { RequestContext } from '@mikro-orm/core';
 import { clienteRouter } from './cliente/cliente.routes.js';
-//import { productoRouter } from './producto/producto.routes.js';
 import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
@@ -26,11 +25,6 @@ app.use((req, res, next) => {
 ///***PELUQUERO***///
 ///***************///
 app.use('/api/peluqueros', peluqueroRouter) //Decimos que use peluqueroRouter para que use todas las peticiones que llegan a esta ruta (definidas en la aplicacion).
-
-
-///***PRODUCTO***///
-///**************///
-//app.use('/api/productos', productoRouter)
 
 
 ///***CLIENTE***///
