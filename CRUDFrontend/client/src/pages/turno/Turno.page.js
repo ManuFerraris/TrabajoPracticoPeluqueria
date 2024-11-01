@@ -12,10 +12,11 @@ function TurnosPage(){
     const [codigo_cliente, setCodigo_cliente] = useState('');
     //const [codigo_servicio, setCodigo_servicio] = useState('');
     const [codigo_peluquero, setCodigo_peluquero] = useState('');
+
     const [error, setError] = useState('');
     const [errors, setErrors] = useState('');
     const [loading, setLoading] = useState('');
-    const [turnoSeleccionado, setTurnoSeleccionado] = useState('');
+    const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
     const [editar, setEditar] = useState(false);
     const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
 
@@ -39,14 +40,24 @@ function TurnosPage(){
         fetchTurnos();
     }, []);
 
+    const formatFechaParaInput = (fechaISO) => {
+        const fecha = new Date(fechaISO);
+        const anio = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexed
+        const dia = String(fecha.getDate()).padStart(2, '0'); // Asegura que el día tenga dos dígitos
+        const horas = String(fecha.getHours()).padStart(2, '0'); // Asegura que las horas tengan dos dígitos
+        const minutos = String(fecha.getMinutes()).padStart(2, '0'); // Asegura que los minutos tengan dos dígitos
+        return `${anio}-${mes}-${dia}T${horas}:${minutos}`; // Retorna en formato aaaa-mm-dd T hh:mm
+    };
+
     useEffect(() => {
         if (turnoSeleccionado) {
-            setFecha_hora(turnoSeleccionado.fecha_hora || '');
+            setFecha_hora(turnoSeleccionado.fecha_hora ? formatFechaParaInput(turnoSeleccionado.fecha_hora): '');
             setTipo_turno(turnoSeleccionado.tipo_turno || '');
             setPorcentaje(turnoSeleccionado.porcentaje || '');
             setEstado(turnoSeleccionado.estado || '');
-            setCodigo_cliente(turnoSeleccionado.codigo_cliente || '');
-            setCodigo_peluquero(turnoSeleccionado.codigo_peluquero || '');
+            setCodigo_cliente(turnoSeleccionado.cliente?.codigo_cliente || '');
+            setCodigo_peluquero(turnoSeleccionado.peluquero?.codigo_peluquero || '');
             //setCodigo_servicio(turnoSeleccionado.codigo_servicio || '');
         }
     }, [turnoSeleccionado]);
@@ -147,16 +158,8 @@ function TurnosPage(){
                     timer: 1500
                 });
             }
-            getTurnos();
-            setFecha_hora("");
-            setTipo_turno("");
-            setPorcentaje("")
-            setEstado("");
-            setCodigo_cliente("");
-            setCodigo_peluquero("");
-            //setCodigo_servicio("");
-            setErrors({});
-            setEditar(false);
+            await getTurnos();
+            resetForm();
         } catch (error) {
             console.error('Error al guardar el turno:', error);
             
@@ -180,6 +183,19 @@ function TurnosPage(){
                 });
             }
         }
+    }
+
+    const resetForm = () => {
+        setFecha_hora("");
+        setTipo_turno("");
+        setPorcentaje("")
+        setEstado("");
+        setCodigo_cliente("");
+        setCodigo_peluquero("");
+        //setCodigo_servicio("");
+        setErrors({});
+        setEditar(false);
+        setTurnoSeleccionado(null);
     }
 
     const eliminarTurno = (codigo_turno) => {
@@ -334,7 +350,7 @@ function TurnosPage(){
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm();}}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
@@ -363,7 +379,7 @@ function TurnosPage(){
                                     turnos.map(val => (
                                         <tr key={val.codigo_turno}>
                                             <th>{val.codigo_turno}</th>
-                                            <td>{val.fecha_hora}</td>
+                                            <td>{formatFechaParaInput(val.fecha_hora)}</td>
                                             <td>{val.tipo_turno}</td>
                                             <td>{val.porcentaje}</td>
                                             <td>{val.estado}</td>
