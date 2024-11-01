@@ -11,11 +11,11 @@ function TipoServicioPage(){
     const [precio_base, setPrecio_base] = useState('');
     const [servicio_codigo, setservicio_codigo] = useState('');
     const [error, setError] = useState('')
-    const [errors, setErrors] = useState('')
-    const [loading, setLoading] = useState('')
-    const [TSseleccionado, setTsseleccionado] = useState('');
+    const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [TSseleccionado, setTsseleccionado] = useState(null);
     const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const [alerta, setAlerta] = useState('');
 
 
     useEffect(() => {
@@ -42,7 +42,10 @@ function TipoServicioPage(){
             setDescripcion(TSseleccionado.descripcion || '');
             setDuracion_estimada(TSseleccionado.duracion_estimada || '');
             setPrecio_base(TSseleccionado.precio_base || '');
-            setservicio_codigo(TSseleccionado.servicio_codigo || '');
+            setservicio_codigo(TSseleccionado.servicio?.codigo || '');
+            console.log("TSseleccionado:", TSseleccionado);  // Verifica todo el objeto
+            console.log("Tipo de TSseleccionado:", typeof TSseleccionado);
+            console.log("servicio_codigo en TSseleccionado:", TSseleccionado?.servicio_codigo);
         }
     }, [TSseleccionado]);
 
@@ -117,14 +120,8 @@ function TipoServicioPage(){
                     timer: 1500
                 });
             }
-            getTipoServicio();
-            setNombre("");
-            setDescripcion("");
-            setDuracion_estimada("");
-            setPrecio_base("");
-            setservicio_codigo("")
-            setErrors({});
-            setEditar(false);
+            await getTipoServicio();
+            resetForm();
         } catch (error) {
             Swal.fire({
                 icon: 'error',
@@ -134,6 +131,17 @@ function TipoServicioPage(){
                 position: 'center'
             });
         }
+    }
+
+    const resetForm = () => {
+        setNombre('');
+        setDescripcion('');
+        setDuracion_estimada('');
+        setPrecio_base('');
+        setservicio_codigo('');
+        setTsseleccionado(null);
+        setEditar(false);
+        setErrors({});
     }
 
     const eliminarTipoServicio = (codigo_tipo) => {
@@ -285,7 +293,7 @@ function TipoServicioPage(){
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm();}}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
