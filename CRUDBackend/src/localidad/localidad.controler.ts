@@ -20,7 +20,7 @@ async function getOne(req: Request, res:Response ){  //HAY QUE PROBAR
         if (isNaN(codigo)) {
             return res.status(400).json({ message: 'Código de localidad inválido' });
         }
-        
+
         const localidad = await em.findOne(Localidad, { codigo });
 
         if (localidad) {
@@ -33,7 +33,7 @@ async function getOne(req: Request, res:Response ){  //HAY QUE PROBAR
     }
 };
 
-async function add(req: Request, res:Response){  
+async function add(req: Request, res:Response){
     try{
         const localidad = em.create(Localidad, req.body)
         await em.flush()
@@ -79,7 +79,7 @@ async function remove(req: Request, res: Response){
         }
         await em.removeAndFlush(localidad)
         res.status(200).json({message: 'Localidad eliminada'})
-        
+
     }catch(error:any){
         res.status(500).json({message: error.message})
     }

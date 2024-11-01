@@ -14,7 +14,7 @@ export class Turno {
 
     @Property({ nullable: false })
     tipo_turno!: string;
-    
+
     @Property({ nullable: true })
     porcentaje!: number;
 

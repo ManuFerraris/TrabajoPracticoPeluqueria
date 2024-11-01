@@ -26,5 +26,5 @@ export class Servicio {
     turno!: Rel<Turno>;
 
     @OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)
-    tiposServicios = new Collection<TipoServicio>(this);
+    tiposServicios = new Collection<TipoServicio>(this); 
 }
