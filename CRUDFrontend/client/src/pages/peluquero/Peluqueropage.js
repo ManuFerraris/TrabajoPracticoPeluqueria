@@ -6,15 +6,16 @@ import Swal from 'sweetalert2';
 
 function PeluqueroList() {
     const [peluqueros, setPeluqueros] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [errors, setErrors] = useState({});
     const [nombre, setNombre] = useState(''); 
     const [fecha_Ingreso, setFechaIngreso] = useState('');
     const [tipo, setTipo] = useState('');
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [errors, setErrors] = useState({});
     const [editar, setEditar] = useState(false);
     const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState(null);
-    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const [alerta, setAlerta] = useState('');
 
     useEffect(() => {
         const fetchPeluqueros = async () => {
@@ -34,13 +35,23 @@ function PeluqueroList() {
         fetchPeluqueros();
     }, []);
 
+    //Formateo de fechas para mostrar en lista y en los campos al seleccionar "Editar"
+    const formatFechaParaInput = (fechaISO) => {
+        const fecha = new Date(fechaISO);
+        const anio = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexed
+        const dia = String(fecha.getDate()).padStart(2, '0'); // Asegura que el día tenga dos dígitos
+        return `${anio}-${mes}-${dia}`; // Retorna en formato aaaa-mm-dd
+    };
+
     useEffect(() => {
         if (peluqueroSeleccionado) {
             setNombre(peluqueroSeleccionado.nombre || '');
-            setFechaIngreso(peluqueroSeleccionado.fecha_Ingreso || '');
+            setFechaIngreso(peluqueroSeleccionado.fecha_Ingreso ? formatFechaParaInput(peluqueroSeleccionado.fecha_Ingreso): '');
             setTipo(peluqueroSeleccionado.tipo || '');
         }
     }, [peluqueroSeleccionado]);
+
 
     const getPeluqueros = async () => {
         try {
@@ -117,11 +128,7 @@ function PeluqueroList() {
                 });
             }
             getPeluqueros();
-            setNombre("");
-            setFechaIngreso("");
-            setTipo("");
-            setErrors({});
-            setEditar(false);
+            resetForm();
         } catch (error) {
             console.error('Error al guardar el peluquero:', error);
             Swal.fire({
@@ -133,6 +140,15 @@ function PeluqueroList() {
             });
         }
     };
+
+    const resetForm = () => {
+        setNombre("");
+        setFechaIngreso("");
+        setTipo("");
+        setErrors({});
+        setEditar(false);
+        setPeluqueroSeleccionado(false);
+    }
 
     const eliminarPeluquero = (codigo_peluquero) => {
         // Realiza una consulta para verificar si el peluquero tiene un turno asignado
@@ -266,7 +282,7 @@ function PeluqueroList() {
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm();}}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
@@ -292,7 +308,7 @@ function PeluqueroList() {
                                         <tr key={val.codigo_peluquero}>
                                             <th>{val.codigo_peluquero}</th>
                                             <td>{val.nombre}</td>
-                                            <td>{new Date(val.fecha_Ingreso).toLocaleDateString()}</td>
+                                            <td>{formatFechaParaInput(val.fecha_Ingreso)}</td>
                                             <td>{val.tipo}</td>
                                             <td>
                                                 <button className="btn btn-primary btn-sm" onClick={() => { setPeluqueroSeleccionado(val); setEditar(true); }}>Editar</button>
