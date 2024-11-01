@@ -42,10 +42,10 @@ function TipoServicioPage(){
             setDescripcion(TSseleccionado.descripcion || '');
             setDuracion_estimada(TSseleccionado.duracion_estimada || '');
             setPrecio_base(TSseleccionado.precio_base || '');
-            setservicio_codigo(TSseleccionado.servicio?.codigo || '');
-            console.log("TSseleccionado:", TSseleccionado);  // Verifica todo el objeto
-            console.log("Tipo de TSseleccionado:", typeof TSseleccionado);
-            console.log("servicio_codigo en TSseleccionado:", TSseleccionado?.servicio_codigo);
+            setservicio_codigo(TSseleccionado.servicio?.codigo || ''); //Traemos el objeto servicio relaciondado con TipoServicio y de ese objeto tomamos el codigo para mostrarlo
+            //console.log("TSseleccionado:", TSseleccionado);  // Verifica todo el objeto
+            //console.log("Tipo de TSseleccionado:", typeof TSseleccionado);
+            //console.log("servicio_codigo en TSseleccionado:", TSseleccionado?.servicio_codigo);
         }
     }, [TSseleccionado]);
 

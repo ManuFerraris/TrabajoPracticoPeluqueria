@@ -11,16 +11,14 @@ function ServiciosPage(){
     const [ausencia_cliente, setAusencia_cliente] = useState('');
     const [medio_pago, setMedio_pago] = useState('');
     const [turno_codigo_turno, setTurno] = useState('');
-    const [codigo_tipo, setCodigo_tipo] = useState('');
+
     const [error, setError] = useState('');
-    const [errors, setErrors] = useState('');
-    const [loading, setLoading] = useState('');
-    const [servicioSeleccionado, setServicioSeleccionado] = useState('');
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [servicioSeleccionado, setServicioSeleccionado] = useState(false);
     const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
-    const [tipoServicio, setTipoServicio] = useState([]);
-
-
+    const [alerta, setAlerta] = useState('');
+    const [/*tipoServicio*/, setTipoServicio] = useState([]);
 
     useEffect(() => {
         const fetchServicios = async () => {
@@ -66,7 +64,6 @@ function ServiciosPage(){
             setAusencia_cliente(servicioSeleccionado.ausencia_cliente || '');
             setMedio_pago(servicioSeleccionado.medio_pago || '');
             setTurno(servicioSeleccionado.turno || '');
-            setCodigo_tipo(String(servicioSeleccionado.codigo_tipo) || '');
         }
     }, [servicioSeleccionado]);
 
@@ -108,10 +105,6 @@ function ServiciosPage(){
             errors.ausencia_cliente = "Seleccione una opcion.";
         }
 
-        if(!codigo_tipo){
-            errors.codigo_tipo = "El tipo de servicio es obligatorio"
-        }
-
         if(!turno_codigo_turno){
             errors.turno_codigo_turno = "El codigo de turno es obligatorio"
         }
@@ -136,7 +129,6 @@ function ServiciosPage(){
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
-                    codigo_tipo: codigo_tipo
                 });
                 Swal.fire({
                     position: 'center',
@@ -153,7 +145,6 @@ function ServiciosPage(){
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
-                    codigo_tipo: codigo_tipo
                 });
                 Swal.fire({
                     position: 'center',
@@ -163,15 +154,8 @@ function ServiciosPage(){
                     timer: 1500
                 });
             }
-            getServicios();
-            setMonto("");
-            setEstado("");
-            setAdicional_adom("");
-            setAusencia_cliente("");
-            setMedio_pago("");
-            setTurno("");
-            setErrors({});
-            setEditar(false);
+            await getServicios();
+            resetForm();
         } catch (error) {
             console.error('Error al guardar el servicio:', error);
             Swal.fire({
@@ -183,6 +167,18 @@ function ServiciosPage(){
             });
         }
     }
+
+    const resetForm = () => {
+        setMonto("");
+            setEstado("");
+            setAdicional_adom("");
+            setAusencia_cliente("");
+            setMedio_pago("");
+            setTurno("");
+            setErrors({});
+            setEditar(false);
+            setServicioSeleccionado(false);
+    };
 
     const eliminarServicio = (codigo) => {
         Axios.get(`http://localhost:3000/api/turnos?codigo=${codigo}`)
@@ -329,6 +325,7 @@ function ServiciosPage(){
                                     {errors.medio_pago && <div className="text-danger">{errors.medio_pago}</div>}
                                 </div>
 
+                                {/*
                                 <div className="col-md-6">
                                     <label className="form-label">Tipo Servicio:</label>
                                     <select
@@ -345,7 +342,7 @@ function ServiciosPage(){
                                     </select>
                                     {errors.codigo_tipo && <div className="text-danger">{errors.codigo_tipo}</div>}
                                 </div>
-
+                                     */}
                                 <div className="col-md-6">
                                     <label className="form-label">Codigo de Turno:</label>
                                     <input
@@ -365,7 +362,7 @@ function ServiciosPage(){
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm();}}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
