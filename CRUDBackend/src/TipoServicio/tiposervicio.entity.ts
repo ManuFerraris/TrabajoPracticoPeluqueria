@@ -3,7 +3,7 @@ import { Servicio } from "../Servicio/servicio.entity.js";
 
 @Entity()
 export class TipoServicio {
-    
+
     @PrimaryKey()
     codigo_tipo!: number;
 

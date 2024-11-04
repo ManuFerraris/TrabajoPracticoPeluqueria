@@ -1,5 +1,5 @@
 Anotaciones necesarias (Backend):
-    []-> Realizar todas las validaciones necesarias en las CRUDS
-    []-> Poner mensajes aclaratorios sobre lo que esta ocurriendo
-    []-> Manejo de errores (Todos)
-    []-> 
+    [✓]-> Realizar todas las validaciones necesarias en las CRUDS
+    [✓]-> Poner mensajes aclaratorios sobre lo que esta ocurriendo
+    [Probablemente todos (✓)]-> Manejo de errores (Todos)
+    [ ]-> Hay que corregir la relacion entre Servicio y TipoServicio ya que debe ser al reves.
