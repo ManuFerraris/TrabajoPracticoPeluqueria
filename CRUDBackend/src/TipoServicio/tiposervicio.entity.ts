@@ -1,4 +1,4 @@
-import { Entity, PrimaryKey, Property, ManyToOne, Rel } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, OneToMany, Rel, Collection } from "@mikro-orm/core";
 import { Servicio } from "../Servicio/servicio.entity.js";
 
 @Entity()
@@ -20,6 +20,10 @@ export class TipoServicio {
     precio_base?: number;
 
     // Relación ManyToOne con Servicio
-    @ManyToOne(() => Servicio, { nullable: true })
-    servicio!: Rel<Servicio>;
+
+    //@ManyToOne(() => Servicio, { nullable: true })
+    //servicio!: Rel<Servicio>;
+
+    @OneToMany(() => Servicio, servicio => servicio.tipoServicio)
+    servicio = new Collection<Servicio>(this); 
 }

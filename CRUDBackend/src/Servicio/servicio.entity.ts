@@ -1,4 +1,4 @@
-import { Entity, Property, OneToOne, OneToMany, Rel, PrimaryKey, Collection } from "@mikro-orm/core";
+import { Entity, Property, OneToOne, ManyToOne, Rel, PrimaryKey, Collection } from "@mikro-orm/core";
 import { Turno } from "../turno/turno.entity.js";
 import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
 
@@ -25,6 +25,9 @@ export class Servicio {
     @OneToOne(() => Turno, {nullable: false})
     turno!: Rel<Turno>;
 
-    @OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)
-    tiposServicios = new Collection<TipoServicio>(this); 
+    //@OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)
+    //tiposServicios = new Collection<TipoServicio>(this); 
+
+    @ManyToOne(() => TipoServicio, { nullable: true })
+    tipoServicio!: Rel<TipoServicio>;
 }

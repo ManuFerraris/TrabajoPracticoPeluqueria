@@ -10,13 +10,12 @@ Content-Type: application/json
 
 { 
     "monto": 8000.00,
-    "estado": "Activo",
+    "estado": "Pendiente",
     "adicional_adom": 0,
-    "ausencia_cliente": "No",
+    "ausencia_cliente": "Se presento",
     "medio_pago": "Mercado Pago",
-    "turno": {
-    "codigo_turno": 5
-    }
+    "codigo_turno": 24,
+    "tipo_servicio_codigo": 3
 }
 
 ###Modificar un servicio (PUT)
@@ -29,9 +28,8 @@ Content-Type: application/json
     "adicional_adom": 0,
     "ausencia_cliente": "No",
     "medio_pago": "Efectivo",
-    "turno": {
-        "codigo_turno": 8
-    }
+    "codigo_turno": 25,
+    "tipo_servicio_codigo": 7
 }
 
 ###Borrar un servicio

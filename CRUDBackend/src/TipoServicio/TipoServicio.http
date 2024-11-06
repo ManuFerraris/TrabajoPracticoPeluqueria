@@ -9,11 +9,10 @@ POST http://localhost:3000/api/tiposervicio
 Content-Type: application/json
 
 {
-    "nombre": "Corte de cabello",
-    "descripcion": "Corte de cabello básico",
-    "duracion_estimada": 30,
-    "precio_base": 25.00,
-    "servicio_codigo": 1
+    "nombre": "Implante de pelo",
+    "descripcion": "Implante + Corte de cabello básico",
+    "duracion_estimada": 360,
+    "precio_base": 25.00
 }
 
 ### modificar un tipo de servicio (PUT)
@@ -24,8 +23,7 @@ Content-Type: application/json
     "nombre": "Tintura",
     "descripcion": "Corte de cabello básico + tintura completa",
     "duracion_estimada": 120,
-    "precio_base": 45000.00,
-    "servicio_codigo": 1
+    "precio_base": 45000.00
 }
 
 ###Borrar un tipo de servicio

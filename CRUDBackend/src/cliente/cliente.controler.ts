@@ -25,7 +25,7 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
 //Funciones para validar:
 //----------------------//
 function validarTelefono(telefono:string) {
-    const regex = /^+?[0-9]{10,15}$/; // Solo números y opcionalmente el símbolo +
+    const regex = /^\+?[0-9]{10,15}$/; // Solo números y opcionalmente el símbolo +
 
     if (telefono.length < 10 || telefono.length > 15) {
       return false; // Longitud inválida

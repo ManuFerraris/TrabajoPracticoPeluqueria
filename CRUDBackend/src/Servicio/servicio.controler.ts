@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Servicio } from "./servicio.entity.js";
 import { Turno } from "../turno/turno.entity.js";
+import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
 
 const em = orm.em;
 
@@ -14,7 +15,8 @@ function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) 
         adicional_adom: req.body.adicional_adom,
         ausencia_cliente: req.body.ausencia_cliente,
         medio_pago: req.body.medio_pago,
-        turno_codigo_turno: req.body.turno_codigo_turno
+        codigo_turno: req.body.codigo_turno,
+        tipo_servicio_codigo: req.body.tipo_servicio_codigo,
     };
 
     Object.keys(req.body.sanitizedInput).forEach(key => {
@@ -68,46 +70,63 @@ function validaMedioDePago(medio_pago:string){
 async function findAll(req: Request, res: Response) {
     try {
         const servicios = await em.find(Servicio, {});
-        res.status(200).json({ message: 'Todos los servicios encontrados', data: servicios });
+        return res.status(200).json({ message: 'Todos los servicios encontrados', data: servicios });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
 async function getOne(req: Request, res: Response) {
     try {
+
         const codigo = Number.parseInt(req.params.codigo);
         if (isNaN(codigo)) {
             return res.status(400).json({ message: 'Código de servicio inválido' });
-        }
+        };
+
         const servicio = await em.findOne(Servicio, { codigo });
         if (servicio) {
-            res.status(200).json({ message: 'Servicio encontrado', data: servicio });
+            return res.status(200).json({ message: 'Servicio encontrado', data: servicio });
         } else {
-            res.status(404).json({ message: 'Servicio no encontrado' });
-        }
+            return res.status(404).json({ message: 'Servicio no encontrado' });
+        };
+
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
 async function add(req: Request, res: Response) {
     try {
-        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno } = req.body.sanitizedInput;
-        if (!turno_codigo_turno) {
-            return res.status(400).json({ message: 'Código de turno no proporcionado' });
+        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, codigo_turno, tipo_servicio_codigo } = req.body.sanitizedInput;
+        if (!codigo_turno) {
+            return res.status(400).json({ message: 'Código de turno no proporcionado.' });
         }
         
         // Verificar si el turno existe en la base de datos
-        const turno = await em.findOne(Turno, { codigo_turno: turno_codigo_turno });
+        const turno = await em.findOne(Turno, { codigo_turno: codigo_turno });
         if (!turno) {
-            return res.status(404).json({ message: 'Turno no encontrado' });
-        }
+            return res.status(404).json({ message: 'Turno no encontrado.' });
+        };
+
+        if(turno.servicio){
+            return res.status(404).json({ message: 'El turno tiene un servicio asignado.'})
+        };
+
+        const codTS = Number(tipo_servicio_codigo);
+        if(isNaN(codTS)){
+            return res.status(404).json({ message: 'Codigo de tipo de servicio Invalido.'})
+        };
+
+        const tipo_Servicio = await em.findOne(TipoServicio, {codigo_tipo:codTS});
+        if(!tipo_Servicio){
+            return res.status(404).json({ message: 'Tipo de servicio no encontrado.'})
+        };
 
         // Verificar si el turno ya tiene un servicio asociado
         if (turno.servicio) {
-            return res.status(400).json({ message: 'El turno ya tiene un servicio asociado' });
-        }
+            return res.status(400).json({ message: 'El turno ya tiene un servicio asociado.' });
+        };
 
         //VALIDACIONES//
         //************//
@@ -117,22 +136,26 @@ async function add(req: Request, res: Response) {
         };
 
         if(!validaEstado(estado)){
-            return res.status(400).json({ message: 'El estado debe ser Pendiente o Pagado'})
+            return res.status(400).json({ message: 'El estado debe ser Pendiente o Pagado.'})
         };
 
         if(!validaAdicionalAdom(adicional_adom)){
-            return res.status(400).json({ message: 'El adicional a domicilio no debe ser menor que 0'})
+            return res.status(400).json({ message: 'El adicional a domicilio no debe ser menor que 0.'})
         };
 
         if(!validaAusenciaCliente(ausencia_cliente)){
-            return res.status(400).json({ message: 'Las opciones validas son: "Se presento" o "Esta ausente"'})
+            return res.status(400).json({ message: 'Las opciones validas son: "Se presento" o "Esta ausente."'})
         };
 
         if(!validaMedioDePago(medio_pago)){
-            return res.status(400).json({ message: 'Las opciones validas son "Efectivo" o "Mercado pago"'})
+            return res.status(400).json({ message: 'Las opciones validas son "Efectivo" o "Mercado pago."'})
         };
 
-        
+        const porcentaje_turno = (turno.porcentaje)/100;
+
+        //const tipoServicio = await em.findOne(TipoServicio, )
+        //const precio_base_TipoServicio =
+
         // Crear el servicio
         const servicio = new Servicio();
         servicio.monto = monto;
@@ -141,6 +164,7 @@ async function add(req: Request, res: Response) {
         servicio.ausencia_cliente = ausencia_cliente;
         servicio.medio_pago = medio_pago;
         servicio.turno = turno; // Asociar el turno al servicio
+        servicio.tipoServicio = tipo_Servicio;
 
         // Persistir el servicio en la base de datos
         await em.persistAndFlush(servicio);
@@ -149,30 +173,32 @@ async function add(req: Request, res: Response) {
         turno.servicio = servicio;
         await em.persistAndFlush(turno);
 
-        res.status(201).json({ message: 'Servicio creado', data: servicio });
+        return res.status(201).json({ message: 'Servicio creado', data: servicio });
+
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
 async function update(req: Request, res: Response) {
     try {
+
         const codigo = Number(req.params.codigo);
         if (isNaN(codigo)) {
             return res.status(400).json({ message: 'Código de servicio inválido' });
-        }
+        };
 
         const servicioAActualizar = await em.findOne(Servicio, { codigo });
         if (!servicioAActualizar) {
             return res.status(404).json({ message: 'El servicio no existe' });
-        }
+        };
 
         // Verificar si sanitizedInput existe
         if (!req.body.sanitizedInput) {
             return res.status(400).json({ message: 'No hay datos para actualizar' });
-        }
+        };
 
-        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno } = req.body.sanitizedInput;
+        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno, tipo_servicio_codigo } = req.body.sanitizedInput;
 
         //VALIDACIONES//
         //************//
@@ -195,6 +221,16 @@ async function update(req: Request, res: Response) {
 
         if(!validaMedioDePago(medio_pago)){
             return res.status(400).json({ message: 'Las opciones validas son "Efectivo" o "Mercado pago"'})
+        };
+
+        const codTS = Number(tipo_servicio_codigo);
+        if(isNaN(codTS)){
+            return res.status(404).json({ message: 'Codigo de tipo de servicio Invalido.'})
+        };
+
+        const tipo_Servicio = await em.findOne(TipoServicio, {codigo_tipo:codTS});
+        if(!tipo_Servicio){
+            return res.status(404).json({ message: 'Tipo de servicio no encontrado.'})
         };
 
         // Validacion del codigo de turno
@@ -215,13 +251,14 @@ async function update(req: Request, res: Response) {
 
             // Actualizar el turno en la entidad Servicio
             servicioAActualizar.turno = nuevoTurno;
-        }
+        };
 
         // Actualizar los demás campos
         em.assign(servicioAActualizar, req.body.sanitizedInput);
         await em.flush();
 
-        res.status(200).json({ message: 'Servicio actualizado correctamente', data: servicioAActualizar });
+        return res.status(200).json({ message: 'Servicio actualizado correctamente', data: servicioAActualizar });
+    
     } catch (error: any) {
         // Manejar el error de clave única de MySQL
         if (error.code === 'ER_DUP_ENTRY') {
@@ -229,30 +266,36 @@ async function update(req: Request, res: Response) {
                 message: 'Conflicto de clave única',
                 error: 'El turno ya está asociado a otro servicio. Por favor, elige otro turno o elimina el servicio existente.'
             });
-        }
-        res.status(500).json({ message: error.message });
+        };
+
+        return res.status(500).json({ message: error.message });
     }
 }
 
 async function remove(req: Request, res: Response) {
     try {
+
         const codigo = Number.parseInt(req.params.codigo);
         if (isNaN(codigo)) {
             return res.status(400).json({ message: 'Código de servicio inválido' });
-        }
+        };
+
         const servicio = await em.findOne(Servicio, { codigo });
         if (!servicio) {
             return res.status(404).json({ message: 'El servicio no existe' });
-        }
+        };
+
         const turno = await em.find(Turno, { servicio });
         if( turno.length > 0){
             return res.status(404).json({ message: 'El servicio esta asociado a un turno' });
-        }
+        };
+
         // Eliminar el servicio de la base de datos
         await em.removeAndFlush(servicio);
-        res.status(200).json({ message: 'Servicio eliminado exitosamente' });
+        return res.status(200).json({ message: 'Servicio eliminado exitosamente' });
+    
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
