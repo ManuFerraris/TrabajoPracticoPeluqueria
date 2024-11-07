@@ -65,10 +65,17 @@ function ServiciosPage(){
             setAusencia_cliente(servicioSeleccionado.ausencia_cliente || '');
             setMedio_pago(servicioSeleccionado.medio_pago || '');
             setTurno(servicioSeleccionado.turno || '');
-            setTipo_servicio_codigo_tipo(servicioSeleccionado.tipoServicio?.nombre || '');
-            console.log('Tipo de servicio: ', servicioSeleccionado.tipoServicio?.nombre)
+            
+            // Buscamos el tipo de servicio en la lista `tiposDeServicio`
+            const tipoServicioSeleccionado = tipoServicio.find(
+                tipo => tipo.codigo === servicioSeleccionado.tipoServicio
+            );
+
+            // Si se encuentra, actualizamos el nombre
+            setTipo_servicio_codigo_tipo(tipoServicioSeleccionado ? tipoServicioSeleccionado.nombre : '');
+            console.log('Tipo de servicio: ', tipoServicioSeleccionado?.nombre);
         }
-    }, [servicioSeleccionado]);
+    }, [servicioSeleccionado, tipoServicio]);
 
     const getServicios = async () => {
         try {

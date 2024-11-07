@@ -10,16 +10,18 @@ function LocalidadesPage(){
     const [codigo_postal, setcodigo_postal] = useState('');
     const [pais, setPais] = useState('');
     const [descripcion, setDescripcion] = useState('');
+
     const [error, setError] = useState('')
-    const [errors, setErrors] = useState('')
-    const [loading, setLoading] = useState('')
-    const [localidadSeleccionada, setlocalidadseleccionada] = useState('');
+    const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [localidadSeleccionada, setlocalidadseleccionada] = useState(null);
     const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const [alerta, setAlerta] = useState('');
 
 
     useEffect(() => {
         const fetchLocalidades = async () => {
+            setLoading(true);
             try {
                 const response = await fetch('http://localhost:3000/api/localidades');
                 if (!response.ok) {
@@ -84,6 +86,11 @@ function LocalidadesPage(){
         return errors;
     };
 
+    //Mensaje de carga:
+    if(localidades.length === 0){
+        return <p>Cargando Localidades...</p>
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
@@ -124,14 +131,8 @@ function LocalidadesPage(){
                     timer: 1500
                 });
             }
-            getLocalidades();
-            setNombre("");
-            setprovincia("");
-            setcodigo_postal("");
-            setDescripcion("");
-            setPais("");
-            setErrors({});
-            setEditar(false);
+            await getLocalidades();
+            resetForm();
         } catch (error) {
             console.error('Error al guardar guardar la localidad:', error);
             Swal.fire({
@@ -142,6 +143,17 @@ function LocalidadesPage(){
                 position: 'center'
             });
         }
+    }
+
+    const resetForm = () => {
+        setNombre('');
+        setprovincia('');
+        setcodigo_postal('');
+        setDescripcion('');
+        setPais('');
+        setErrors({});
+        setEditar(false);
+        setlocalidadseleccionada(false);
     }
 
     const eliminarLocalidad = (codigo) => {
@@ -299,7 +311,7 @@ function LocalidadesPage(){
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm()}}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
@@ -333,8 +345,10 @@ function LocalidadesPage(){
                                             <td>{val.pais}</td>
                                             <td>{val.descripcion}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setlocalidadseleccionada(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarLocalidad(val.codigo)}>Eliminar</button>
+                                                <div className = "d-flex justify-content-between">
+                                                    <button className="btn btn-primary btn-sm" onClick={() => { setlocalidadseleccionada(val); setEditar(true); }}>Editar</button>
+                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarLocalidad(val.codigo)}>Eliminar</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
