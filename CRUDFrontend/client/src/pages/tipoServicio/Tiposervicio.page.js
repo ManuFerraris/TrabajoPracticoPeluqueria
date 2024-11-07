@@ -9,7 +9,7 @@ function TipoServicioPage(){
     const [descripcion, setDescripcion] = useState('');
     const [duracion_estimada, setDuracion_estimada] = useState('');
     const [precio_base, setPrecio_base] = useState('');
-    const [servicio_codigo, setservicio_codigo] = useState('');
+    //const [servicio_codigo, setservicio_codigo] = useState('');
     const [error, setError] = useState('')
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
@@ -42,7 +42,8 @@ function TipoServicioPage(){
             setDescripcion(TSseleccionado.descripcion || '');
             setDuracion_estimada(TSseleccionado.duracion_estimada || '');
             setPrecio_base(TSseleccionado.precio_base || '');
-            setservicio_codigo(TSseleccionado.servicio?.codigo || ''); //Traemos el objeto servicio relaciondado con TipoServicio y de ese objeto tomamos el codigo para mostrarlo
+            //setservicio_codigo(TSseleccionado.servicio?.codigo || ''); //Traemos el objeto servicio relaciondado con TipoServicio y de ese objeto tomamos el codigo para mostrarlo
+            
             //console.log("TSseleccionado:", TSseleccionado);  // Verifica todo el objeto
             //console.log("Tipo de TSseleccionado:", typeof TSseleccionado);
             //console.log("servicio_codigo en TSseleccionado:", TSseleccionado?.servicio_codigo);
@@ -74,9 +75,22 @@ function TipoServicioPage(){
         if (!descripcion) {
             errors.descripcion = "La descripcion es obligatoria.";
         }
-        if(!servicio_codigo){
+        /*if(!servicio_codigo){
             errors.servicio_codigo = "El codigo del Servicio es obligatorio"
-        }
+        }*/
+
+        if(!precio_base){
+            errors.precio_base = "El precio base en obligatorio."
+        }else if(precio_base < 0){
+            errors.precio_base = "El precio base debe ser mayor a 0."
+        };
+
+        if(!duracion_estimada){
+            errors.duracion_estimada = "La duracion estimada es obligatoria."
+        } else if(duracion_estimada< 0){
+            errors.duracion_estimada = "La duracion estimada en minutos no puede ser menor a 0."
+        };
+
         return errors;
     };
 
@@ -95,7 +109,7 @@ function TipoServicioPage(){
                     descripcion: descripcion,
                     duracion_estimada: duracion_estimada,
                     precio_base: precio_base,
-                    servicio_codigo: servicio_codigo
+                    //servicio_codigo: servicio_codigo
                 });
                 Swal.fire({
                     position: 'center',
@@ -110,7 +124,7 @@ function TipoServicioPage(){
                     descripcion: descripcion,
                     duracion_estimada: duracion_estimada,
                     precio_base: precio_base,
-                    servicio_codigo: servicio_codigo
+                    //servicio_codigo: servicio_codigo
                 });
                 Swal.fire({
                     position: 'center',
@@ -138,7 +152,7 @@ function TipoServicioPage(){
         setDescripcion('');
         setDuracion_estimada('');
         setPrecio_base('');
-        setservicio_codigo('');
+        //setservicio_codigo('');
         setTsseleccionado(null);
         setEditar(false);
         setErrors({});
@@ -232,7 +246,7 @@ function TipoServicioPage(){
                                         onChange={(event) => setNombre(event.target.value)}
                                         className="form-control"
                                         value={nombre || ""}
-                                        placeholder="Nombre Tipo Servicio"
+                                        placeholder="Ingrese el nombre"
                                     />
                                     {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
                                 </div>
@@ -249,6 +263,7 @@ function TipoServicioPage(){
                                     {errors.descripcion && <div className="text-danger">{errors.descripcion}</div>}
                                 </div>
 
+                                {/*
                                 <div className="col-md-6">
                                     <label className="form-label">Codigo del Servicio:</label>
                                     <input
@@ -259,7 +274,8 @@ function TipoServicioPage(){
                                         placeholder="Codigo del Servicio"
                                     />
                                     {errors.servicio_codigo && <div className="text-danger">{errors.servicio_codigo}</div>}
-                                </div>
+                                </div> 
+                                */}
 
                                 <div className="col-md-6">
                                     <label className="form-label">Precio base:</label>
@@ -268,7 +284,7 @@ function TipoServicioPage(){
                                         onChange={(event) => setPrecio_base(event.target.value)}
                                         className="form-control"
                                         value={precio_base || ""}
-                                        placeholder="Precio base"
+                                        placeholder="Ingrese el precio base"
                                     />
                                     {errors.precio_base && <div className="text-danger">{errors.precio_base}</div>}
                                 </div>
@@ -280,7 +296,7 @@ function TipoServicioPage(){
                                         onChange={(event) => setDuracion_estimada(event.target.value)}
                                         className="form-control"
                                         value={duracion_estimada || ""}
-                                        placeholder="Duracion estimada"
+                                        placeholder="Duracion es minutos"
                                     />
                                     {errors.duracion_estimada && <div className="text-danger">{errors.duracion_estimada}</div>}
                                 </div>
@@ -307,8 +323,7 @@ function TipoServicioPage(){
                             <thead className="table-primary sticky-top">
                                 <tr>
                                     <th scope="col">Código</th>
-                                    <th scope="col">Código Serv.</th>
-                                    <th scope="col">Nombre Servicio</th>
+                                    <th scope="col">Nombre Tipo Servicio</th>
                                     <th scope="col">Descripcion</th>
                                     <th scope="col">Duracion Estimada</th>
                                     <th scope="col">Precio base</th>
@@ -321,7 +336,6 @@ function TipoServicioPage(){
                                     TipoServicio.map(val => (
                                         <tr key={val.codigo_tipo}>
                                             <th>{val.codigo_tipo}</th>
-                                            <th>{val.servicio?.codigo || 'N/A'}</th>
                                             <th>{val.nombre}</th>
                                             <td>{val.descripcion}</td>
                                             <td>{val.duracion_estimada}</td>
