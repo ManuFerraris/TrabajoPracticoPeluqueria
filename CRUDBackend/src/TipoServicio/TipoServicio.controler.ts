@@ -1,8 +1,24 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { TipoServicio } from "./tiposervicio.entity.js";
 
 const em = orm.em;
+
+function sanitizeTipoServicioInput(req: Request, res: Response, next: NextFunction) {
+    req.body.sanitizedInput = {
+        nombre: req.body.nombre,
+        descripcion: req.body.descripcion,
+        duracion_estimada: req.body.duracion_estimada,
+        precio_base: req.body.precio_base
+    };
+
+    Object.keys(req.body.sanitizedInput).forEach(key => {
+        if (req.body.sanitizedInput[key] === undefined) {
+            delete req.body.sanitizedInput[key];
+        }
+    });
+    next();
+}
 
 async function findAll(req: Request, res: Response) {
     try {
@@ -37,7 +53,7 @@ async function getOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
     try {
-        const { nombre, descripcion, duracion_estimada, precio_base } = req.body;
+        const { nombre, descripcion, duracion_estimada, precio_base } = req.body.sanitizedInput;
 
         // Crear un nuevo TipoServicio sin el campo 'codigo_tipo' ya que es auto-incremental
         const tipoServicio = new TipoServicio();
@@ -67,16 +83,7 @@ async function update(req: Request, res: Response) {
             return res.status(404).json({ message: 'Tipo de servicio no encontrado' });
         }
 
-        const { nombre, descripcion, duracion_estimada, precio_base } = req.body;
-
-        // Si se proporciona un código de servicio, verificar si el servicio existe
-        /*if (servicio_codigo !== undefined) {
-            const servicio = await em.findOne(Servicio, { codigo: servicio_codigo });
-            if (!servicio) {
-                return res.status(404).json({ message: 'Servicio no encontrado' });
-            }
-            servicio.tipoServicio = tipoServicio;
-        }*/
+        const { nombre, descripcion, duracion_estimada, precio_base } = req.body.sanitizedInput;
 
         // Actualizar los demás campos
         em.assign(tipoServicio, { nombre, descripcion, duracion_estimada, precio_base });
@@ -107,4 +114,4 @@ async function remove(req: Request, res: Response) {
     }
 }
 
-export { findAll, getOne, add, update, remove };
+export { findAll, getOne, add, update, remove, sanitizeTipoServicioInput };
