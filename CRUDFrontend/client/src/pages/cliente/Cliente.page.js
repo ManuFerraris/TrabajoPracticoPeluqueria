@@ -3,134 +3,101 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
 
-function ServiciosPage(){
-    const [servicios, setServicios] = useState([]);
-    const [monto, setMonto] = useState('');
-    const [estado, setEstado] = useState('');
-    const [adicional_adom, setAdicional_adom] = useState('');
-    const [ausencia_cliente, setAusencia_cliente] = useState('');
-    const [medio_pago, setMedio_pago] = useState('');
-    const [codigo_turno, setTurno] = useState('');
-    const [tipo_servicio_codigo, setTipo_servicio_codigo_tipo] = useState('')
-
+function ClientesPage(){
+    const [clientes, setClientes] = useState([]);
+    const [dni, setDni] = useState('');
+    const [NomyApe, setNomyape] = useState('');
+    const [email, setEmail] = useState('');
+    const [direccion, setDireccion] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [codigo_localidad, setCodigo_Localidad] = useState('');
     const [error, setError] = useState('');
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [servicioSeleccionado, setServicioSeleccionado] = useState(false);
+    const [errors, setErrors] = useState('');
+    const [loading, setLoading] = useState('');
+    const [clienteSeleccionado, setClienteSeleccionado] = useState('');
     const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState('');
-    const [tipoServicio, setTipoServicio] = useState([]);
+    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const [localidades, setLocalidades] = useState([]);
 
     useEffect(() => {
-        const fetchServicios = async () => {
-            setLoading(true);
+        const fetchClientes = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/servicios');
+                const response = await fetch('http://localhost:3000/api/clientes');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                setServicios(data.data || []);
+                setClientes(data.data || []);
             } catch (error) {
                 setError(error.message);
             } finally {
                 setLoading(false);
             }
         };
-        fetchServicios();
+        fetchClientes();
     }, []);
 
     useEffect(() => {
-        const fetchTipoServicios = async () => {
+        const fetchLocalidades = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/tiposervicio');
+                const response = await fetch('http://localhost:3000/api/localidades'); // Cambia esta URL según la ruta correcta en tu backend
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                setTipoServicio(data.data || []);
+                setLocalidades(data.data || []); // Asegúrate de que data.data contiene la lista de localidades
             } catch (error) {
-                console.error('Error al obtener los Tipos de Servicios:', error);
+                console.error('Error al obtener las localidades:', error);
             }
         };
-        fetchTipoServicios();
+        fetchLocalidades();
     }, []);
 
     useEffect(() => {
-        if (servicioSeleccionado) {
-            console.log('Servicio seleccionado:', servicioSeleccionado);
-            setMonto(servicioSeleccionado.monto || '');
-            setEstado(servicioSeleccionado.estado || '');
-            setAdicional_adom(servicioSeleccionado.adicional_adom || '');
-            setAusencia_cliente(servicioSeleccionado.ausencia_cliente || '');
-            setMedio_pago(servicioSeleccionado.medio_pago || '');
-            setTurno(servicioSeleccionado.turno || '');
-            setTipo_servicio_codigo_tipo(servicioSeleccionado.tipoServicio?.nombre || '');
-            console.log('Tipo de servicio: ', servicioSeleccionado.tipoServicio?.nombre)
+        if (clienteSeleccionado) {
+            setDni(clienteSeleccionado.dni || '');
+            setNomyape(clienteSeleccionado.NomyApe || '');
+            setEmail(clienteSeleccionado.email || '');
+            setDireccion(clienteSeleccionado.direccion || '');
+            setTelefono(clienteSeleccionado.telefono || '');
+            setCodigo_Localidad(clienteSeleccionado.codigo_localidad || '');
         }
-    }, [servicioSeleccionado]);
+    }, [clienteSeleccionado]);
 
-    const getServicios = async () => {
+    const getClientes = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/servicios');
-            const servicios = response.data.data;
-            if (Array.isArray(servicios)) {
-                setServicios(servicios);
+            const response = await Axios.get('http://localhost:3000/api/clientes');
+            const clientes = response.data.data;
+            if (Array.isArray(clientes)) {
+                setClientes(clientes);
             }
         } catch (error) {
-            console.error('Error al obtener los Servicios:', error);
-            setServicios([]);
+            console.error('Error al obtener las clientes:', error);
+            setClientes([]);
         }
     };
-
-    const getTiposServicios = async () => {
-        try {
-            const response = await Axios.get('http://localhost:3000/api/tiposervicio');
-            const tipoServicios = response.data.data;
-            if (Array.isArray(tipoServicios)) {
-                setTipoServicio(tipoServicios);
-            }
-        } catch (error) {
-            console.error('Error al obtener los Tipos de Servicios:', error);
-            setTipoServicio([]);
-        }
-    };
-
-    useEffect(() => { //Evitar el Warning
-        getTiposServicios();
-    }, []);
 
     const validateForm = () => {
         const errors = {};
 
-        if (!monto) {
-            errors.monto = "El monto es obligatorio.";
+        if (!dni) {
+            errors.dni = "El DNI es obligatorio.";
+        } else if (dni.length > 9) {
+            errors.dni = "El DNI no puede tener más de 8 caracteres.";
         }
 
-        if (!estado) {
-            errors.estado = "El estado es obligatiorio.";
-        } else if(estado !== "Pendiente" && estado !== "Pago"){
-            errors.estado = "El Seleccione un estado.";
+        if (!NomyApe) {
+            errors.NomyApe = "El nombre y apellido es obligatiorio.";
+        } else if(NomyApe.length > 40){
+            errors.NomyApe = "El nombre y apellido no puede tener mas de 40 Caracteres"
         }
 
-        if (!medio_pago) {
-            errors.medio_pago = "Seleccione un medio de pago.";
-        } else if(medio_pago !== "Efectivo" && medio_pago !== "Mercado Pago"){
-            errors.medio_pago = "Seleccione un medio de pago.";
+        if (!direccion) {
+            errors.direccion = "La direccion es obligatoria.";
         }
 
-        if (!ausencia_cliente) {
-            errors.ausencia_cliente = "Seleccione una opcion.";
-        } else if(ausencia_cliente !== "Se presento" && ausencia_cliente !== "Esta ausente"){
-            errors.ausencia_cliente = "Seleccione una opcion.";
-        }
-
-        if(!codigo_turno){
-            errors.codigo_turno = "El codigo de turno es obligatorio."
-        };
-
-        if(!tipo_servicio_codigo){
-            errors.tipo_servicio_codigo = "El codigo del Tipo de Servicio es obligatorio."
+        if(!codigo_localidad){
+            errors.codigo_localidad = "El codigo de la localidad es obligatorio"
         }
         
         return errors;
@@ -146,14 +113,13 @@ function ServiciosPage(){
 
         try {
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/servicios/${servicioSeleccionado.codigo}`, {
-                    monto: monto,
-                    estado: estado,
-                    adicional_adom: adicional_adom,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    codigo_turno: codigo_turno,
-                    tipo_servicio_codigo:tipo_servicio_codigo,
+                await Axios.put(`http://localhost:3000/api/clientes/${clienteSeleccionado.codigo_cliente}`, {
+                    dni: dni,
+                    NomyApe: NomyApe,
+                    email: email,
+                    direccion: direccion,
+                    telefono: telefono,
+                    codigo_localidad: codigo_localidad
                 });
                 Swal.fire({
                     position: 'center',
@@ -163,52 +129,46 @@ function ServiciosPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/servicios', {
-                    monto: monto,
-                    estado: estado,
-                    adicional_adom: adicional_adom,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    codigo_turno: codigo_turno,
-                    tipo_servicio_codigo:tipo_servicio_codigo,
+                await Axios.post('http://localhost:3000/api/clientes', {
+                    dni: dni,
+                    NomyApe: NomyApe,
+                    email: email,
+                    direccion: direccion,
+                    telefono: telefono,
+                    codigo_localidad: codigo_localidad
                 });
                 Swal.fire({
                     position: 'center',
                     icon: 'success',
-                    title: 'Servicio registrado',
+                    title: 'Cliente registrado',
                     showConfirmButton: false,
                     timer: 1500
                 });
             }
-            await getServicios();
-            resetForm();
+            getClientes();
+            setDni("");
+            setNomyape("");
+            setEmail("");
+            setDireccion("");
+            setTelefono("");
+            setCodigo_Localidad("");
+            setErrors({});
+            setEditar(false);
         } catch (error) {
-            console.error('Error al guardar el servicio:', error);
+            console.error('Error al guardar el cliente:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Hubo un problema al guardar el Servicio.',
+                text: 'Hubo un problema al guardar el Cliente.',
                 confirmButtonText: 'Aceptar',
                 position: 'center'
             });
         }
     }
 
-    const resetForm = () => {
-        setMonto("");
-            setEstado("");
-            setAdicional_adom("");
-            setAusencia_cliente("");
-            setMedio_pago("");
-            setTurno("");
-            setTipo_servicio_codigo_tipo("")
-            setErrors({});
-            setEditar(false);
-            setServicioSeleccionado(false);
-    };
-
-    const eliminarServicio = (codigo) => {
-        Axios.get(`http://localhost:3000/api/turnos?codigo=${codigo}`)
+    const eliminarCliente = (codigo_cliente) => {
+        // Consulta si la cliente tiene algun turno guardado
+        Axios.get(`http://localhost:3000/api/turnos?codigo_cliente=${codigo_cliente}`)
             .then(response => {
                 const turnosAsignados = response.data;
     
@@ -216,7 +176,7 @@ function ServiciosPage(){
                     Swal.fire({
                         icon: 'error',
                         title: 'No se puede eliminar',
-                        text: 'No se puede eliminar el Servicio con código ${codigo} porque tiene turno/s asignado/s.',
+                        text: 'No se puede eliminar el cliente con código ${codigo_cliente} porque tiene turno/s asignado/s.',
                         confirmButtonText: 'Aceptar'
                     });
                 } else {
@@ -230,18 +190,18 @@ function ServiciosPage(){
                         confirmButtonText: 'Sí, eliminarlo'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/servicios/${codigo}`)
+                            Axios.delete(`http://localhost:3000/api/clientes/${codigo_cliente}`)
                                 .then(() => {
-                                    getServicios();
+                                    getClientes();
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Eliminado',
-                                        text: 'El servicio ha sido eliminado con éxito.',
+                                        text: 'El cliente ha sido eliminado con éxito.',
                                         confirmButtonText: 'Aceptar'
                                     });
                                 })
                                 .catch(error => {
-                                    console.error('Error al eliminar el servicio:', error);
+                                    console.error('Error al eliminar el cliente:', error);
                                     if (error.response && error.response.data && error.response.data.message) {
                                         Swal.fire({
                                             icon: 'error',
@@ -253,7 +213,7 @@ function ServiciosPage(){
                                         Swal.fire({
                                             icon: 'error',
                                             title: 'Error',
-                                            text: 'Error al eliminar el servicio',
+                                            text: 'Error al eliminar el cliente',
                                             confirmButtonText: 'Aceptar'
                                         });
                                     }
@@ -266,7 +226,7 @@ function ServiciosPage(){
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al verificar los turnos del servicio',
+                    text: 'Error al verificar los turnos del cliente',
                     confirmButtonText: 'Aceptar'
                 });
             });
@@ -279,7 +239,7 @@ function ServiciosPage(){
         <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
             <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
                 <div className="card-header text-center bg-primary text-white">
-                    <h3>Alta de Servicios</h3>
+                    <h3>Alta de Clientes</h3>
                 </div>
     
                 <div className="card-body d-flex flex-column" style={{ maxHeight: 'calc(100vh - 50px)', overflow: 'hidden' }}>
@@ -288,97 +248,78 @@ function ServiciosPage(){
                             <div className="row mb-3">
 
                                 <div className="col-md-6">
-                                    <label className="form-label">Monto:</label>
+                                    <label className="form-label">Nombre y Apellido:</label>
                                     <input
                                         type="text"
-                                        onChange={(event) => setMonto(event.target.value)}
+                                        onChange={(event) => setNomyape(event.target.value)}
                                         className="form-control"
-                                        value={monto || ""}
-                                        placeholder="Ingrese el monto"
+                                        value={NomyApe || ""}
+                                        placeholder="Nombre y Apellido"
                                     />
-                                    {errors.monto && <div className="text-danger">{errors.monto}</div>}
+                                    {errors.NomyApe && <div className="text-danger">{errors.NomyApe}</div>}
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label className="form-label">Estado:</label>
-                                    <select
-                                        className="form-select"
-                                        onChange={(event) => setEstado(event.target.value)}
-                                        value={estado || ""}
-                                    >
-                                        <option value="">Seleccione una opcion</option>
-                                        <option value="Pendiente">Pendiente</option>
-                                        <option value="Pago">Pago</option>
-                                    </select>
-                                    {errors.estado && <div className="text-danger">{errors.estado}</div>}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <label className="form-label">Adicional a Domicilio:</label>
+                                    <label className="form-label">Nro. de Documento:</label>
                                     <input
                                         type="text"
-                                        onChange={(event) => setAdicional_adom(event.target.value)}
+                                        onChange={(event) => setDni(event.target.value)}
                                         className="form-control"
-                                        value={adicional_adom || ''}
-                                        placeholder="Ingrese el monto (opcional)"
+                                        value={dni || ""}
+                                        placeholder="Nro. de Documento"
+                                    />
+                                    {errors.dni && <div className="text-danger">{errors.dni}</div>}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <label className="form-label">Email:</label>
+                                    <input
+                                        type="text"
+                                        onChange={(event) => setEmail(event.target.value)}
+                                        className="form-control"
+                                        value={email || ""}
+                                        placeholder="Direccion de email (opcional)"
                                     />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label className="form-label">Ausencia Cliente:</label>
-                                    <select
-                                        className="form-select"
-                                        onChange={(event) => setAusencia_cliente(event.target.value)}
-                                        value={ausencia_cliente || ""}
-                                    >
-                                        <option value="">Seleccione una opcion</option>
-                                        <option value="Se presento">Se presento</option>
-                                        <option value="Esta ausente">Esta ausente</option>
-                                    </select>
-                                    {errors.ausencia_cliente && <div className="text-danger">{errors.ausencia_cliente}</div>}
+                                    <label className="form-label">Direccion:</label>
+                                    <input
+                                        type="text"
+                                        onChange={(event) => setDireccion(event.target.value)}
+                                        className="form-control"
+                                        value={direccion || ""}
+                                        placeholder="Direccion"
+                                    />
+                                    {errors.direccion && <div className="text-danger">{errors.direccion}</div>}
                                 </div>
                                 
                                 <div className="col-md-6">
-                                    <label className="form-label">Medio de Pago:</label>
-                                    <select
-                                        className="form-select"
-                                        onChange={(event) => setMedio_pago(event.target.value)}
-                                        value={medio_pago || ""}
-                                    >
-                                        <option value="">Seleccione una opcion</option>
-                                        <option value="Efectivo">Efectivo</option>
-                                        <option value="Mercado Pago">Mercado Pago</option>
-                                    </select>
-                                    {errors.medio_pago && <div className="text-danger">{errors.medio_pago}</div>}
+                                    <label className="form-label">Telefono:</label>
+                                    <input
+                                        type="text"
+                                        onChange={(event) => setTelefono(event.target.value)}
+                                        className="form-control"
+                                        value={telefono || ""}
+                                        placeholder="Telefono (opcional)"
+                                    />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label className="form-label">Tipo Servicio:</label>
+                                    <label className="form-label">Localidad:</label>
                                     <select
-                                        onChange={(event) => setTipo_servicio_codigo_tipo(event.target.value)}
+                                        onChange={(event) => setCodigo_Localidad(event.target.value)}
                                         className="form-control"
-                                        value={tipo_servicio_codigo || ""}
+                                        value={codigo_localidad || ""}
                                     >
-                                        <option value="">Seleccione un tipo de Servicio</option>
-                                        {tipoServicio.map(tipo => (
-                                            <option key={tipo.codigo_tipo} value={tipo.codigo_tipo}>
-                                                {tipo.nombre}
+                                        <option value="">Seleccione una localidad</option>
+                                        {localidades.map(localidad => (
+                                            <option key={localidad.codigo} value={localidad.codigo}>
+                                                {localidad.nombre} {/* Ajusta este campo según el nombre del atributo en tu entidad Localidad */}
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.tipo_servicio_codigo && <div className="text-danger">{errors.tipo_servicio_codigo}</div>}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <label className="form-label">Codigo de Turno:</label>
-                                    <input
-                                        type="number"
-                                        onChange={(event) => setTurno(Number(event.target.value))}
-                                        className="form-control"
-                                        value={codigo_turno || ''}
-                                        placeholder="Codigo de turno"
-                                    />
-                                    {errors.codigo_turno && <div className="text-danger">{errors.codigo_turno}</div>}
+                                    {errors.codigo_localidad && <div className="text-danger">{errors.codigo_localidad}</div>}
                                 </div>
 
                             </div>
@@ -388,7 +329,7 @@ function ServiciosPage(){
                                     editar ?
                                         <div>
                                             <button type="submit" className='btn btn-warning m-2'>Actualizar</button>
-                                            <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm();}}>Cancelar</button>
+                                            <button type="button" className='btn btn-secondary m-2' onClick={() => setEditar(false)}>Cancelar</button>
                                         </div>
                                         :
                                         <button type="submit" className='btn btn-success'>Registrar</button>
@@ -402,29 +343,28 @@ function ServiciosPage(){
                             <thead className="table-primary sticky-top">
                                 <tr>
                                     <th scope="col">Código</th>
-                                    <th scope="col">Monto</th>
-                                    <th scope="col">Medio de Pago</th>
-                                    <th scope="col">Estado</th>
-                                    <th scope="col">Adic. a Dom.</th>
-                                    <th scope="col">Tipo Serv.</th>
-                                    <th scope="col">Aus. Cli.</th>
+                                    <th scope="col">Nombre y Apellido</th>
+                                    <th scope="col">DNI</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Direccion</th>
+                                    <th scope="col">Telefono</th>
                                     <th scope="col">Acciones</th>
+
                                 </tr>
                             </thead>
                             <tbody>
                                 {
-                                    servicios.map(val => (
-                                        <tr key={val.codigo}>
-                                            <th>{val.codigo}</th>
-                                            <td>{val.monto}</td>
-                                            <td>{val.medio_pago}</td>
-                                            <td>{val.estado}</td>
-                                            <td>{val.adicional_adom}</td>
-                                            <td>{val.tipoServicio?.nombre || 'N/A'}</td>
-                                            <td>{val.ausencia_cliente}</td>
+                                    clientes.map(val => (
+                                        <tr key={val.codigo_cliente}>
+                                            <th>{val.codigo_cliente}</th>
+                                            <td>{val.NomyApe}</td>
+                                            <td>{val.dni}</td>
+                                            <td>{val.email}</td>
+                                            <td>{val.direccion}</td>
+                                            <td>{val.telefono}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setServicioSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarServicio(val.codigo)}>Eliminar</button>
+                                                <button className="btn btn-primary btn-sm" onClick={() => { setClienteSeleccionado(val); setEditar(true); }}>Editar</button>
+                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarCliente(val.codigo_cliente)}>Eliminar</button>
                                             </td>
                                         </tr>
                                     ))
@@ -445,4 +385,4 @@ function ServiciosPage(){
     );
 }
 
-export default ServiciosPage;
+export default ClientesPage;
