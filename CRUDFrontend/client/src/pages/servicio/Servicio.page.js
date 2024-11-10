@@ -7,7 +7,7 @@ function ServiciosPage(){
     const [servicios, setServicios] = useState([]);
     const [monto, setMonto] = useState('');
     const [estado, setEstado] = useState('');
-    const [adicional_adom, setAdicional_adom] = useState('');
+    const [/*adicional_adom*/, setAdicional_adom] = useState('');
     const [ausencia_cliente, setAusencia_cliente] = useState('');
     const [medio_pago, setMedio_pago] = useState('');
     const [turno_codigo_turno, setTurno] = useState('');
@@ -130,7 +130,6 @@ function ServiciosPage(){
                 console.log("Datos enviados en PUT:", {
                     monto: Number(monto),
                     estado: estado,
-                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
@@ -140,7 +139,6 @@ function ServiciosPage(){
                 await Axios.put(`http://localhost:3000/api/servicios/${servicioSeleccionado.codigo}`, {
                     monto: Number(monto),
                     estado: estado,
-                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
@@ -158,7 +156,6 @@ function ServiciosPage(){
                 console.log("Datos enviados en POST:", {
                     monto: monto,
                     estado: estado,
-                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
@@ -168,7 +165,6 @@ function ServiciosPage(){
                 await Axios.post('http://localhost:3000/api/servicios', {
                     monto: Number(monto),
                     estado: estado,
-                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
                     turno_codigo_turno: turno_codigo_turno,
@@ -315,6 +311,7 @@ function ServiciosPage(){
                                     {errors.estado && <div className="text-danger">{errors.estado}</div>}
                                 </div>
 
+                                {/*
                                 <div className="col-md-6">
                                     <label className="form-label">Adicional a Domicilio:</label>
                                     <input
@@ -325,6 +322,7 @@ function ServiciosPage(){
                                         placeholder="Ingrese el monto (opcional)"
                                     />
                                 </div>
+                                */}
 
                                 <div className="col-md-6">
                                     <label className="form-label">Ausencia Cliente:</label>
