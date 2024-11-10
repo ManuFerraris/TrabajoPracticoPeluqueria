@@ -10,8 +10,10 @@ function ServiciosPage(){
     const [adicional_adom, setAdicional_adom] = useState('');
     const [ausencia_cliente, setAusencia_cliente] = useState('');
     const [medio_pago, setMedio_pago] = useState('');
-    const [codigo_turno, setTurno] = useState('');
-    const [tipo_servicio_codigo, setTipo_servicio_codigo_tipo] = useState('')
+    const [turno_codigo_turno, setTurno] = useState('');
+    const [tipo_servicio_codigo, setCodigo_tipo] = useState('')
+    const [/*total*/, setTotal] = useState('');
+    const [tipoServicio, setTipoServicio] = useState([]);
 
     const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
@@ -19,8 +21,6 @@ function ServiciosPage(){
     const [servicioSeleccionado, setServicioSeleccionado] = useState(false);
     const [editar, setEditar] = useState(false);
     const [alerta, setAlerta] = useState('');
-    const [tipoServicio, setTipoServicio] = useState([]);
-
     useEffect(() => {
         const fetchServicios = async () => {
             setLoading(true);
@@ -33,49 +33,39 @@ function ServiciosPage(){
                 setServicios(data.data || []);
             } catch (error) {
                 setError(error.message);
+                console.error('Error al cargar los servicios:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchServicios();
-    }, []);
 
-    useEffect(() => {
-        const fetchTipoServicios = async () => {
+        const fetchTipoServicio = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/tiposervicio');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                const response = await fetch('http://localhost:3000/api/tipoServicio'); // Ruta de API para tipos de servicio
                 const data = await response.json();
                 setTipoServicio(data.data || []);
+                console.log("Tipos de Servicio cargados:", data.data);
             } catch (error) {
-                console.error('Error al obtener los Tipos de Servicios:', error);
+                console.error("Error al cargar tipos de servicio:", error);
             }
         };
-        fetchTipoServicios();
+        fetchServicios();
+        fetchTipoServicio();
     }, []);
 
     useEffect(() => {
         if (servicioSeleccionado) {
-            console.log('Servicio seleccionado:', servicioSeleccionado);
             setMonto(servicioSeleccionado.monto || '');
             setEstado(servicioSeleccionado.estado || '');
             setAdicional_adom(servicioSeleccionado.adicional_adom || '');
             setAusencia_cliente(servicioSeleccionado.ausencia_cliente || '');
             setMedio_pago(servicioSeleccionado.medio_pago || '');
             setTurno(servicioSeleccionado.turno || '');
-            
-            // Buscamos el tipo de servicio en la lista `tiposDeServicio`
-            const tipoServicioSeleccionado = tipoServicio.find(
-                tipo => tipo.codigo === servicioSeleccionado.tipoServicio
-            );
-
-            // Si se encuentra, actualizamos el nombre
-            setTipo_servicio_codigo_tipo(tipoServicioSeleccionado ? tipoServicioSeleccionado.nombre : '');
-            console.log('Tipo de servicio: ', tipoServicioSeleccionado?.nombre);
+            setTotal(servicioSeleccionado.total || '');
+            setCodigo_tipo(servicioSeleccionado.tipo_servicio_codigo || '');
+            console.log("Servicio seleccionado:", servicioSeleccionado);
         }
-    }, [servicioSeleccionado, tipoServicio]);
+    }, [servicioSeleccionado]);
 
     const getServicios = async () => {
         try {
@@ -90,55 +80,38 @@ function ServiciosPage(){
         }
     };
 
-    const getTiposServicios = async () => {
-        try {
-            const response = await Axios.get('http://localhost:3000/api/tiposervicio');
-            const tipoServicios = response.data.data;
-            if (Array.isArray(tipoServicios)) {
-                setTipoServicio(tipoServicios);
-            }
-        } catch (error) {
-            console.error('Error al obtener los Tipos de Servicios:', error);
-            setTipoServicio([]);
-        }
-    };
-
-    useEffect(() => { //Evitar el Warning
-        getTiposServicios();
-    }, []);
-
     const validateForm = () => {
         const errors = {};
 
         if (!monto) {
             errors.monto = "El monto es obligatorio.";
-        }
+        };
 
         if (!estado) {
             errors.estado = "El estado es obligatiorio.";
         } else if(estado !== "Pendiente" && estado !== "Pago"){
             errors.estado = "El Seleccione un estado.";
-        }
+        };
 
         if (!medio_pago) {
             errors.medio_pago = "Seleccione un medio de pago.";
         } else if(medio_pago !== "Efectivo" && medio_pago !== "Mercado Pago"){
             errors.medio_pago = "Seleccione un medio de pago.";
-        }
+        };
 
         if (!ausencia_cliente) {
             errors.ausencia_cliente = "Seleccione una opcion.";
         } else if(ausencia_cliente !== "Se presento" && ausencia_cliente !== "Esta ausente"){
             errors.ausencia_cliente = "Seleccione una opcion.";
-        }
+        };
 
-        if(!codigo_turno){
-            errors.codigo_turno = "El codigo de turno es obligatorio."
+        if(!turno_codigo_turno){
+            errors.turno_codigo_turno = "El codigo de turno es obligatorio."
         };
 
         if(!tipo_servicio_codigo){
             errors.tipo_servicio_codigo = "El codigo del Tipo de Servicio es obligatorio."
-        }
+        };
         
         return errors;
     };
@@ -153,13 +126,24 @@ function ServiciosPage(){
 
         try {
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/servicios/${servicioSeleccionado.codigo}`, {
-                    monto: monto,
+
+                console.log("Datos enviados en PUT:", {
+                    monto: Number(monto),
                     estado: estado,
-                    adicional_adom: adicional_adom,
+                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
-                    codigo_turno: codigo_turno,
+                    turno_codigo_turno: turno_codigo_turno,
+                    tipo_servicio_codigo: tipo_servicio_codigo,
+                });
+
+                await Axios.put(`http://localhost:3000/api/servicios/${servicioSeleccionado.codigo}`, {
+                    monto: Number(monto),
+                    estado: estado,
+                    adicional_adom: Number(adicional_adom),
+                    ausencia_cliente: ausencia_cliente,
+                    medio_pago: medio_pago,
+                    turno_codigo_turno: turno_codigo_turno,
                     tipo_servicio_codigo:tipo_servicio_codigo,
                 });
                 Swal.fire({
@@ -170,14 +154,25 @@ function ServiciosPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/servicios', {
+
+                console.log("Datos enviados en POST:", {
                     monto: monto,
                     estado: estado,
-                    adicional_adom: adicional_adom,
+                    adicional_adom: Number(adicional_adom),
                     ausencia_cliente: ausencia_cliente,
                     medio_pago: medio_pago,
-                    codigo_turno: codigo_turno,
-                    tipo_servicio_codigo:tipo_servicio_codigo,
+                    turno_codigo_turno: turno_codigo_turno,
+                    tipo_servicio_codigo: tipo_servicio_codigo,
+                });
+    
+                await Axios.post('http://localhost:3000/api/servicios', {
+                    monto: Number(monto),
+                    estado: estado,
+                    adicional_adom: Number(adicional_adom),
+                    ausencia_cliente: ausencia_cliente,
+                    medio_pago: medio_pago,
+                    turno_codigo_turno: turno_codigo_turno,
+                    tipo_servicio_codigo: tipo_servicio_codigo,
                 });
                 Swal.fire({
                     position: 'center',
@@ -208,7 +203,7 @@ function ServiciosPage(){
             setAusencia_cliente("");
             setMedio_pago("");
             setTurno("");
-            setTipo_servicio_codigo_tipo("")
+            setCodigo_tipo("")
             setErrors({});
             setEditar(false);
             setServicioSeleccionado(false);
@@ -360,14 +355,14 @@ function ServiciosPage(){
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label className="form-label">Tipo Servicio:</label>
+                                    <label className="form-label">Tipo de Servicio:</label>
                                     <select
-                                        onChange={(event) => setTipo_servicio_codigo_tipo(event.target.value)}
-                                        className="form-control"
-                                        value={tipo_servicio_codigo || ""}
+                                        onChange={(e) => setCodigo_tipo(e.target.value)}
+                                        value={tipo_servicio_codigo || ''}
+                                        className="form-select"
                                     >
-                                        <option value="">Seleccione un tipo de Servicio</option>
-                                        {tipoServicio.map(tipo => (
+                                        <option value="">Seleccione un tipo de servicio</option>
+                                        {tipoServicio.map((tipo) => (
                                             <option key={tipo.codigo_tipo} value={tipo.codigo_tipo}>
                                                 {tipo.nombre}
                                             </option>
@@ -382,10 +377,10 @@ function ServiciosPage(){
                                         type="number"
                                         onChange={(event) => setTurno(Number(event.target.value))}
                                         className="form-control"
-                                        value={codigo_turno || ''}
+                                        value={turno_codigo_turno || ''}
                                         placeholder="Codigo de turno"
                                     />
-                                    {errors.codigo_turno && <div className="text-danger">{errors.codigo_turno}</div>}
+                                    {errors.turno_codigo_turno && <div className="text-danger">{errors.turno_codigo_turno}</div>}
                                 </div>
 
                             </div>
@@ -414,6 +409,7 @@ function ServiciosPage(){
                                     <th scope="col">Estado</th>
                                     <th scope="col">Adic. a Dom.</th>
                                     <th scope="col">Tipo Serv.</th>
+                                    <th scope="col">Total</th>
                                     <th scope="col">Aus. Cli.</th>
                                     <th scope="col">Acciones</th>
                                 </tr>
@@ -427,7 +423,8 @@ function ServiciosPage(){
                                             <td>{val.medio_pago}</td>
                                             <td>{val.estado}</td>
                                             <td>{val.adicional_adom}</td>
-                                            <td>{val.tipoServicio?.nombre || 'N/A'}</td>
+                                            <td>{val.tipoServicio?.tipo_servicio_codigo || 'N/A'}</td>
+                                            <td>{val.total}</td>
                                             <td>{val.ausencia_cliente}</td>
                                             <td>
                                                 <button className="btn btn-primary btn-sm" onClick={() => { setServicioSeleccionado(val); setEditar(true); }}>Editar</button>

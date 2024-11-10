@@ -40,12 +40,12 @@ function ClientesPage(){
     useEffect(() => {
         const fetchLocalidades = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/localidades'); // Cambia esta URL según la ruta correcta en tu backend
+                const response = await fetch('http://localhost:3000/api/localidades');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                setLocalidades(data.data || []); // Asegúrate de que data.data contiene la lista de localidades
+                setLocalidades(data.data || []); 
             } catch (error) {
                 console.error('Error al obtener las localidades:', error);
             }
@@ -176,7 +176,7 @@ function ClientesPage(){
                     Swal.fire({
                         icon: 'error',
                         title: 'No se puede eliminar',
-                        text: 'No se puede eliminar el cliente con código ${codigo_cliente} porque tiene turno/s asignado/s.',
+                        text: `No se puede eliminar el cliente con código ${codigo_cliente} porque tiene turno/s asignado/s.`,
                         confirmButtonText: 'Aceptar'
                     });
                 } else {
@@ -385,4 +385,4 @@ function ClientesPage(){
     );
 }
 
-export default ClientesPage;
+export default ClientesPage;

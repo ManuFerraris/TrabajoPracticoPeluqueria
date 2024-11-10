@@ -6,6 +6,7 @@ import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.js";
 import ServiciosPage from "./pages/servicio/Servicio.page.js";
 import TurnosPage from "./pages/turno/Turno.page.js";
 import MenuPage from './pages/MenuPage';
+import ClientesPage from "./pages/cliente/Cliente.page.js";
 
 function App() {
     return (
@@ -17,7 +18,7 @@ function App() {
                 <Route path="/tiposervicio" element={<TipoServicioPage />} />
                 <Route path= "/servicio" element={<ServiciosPage/>} />
                 <Route path= "/turno" element={<TurnosPage/>} />
-
+                <Route path= "/cliente" element={<ClientesPage/>} />
             </Routes>
         </Router>
     );

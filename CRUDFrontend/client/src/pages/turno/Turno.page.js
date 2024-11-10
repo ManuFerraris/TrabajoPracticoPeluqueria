@@ -7,7 +7,7 @@ function TurnosPage(){
     const [turnos, setTurnos] = useState([]);
     const [fecha_hora, setFecha_hora] = useState('');
     const [tipo_turno, setTipo_turno] = useState('');
-    const [porcentaje, setPorcentaje] = useState('');
+    const [/*porcentaje*/, setPorcentaje] = useState('');
     const [estado, setEstado] = useState('');
     const [codigo_cliente, setCodigo_cliente] = useState('');
     //const [codigo_servicio, setCodigo_servicio] = useState('');
@@ -126,7 +126,7 @@ function TurnosPage(){
                 await Axios.put(`http://localhost:3000/api/turnos/${turnoSeleccionado.codigo_turno}`, {
                     fecha_hora: formattedDate,
                     tipo_turno: tipo_turno,
-                    porcentaje: porcentaje,
+                    //porcentaje: porcentaje,
                     estado: estado,
                     codigo_cliente: Number(codigo_cliente),
                     // codigo_servicio: Number(codigo_servicio),
@@ -144,7 +144,7 @@ function TurnosPage(){
                 await Axios.post('http://localhost:3000/api/turnos', {
                     fecha_hora: formattedDate,
                     tipo_turno: tipo_turno,
-                    porcentaje: porcentaje,
+                    //porcentaje: porcentaje,
                     estado: estado,
                     codigo_cliente: Number(codigo_cliente), 
                     //codigo_servicio: Number(codigo_servicio),
@@ -282,6 +282,7 @@ function TurnosPage(){
                                     {errors.tipo_turno && <div className="text-danger">{errors.tipo_turno}</div>}
                                 </div>
 
+                                {/* 
                                 <div className="col-md-6">
                                     <label className="form-label">Porcentaje:</label>
                                     <input
@@ -292,7 +293,8 @@ function TurnosPage(){
                                         placeholder="Ingrese el monto (opcional)"
                                     />
                                 </div>
-
+                                */}
+                                
                                 <div className="col-md-6">
                                     <label className="form-label">Estado:</label>
                                     <select
