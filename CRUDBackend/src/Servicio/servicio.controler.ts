@@ -15,8 +15,9 @@ function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) 
         adicional_adom: req.body.adicional_adom,
         ausencia_cliente: req.body.ausencia_cliente,
         medio_pago: req.body.medio_pago,
-        codigo_turno: req.body.codigo_turno,
+        turno_codigo_turno: req.body.turno_codigo_turno,
         tipo_servicio_codigo: req.body.tipo_servicio_codigo,
+        total: req.body.total,
     };
 
     Object.keys(req.body.sanitizedInput).forEach(key => {
@@ -98,13 +99,17 @@ async function getOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
     try {
-        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, codigo_turno, tipo_servicio_codigo } = req.body.sanitizedInput;
-        if (!codigo_turno) {
+        const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno, tipo_servicio_codigo, total } = req.body.sanitizedInput;
+        if (!turno_codigo_turno) {
             return res.status(400).json({ message: 'Código de turno no proporcionado.' });
         }
         
         // Verificar si el turno existe en la base de datos
-        const turno = await em.findOne(Turno, { codigo_turno: codigo_turno });
+        const cod_tur = Number(turno_codigo_turno);
+        if(isNaN(cod_tur)){
+            return res.status(404).json({ message: 'Codigo de turno invalido'})
+        };
+        const turno = await em.findOne(Turno, { codigo_turno: cod_tur });
         if (!turno) {
             return res.status(404).json({ message: 'Turno no encontrado.' });
         };
@@ -151,10 +156,17 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'Las opciones validas son "Efectivo" o "Mercado pago."'})
         };
 
+        //Calculamos el total del servicio.
+        //Sacamos el porcentaje del turno
         const porcentaje_turno = (turno.porcentaje)/100;
 
-        //const tipoServicio = await em.findOne(TipoServicio, )
-        //const precio_base_TipoServicio =
+        const prec_base = tipo_Servicio.precio_base;
+
+        let precioFinal = monto + adicional_adom + prec_base + monto*porcentaje_turno 
+
+        if(medio_pago === "Mercado Pago"){
+            precioFinal *= 1.05  //5% De recargo por usar MercadoPago
+        };
 
         // Crear el servicio
         const servicio = new Servicio();
@@ -165,6 +177,7 @@ async function add(req: Request, res: Response) {
         servicio.medio_pago = medio_pago;
         servicio.turno = turno; // Asociar el turno al servicio
         servicio.tipoServicio = tipo_Servicio;
+        servicio.total = precioFinal;
 
         // Persistir el servicio en la base de datos
         await em.persistAndFlush(servicio);
@@ -180,7 +193,7 @@ async function add(req: Request, res: Response) {
     }
 }
 
-async function update(req: Request, res: Response) {
+async function update(req: Request, res: Response) { //FUNCIONAL
     try {
 
         const codigo = Number(req.params.codigo);
@@ -233,15 +246,20 @@ async function update(req: Request, res: Response) {
             return res.status(404).json({ message: 'Tipo de servicio no encontrado.'})
         };
 
-        // Validacion del codigo de turno
-        if (turno_codigo_turno !== undefined) {
-            const nuevoTurno = await em.findOne(Turno, { codigo_turno: turno_codigo_turno });
-            if (!nuevoTurno) {
-                return res.status(404).json({ message: 'El código del turno no existe' });
+        // Validacion del código de turno
+        const cod_Tur = Number(req.body.sanitizedInput.turno_codigo_turno);
+        if(isNaN(cod_Tur)){
+            return res.status(404).json({ message: 'Codigo de turno invalido.' });
+        };
+        if (cod_Tur !== undefined) {
+            const turno = await em.findOne(Turno, { codigo_turno: cod_Tur });
+
+            if (!turno) {
+                return res.status(404).json({ message: 'Turno no encontrado.' });
             }
 
-            // Verificar si el nuevo turno ya tiene un servicio asociado
-            const servicioExistente = await em.findOne(Servicio, { turno: nuevoTurno });
+            // Verificar si el turno ya tiene un servicio asociado
+            const servicioExistente = await em.findOne(Servicio, { turno: turno });
             if (servicioExistente && servicioExistente.codigo !== servicioAActualizar.codigo) {
                 return res.status(400).json({
                     message: 'Conflicto de clave única',
@@ -249,10 +267,26 @@ async function update(req: Request, res: Response) {
                 });
             }
 
-            // Actualizar el turno en la entidad Servicio
-            servicioAActualizar.turno = nuevoTurno;
+            // Asignamos el nuevo turno al servicio
+            servicioAActualizar.turno = turno;
+        }
+
+        const turno = await em.findOne(Turno, { codigo_turno: cod_Tur });
+        if (!turno) {
+            return res.status(404).json({ message: 'Turno no encontrado.' });
         };
 
+        //Calculamos el total del servicio.
+        //Sacamos el porcentaje del turno
+        const porcentaje_turno = (turno.porcentaje)/100;
+        const prec_base = tipo_Servicio.precio_base;
+        let precioFinal = monto + adicional_adom + prec_base + monto*porcentaje_turno 
+
+        if(medio_pago === "Mercado Pago"){
+            precioFinal = precioFinal*1.05 //5% Por pagar con MP
+        };
+
+        servicioAActualizar.total = precioFinal;
         // Actualizar los demás campos
         em.assign(servicioAActualizar, req.body.sanitizedInput);
         await em.flush();

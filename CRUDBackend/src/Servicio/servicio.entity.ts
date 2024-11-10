@@ -22,6 +22,9 @@ export class Servicio {
     @Property({ nullable: false })
     medio_pago!: string;
 
+    @Property({ nullable: true})
+    total!: number;
+
     @OneToOne(() => Turno, {nullable: false})
     turno!: Rel<Turno>;
 

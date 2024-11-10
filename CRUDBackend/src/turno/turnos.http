@@ -9,13 +9,12 @@ POST http://localhost:3000/api/turnos
 Content-Type: application/json
 
 {
-    "fecha_hora": "2010-05-13T16:00:00.000Z",
+    "fecha_hora": "2024-12-01T16:00:00.000Z",
     "tipo_turno": "Sucursal",
     "porcentaje": 0,
-    "estado": "Inactivo",
+    "estado": "Activo",
     "codigo_cliente": 7,
-    "codigo_peluquero": 1,
-    "servicio": 1
+    "codigo_peluquero": 17
 }
 
 ###Modificar un turno (PUT)

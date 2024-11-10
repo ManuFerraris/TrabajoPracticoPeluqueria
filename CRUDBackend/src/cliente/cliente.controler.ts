@@ -38,21 +38,29 @@ function validarTelefono(telefono:string) {
     return true; // Teléfono válido
 }
 
-function validarDni(dni: string): boolean {
-    return dni.length >= 7 && dni.length <= 8;
-}
+function validarDni(dni: string){
+    if(dni.length >= 7 && dni.length <= 8){
+        return true
+    }else return false
+};
 
 function validarNomyApe(NomyApe: string): boolean {
-    return NomyApe.length <= 40;
+    if(NomyApe.length <= 40){
+        return true;
+    }else return false;
 }
 
-function validarEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
-    return emailRegex.test(email);
-}
+function validarEmail(email:string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(email)) {
+        return true;
+    }else return false;
+};
 
 function validarDireccion(direccion: string): boolean {
-    return direccion.length <= 80;
+    if(direccion.length <= 80){
+        return true;
+    }else return false;
 }
 
 async function findAll(req:Request, res:Response){  //FUNCIONAL

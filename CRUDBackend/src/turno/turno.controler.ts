@@ -38,7 +38,7 @@ function validaFecha_hora(fecha_hora:string){
 };
 
 function validaTipo_turno(tipo_turno:string){
-    if(tipo_turno != 'Sucursal' && tipo_turno != 'A domicilio'){
+    if(tipo_turno != 'Sucursal' && tipo_turno != 'A Domicilio'){
         return false;
     }else {
         return true;
@@ -67,9 +67,9 @@ async function findAll(req:Request, res:Response){ //FUNCIONAL
         if(!turno){
             return res.status(404).json({message: 'No hay turnos cargados'})
         }
-        res.status(200).json({message:'Todos los turnos encontados', data: turno})
+        return res.status(200).json({message:'Todos los turnos encontados', data: turno})
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 }
 
@@ -127,19 +127,22 @@ async function add(req: Request, res:Response){ //FUNCIONAL
         };
 
         //Creacion del turno
-        const turno = em.create(Turno, {cliente,
-            peluquero,
-            //servicio,
-            fecha_hora,
-            tipo_turno,
-            porcentaje,
-            estado
-        }, req.body.sanitizeTurnoInput)
-        await em.flush()
+        const turno = new Turno()
+        turno.cliente = cliente;
+        turno.peluquero = peluquero;
+        turno.fecha_hora = fecha_hora;
+        turno.tipo_turno = tipo_turno;
+        turno.estado = estado;
+        if(turno.tipo_turno === 'A Domicilio'){
+            turno.porcentaje = 25
+        } else {
+            turno.porcentaje = 0
+        };
+        await em.persistAndFlush(turno)
 
-        res.status(201).json({ message: 'Turno creado', data:turno})
+        return res.status(201).json({ message: 'Turno creado', data:turno})
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 }
 
@@ -204,10 +207,10 @@ async function update(req: Request, res: Response){
 
         em.assign(turnoAActualizar, req.body.sanitizedInput)
         await em.flush()
-        res.status(200).json({ message:'Turno actualizado correctamente', data:turnoAActualizar})
+        return res.status(200).json({ message:'Turno actualizado correctamente', data:turnoAActualizar})
 
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 }
 
@@ -226,9 +229,9 @@ async function remove(req: Request, res: Response){
             await em.removeAndFlush(turno.servicio); // Eliminar el servicio primero
         }
         await em.removeAndFlush(turno)
-        res.status(200).json({ message: 'Turno eliminado exitosamente' })
+        return res.status(200).json({ message: 'Turno eliminado exitosamente' })
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 }
 export {findAll, getOne, add, update, remove, sanitizeTurnoInput}

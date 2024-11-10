@@ -9,7 +9,7 @@ POST http://localhost:3000/api/clientes
 Content-Type: application/json
 
 {
-    "dni": 889944559,
+    "dni": "889944559",
     "NomyApe": "Carlos Potmop",
     "direccion": "Calle A 23",
     "email": "carlitos@example.com",
@@ -18,16 +18,16 @@ Content-Type: application/json
 }
 
 ### modificar cliente (PUT)
-PUT http://localhost:3000/api/clientes/7
+PUT http://localhost:3000/api/clientes/12
 Content-Type: application/json
 
 {
-    "dni": 987654321,
-    "NomyApe": "Martin Palermo",
+    "dni": "98765491",
+    "NomyApe": "Agustin Raggi",
     "direccion": "Brandsen 805",
-    "email": "boca@example.com",
-    "telefono": "11666666",
-    "codigo_localidad": 2
+    "email": "arielitoElMagnifico@gmail.com",
+    "telefono": "2044785658",
+    "codigo_localidad": 8
 }
 
 ###Borrar un Cliente
