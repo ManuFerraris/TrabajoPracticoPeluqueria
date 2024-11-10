@@ -100,6 +100,7 @@ async function getOne(req: Request, res: Response) {
 async function add(req: Request, res: Response) {
     try {
         const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno, tipo_servicio_codigo, total } = req.body.sanitizedInput;
+        
         if (!turno_codigo_turno) {
             return res.status(400).json({ message: 'Código de turno no proporcionado.' });
         }
@@ -109,6 +110,7 @@ async function add(req: Request, res: Response) {
         if(isNaN(cod_tur)){
             return res.status(404).json({ message: 'Codigo de turno invalido'})
         };
+
         const turno = await em.findOne(Turno, { codigo_turno: cod_tur });
         if (!turno) {
             return res.status(404).json({ message: 'Turno no encontrado.' });
@@ -144,9 +146,9 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'El estado debe ser Pendiente o Pagado.'})
         };
 
-        if(!validaAdicionalAdom(adicional_adom)){
+        /*if(!validaAdicionalAdom(adicional_adom)){
             return res.status(400).json({ message: 'El adicional a domicilio no debe ser menor que 0.'})
-        };
+        };*/
 
         if(!validaAusenciaCliente(ausencia_cliente)){
             return res.status(400).json({ message: 'Las opciones validas son: "Se presento" o "Esta ausente."'})
@@ -158,21 +160,40 @@ async function add(req: Request, res: Response) {
 
         //Calculamos el total del servicio.
         //Sacamos el porcentaje del turno
-        const porcentaje_turno = (turno.porcentaje)/100;
+        const porcentaje_turno = (turno.porcentaje)/100; //Obtener el porc. del turno
+        console.log('Trae el porcentaje:', porcentaje_turno);
 
-        const prec_base = tipo_Servicio.precio_base;
+        const prec_base = tipo_Servicio.precio_base; //Obtener el precio base del TipoServicio
+        console.log('Trae el precio base:', prec_base);
 
-        let precioFinal = monto + adicional_adom + prec_base + monto*porcentaje_turno 
+        let precio_parcial_Final = monto + prec_base + monto*porcentaje_turno  //Calculamos el precio parcial
+        let precio_a_dom = monto*porcentaje_turno;
+        console.log('Precio final 1: ', precio_parcial_Final);
 
-        if(medio_pago === "Mercado Pago"){
-            precioFinal *= 1.05  //5% De recargo por usar MercadoPago
+        const tip_tur = turno.tipo_turno;
+        if(!tip_tur){
+            return res.status(404).json({ message: 'El turno no tiene un Tipo de Turno asignado.'})
         };
 
+        let adic_adom = 0;
+        if (tip_tur === 'A Domicilio') {
+            adic_adom = precio_a_dom;
+            console.log('Adicional por servicio a domicilio (25%):', adic_adom);
+        }
+
+        if(medio_pago === "Mercado Pago"){
+            precio_parcial_Final *= 1.05  //5% De recargo por usar MercadoPago
+        };
+
+        console.log('Si es mercado pago se suma un 5%: ', precio_parcial_Final)
+
+        const precioFinal = precio_parcial_Final;
+        
         // Crear el servicio
         const servicio = new Servicio();
         servicio.monto = monto;
         servicio.estado = estado;
-        servicio.adicional_adom = adicional_adom;
+        servicio.adicional_adom = adic_adom;
         servicio.ausencia_cliente = ausencia_cliente;
         servicio.medio_pago = medio_pago;
         servicio.turno = turno; // Asociar el turno al servicio
@@ -281,6 +302,18 @@ async function update(req: Request, res: Response) { //FUNCIONAL
         const porcentaje_turno = (turno.porcentaje)/100;
         const prec_base = tipo_Servicio.precio_base;
         let precioFinal = monto + adicional_adom + prec_base + monto*porcentaje_turno 
+        let precio_a_dom = monto*porcentaje_turno;
+
+        const tip_tur = turno.tipo_turno;
+        if(!tip_tur){
+            return res.status(404).json({ message: 'El turno no tiene un Tipo de Turno asignado.'})
+        };
+        
+        let adic_adom = 0;
+        if (tip_tur === 'A Domicilio') {
+            adic_adom = precio_a_dom;
+            console.log('Adicional por servicio a domicilio (25%):', adic_adom);
+        }
 
         if(medio_pago === "Mercado Pago"){
             precioFinal = precioFinal*1.05 //5% Por pagar con MP

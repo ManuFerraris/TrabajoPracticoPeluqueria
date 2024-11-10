@@ -9,12 +9,11 @@ POST http://localhost:3000/api/servicios/
 Content-Type: application/json
 
 { 
-    "monto": 9500.00,
+    "monto": 10000,
     "estado": "Pendiente",
-    "adicional_adom": 0,
     "ausencia_cliente": "Se presento",
-    "medio_pago": "Mercado Pago",
-    "turno_codigo_turno": 30,
+    "medio_pago": "Efectivo",
+    "turno_codigo_turno": 40,
     "tipo_servicio_codigo": 3
 }
 
@@ -25,7 +24,6 @@ Content-Type: application/json
 {
     "monto": 9500.00,
     "estado": "Pendiente",
-    "adicional_adom": 0,
     "ausencia_cliente": "Se presento",
     "medio_pago": "Mercado Pago",
     "turno_codigo_turno": 28,
