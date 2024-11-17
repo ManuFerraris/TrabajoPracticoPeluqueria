@@ -311,19 +311,6 @@ function ServiciosPage(){
                                     {errors.estado && <div className="text-danger">{errors.estado}</div>}
                                 </div>
 
-                                {/*
-                                <div className="col-md-6">
-                                    <label className="form-label">Adicional a Domicilio:</label>
-                                    <input
-                                        type="text"
-                                        onChange={(event) => setAdicional_adom(event.target.value)}
-                                        className="form-control"
-                                        value={adicional_adom || ''}
-                                        placeholder="Ingrese el monto (opcional)"
-                                    />
-                                </div>
-                                */}
-
                                 <div className="col-md-6">
                                     <label className="form-label">Ausencia Cliente:</label>
                                     <select

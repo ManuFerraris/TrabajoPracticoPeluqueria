@@ -93,7 +93,7 @@ function TurnosPage(){
 
         if (!estado) {
             errors.estado = "El estado es obligatorio.";
-        } else if(estado !== "Activo" && estado !== "Cancelado"){
+        } else if(estado !== "Activo" && estado !== "Cancelado" && estado !=="Sancionado"){
             errors.estado = "Seleccione un estado.";
         }
 
@@ -305,6 +305,7 @@ function TurnosPage(){
                                         <option value="">Seleccione una opcion</option>
                                         <option value="Activo">Activo</option>
                                         <option value="Cancelado">Cancelado</option>
+                                        <option value="Sancionado">Sancionado</option>
                                     </select>
                                     {errors.estado && <div className="text-danger">{errors.estado}</div>}
                                 </div>

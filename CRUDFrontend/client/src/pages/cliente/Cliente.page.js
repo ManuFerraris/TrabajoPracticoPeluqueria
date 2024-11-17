@@ -11,6 +11,7 @@ function ClientesPage(){
     const [direccion, setDireccion] = useState('');
     const [telefono, setTelefono] = useState('');
     const [codigo_localidad, setCodigo_Localidad] = useState('');
+    const [/*estado*/, setEstado] = useState('');
     const [error, setError] = useState('');
     const [errors, setErrors] = useState('');
     const [loading, setLoading] = useState('');
@@ -61,6 +62,7 @@ function ClientesPage(){
             setDireccion(clienteSeleccionado.direccion || '');
             setTelefono(clienteSeleccionado.telefono || '');
             setCodigo_Localidad(clienteSeleccionado.codigo_localidad || '');
+            setEstado(clienteSeleccionado.estado || '');
         }
     }, [clienteSeleccionado]);
 
@@ -345,6 +347,7 @@ function ClientesPage(){
                                     <th scope="col">Código</th>
                                     <th scope="col">Nombre y Apellido</th>
                                     <th scope="col">DNI</th>
+                                    <th scope="col">Estado</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Direccion</th>
                                     <th scope="col">Telefono</th>
@@ -359,6 +362,7 @@ function ClientesPage(){
                                             <th>{val.codigo_cliente}</th>
                                             <td>{val.NomyApe}</td>
                                             <td>{val.dni}</td>
+                                            <td>{val.estado}</td>
                                             <td>{val.email}</td>
                                             <td>{val.direccion}</td>
                                             <td>{val.telefono}</td>
