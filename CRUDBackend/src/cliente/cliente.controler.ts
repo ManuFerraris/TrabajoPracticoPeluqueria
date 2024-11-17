@@ -130,6 +130,8 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
 
+        const estado_cli = "Activo"
+
         // Crear una nueva instancia de Cliente
         const cliente = new Cliente();
         cliente.localidad = localidad;
@@ -138,6 +140,7 @@ async function add(req: Request, res: Response) {
         cliente.email = email;
         cliente.direccion = direccion;
         cliente.telefono = telefono;
+        cliente.estado = estado_cli;
         // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
         res.status(201).json({ message: 'Cliente creado' });
@@ -195,6 +198,9 @@ async function update(req: Request, res: Response) {
             }
             clienteAActualizar.localidad = localidad;
         }
+
+        const estado_cli = "Activo";
+        clienteAActualizar.estado = estado_cli;
 
         em.assign(clienteAActualizar, datosSanitizados);
         await em.flush();

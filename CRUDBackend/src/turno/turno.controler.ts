@@ -54,7 +54,7 @@ function validaPorcentaje(porcentaje:number){
 }
 
 function validaEstado(estado:string){
-    if(estado != 'Activo' && estado != 'Cancelado'){
+    if(estado != 'Activo' && estado != 'Cancelado' && estado != 'Sancionado'){
         return false;
     }else{
         return true;
@@ -178,7 +178,7 @@ async function update(req: Request, res: Response){
         };
 
         if(!validaEstado(estado)){
-            return res.status(400).json({ message: 'El estado debe ser "Activo" o "Cancelado"'})
+            return res.status(400).json({ message: 'El estado debe ser "Activo" / "Cancelado" o "Sancionado"'})
         };
 
         // Verificar si el código del cliente existe

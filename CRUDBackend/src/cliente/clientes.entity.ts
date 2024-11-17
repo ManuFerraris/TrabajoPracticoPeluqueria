@@ -15,13 +15,16 @@ export class Cliente{
     NomyApe!: string;
 
     @Property({nullable: true})
-    email!: string;
+    email?: string;
 
     @Property({nullable: false})
     direccion!: string;
 
     @Property({nullable: true})
-    telefono!: string
+    telefono?: string;
+
+    @Property({ default: "Activo"})
+    estado!: string;
 
     @OneToMany(() => Turno, turno => turno.cliente)
     turnos = new Collection<Turno>(this);
