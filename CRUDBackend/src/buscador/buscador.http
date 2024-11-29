@@ -1,0 +1,2 @@
+### obtener todos los turnos del peluquero
+GET http://localhost:3000/api/buscador/38

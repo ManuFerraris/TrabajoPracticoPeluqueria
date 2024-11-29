@@ -8,6 +8,7 @@ import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
+import { buscadorRouter } from './buscador/buscador.route.js';
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
@@ -50,6 +51,10 @@ app.use('/api/localidades', localidadRouter)
 ///***TIPO SERVICIO***///
 ///*******************///
 app.use('/api/tiposervicio', tipoServicioRouter);
+
+///***BUSCADOR POR CODIGO DE PELUQUERO***///
+///**************************************///
+app.use('/api/buscador', buscadorRouter);
 
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
