@@ -70,6 +70,16 @@ const MenuPage = () => {
                     </Card>
                 </Col>
 
+                <Col xs={12} sm={6} md={4} className="mb-4">
+                    <Card className="text-center">
+                        <Card.Body>
+                            <Card.Title>Buscador de turnos por peluquero</Card.Title>
+                            <Card.Text>Busca los turnos de un peluquero.</Card.Text>
+                            <Button variant="primary" onClick={() => navigate('/buscador')}>Ir al buscador</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
             </Row>
         </Container>
     );

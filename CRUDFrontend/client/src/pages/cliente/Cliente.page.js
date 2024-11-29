@@ -317,7 +317,7 @@ function ClientesPage(){
                                         <option value="">Seleccione una localidad</option>
                                         {localidades.map(localidad => (
                                             <option key={localidad.codigo} value={localidad.codigo}>
-                                                {localidad.nombre} {/* Ajusta este campo según el nombre del atributo en tu entidad Localidad */}
+                                                {localidad.nombre}
                                             </option>
                                         ))}
                                     </select>
