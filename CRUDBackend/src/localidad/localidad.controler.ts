@@ -1,9 +1,24 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Localidad } from "./localidad.entity.js";
 import { Cliente } from "../cliente/clientes.entity.js";
 
 const em = orm.em
+
+function sanitizeLocalidadInput(req: Request, res: Response, next:NextFunction){
+    req.body.sanitizedInput = {
+        nombre:req.body.nombre,
+        provincia:req.body.provincia,
+        codigo_postal: req.body.codigo_postal,
+        pais: req.body.pais,
+        descripcion: req.body.descripcion,
+        }
+    Object.keys(req.body.sanitizedInput).forEach(key => {
+        if(req.body.sanitizedInput[key] === undefined) {
+            delete req.body.sanitizedInput[key]}
+    })
+    next()
+}
 
 async function findAll(req:Request, res:Response){  //FUNCIONAL
     try{
@@ -85,4 +100,4 @@ async function remove(req: Request, res: Response){
     }
 };
 
-export { findAll, getOne, add, update, remove}
+export { findAll, getOne, add, update, remove, sanitizeLocalidadInput}

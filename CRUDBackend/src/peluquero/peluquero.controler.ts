@@ -1,16 +1,29 @@
-import { Request, Response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { orm } from "../shared/db/orm.js"
 import { Peluquero } from "./peluqueros.entity.js"
 import { Turno } from "../turno/turno.entity.js"
 
 const em = orm.em
 
+function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
+    req.body.sanitizedInput = {
+        nombre:req.body.dni,
+        fecha_Ingreso:req.body.NomyApe,
+        tipo: req.body.email,
+        }
+    Object.keys(req.body.sanitizedInput).forEach(key => {
+        if(req.body.sanitizedInput[key] === undefined) {
+            delete req.body.sanitizedInput[key]}
+    })
+    next()
+}
+
 async function findAll(req: Request, res:Response){  //FUNCIONAL
     try{
         const peluquero = await em.find(Peluquero, {})
-        res.status(200).json({message: 'Todos los peluqueros encontrados', data: peluquero})
+        return res.status(200).json({message: 'Todos los peluqueros encontrados', data: peluquero})
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 }
 
@@ -23,12 +36,12 @@ async function getOne(req:Request, res:Response){  //FUNCIONAL
         const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
 
         if (peluquero) {
-            res.status(200).json({ message: 'Peluquero encontrado', data: peluquero });
+            return res.status(200).json({ message: 'Peluquero encontrado', data: peluquero });
         } else {
-            res.status(404).json({ message: 'Peluquero no encontrado' });
+            return res.status(404).json({ message: 'Peluquero no encontrado' });
         }
     }catch(error:any){
-        res.status(500).json({ message: 'Error interno del servidor', details: error.message });
+        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
     }
 };
 
@@ -49,9 +62,9 @@ async function add(req: Request, res:Response){ //REVISAR
 
         em.persist(peluquero);
         await em.flush();
-        res.status(201).json({ message: 'Peluquero creado', data: peluquero });
+        return res.status(201).json({ message: 'Peluquero creado', data: peluquero });
     }catch(error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -68,10 +81,10 @@ async function update(req: Request, res: Response){ //FUNCIONAL
         } else{
             em.assign(peluquero, req.body)
             await em.flush()
-            res.status(200).json({message: 'Peluquero actualizado'})
+            return res.status(200).json({message: 'Peluquero actualizado'})
         }
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 };
 
@@ -90,10 +103,10 @@ async function remove(req: Request, res: Response){
             return res.status(400).json({ message: 'No se puede eliminar el peluquero porque tiene turnos asignados' });
         }
         await em.removeAndFlush(peluquero)
-        res.status(200).json({message: 'Peluquero borrado Exitosamente'})
+        return res.status(200).json({message: 'Peluquero borrado Exitosamente'})
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 };
 
-export {findAll, getOne, add, update, remove}
+export {findAll, getOne, add, update, remove, sanitizePeluqueroInput}

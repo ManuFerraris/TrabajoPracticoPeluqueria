@@ -12,6 +12,7 @@ function TurnosPage(){
     const [codigo_cliente, setCodigo_cliente] = useState('');
     //const [codigo_servicio, setCodigo_servicio] = useState('');
     const [codigo_peluquero, setCodigo_peluquero] = useState('');
+    const [turnoMostrado, setTurnoMostrado] = useState(null);
 
     const [error, setError] = useState('');
     const [errors, setErrors] = useState('');
@@ -369,29 +370,33 @@ function TurnosPage(){
                                     <th scope="col">Código</th>
                                     <th scope="col">Fecha</th>
                                     <th scope="col">Tipo</th>
-                                    <th scope="col">Porcentaje</th>
-                                    <th scope="col">Estado</th>
-                                    <th scope="col">Cod. Cli.</th>
-                                    <th scope="col">Cod. Pel.</th>
-                                    <th scope="col">Cod. Ser.</th>
-                                    <th scope="col">Accion</th>
+                                    <th scope="col" className="text-end" style={{ paddingRight: '100px' }}>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {
-                                    turnos.map(val => (
+                                { turnos.map(val => (
                                         <tr key={val.codigo_turno}>
                                             <th>{val.codigo_turno}</th>
                                             <td>{formatFechaParaInput(val.fecha_hora)}</td>
                                             <td>{val.tipo_turno}</td>
-                                            <td>{val.porcentaje}</td>
-                                            <td>{val.estado}</td>
-                                            <td>{val.cliente?.codigo_cliente || 'N/A'}</td>
-                                            <td>{val.peluquero?.codigo_peluquero || 'N/A'}</td>
-                                            <td>{val.servicio?.codigo || 'N/A'}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setTurnoSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarTurno(val.codigo_turno)}>Eliminar</button>
+                                                <div className="d-flex justify-content-end gap-2">
+                                                    {turnoMostrado === val.codigo_turno ? (
+                                                        <div>
+                                                            <p>Porcentaje: {val.porcentaje}</p>
+                                                            <p>Estado: {val.estado}</p>
+                                                            <p>Cod. Cli.: {val.cliente?.codigo_cliente || 'N/A'}</p>
+                                                            <p>Cod. Pel.: {val.peluquero?.codigo_peluquero || 'N/A'}</p>
+                                                            <p>Ser. Cod.: {val.servicio?.codigo || 'N/A'}</p>
+                                                            <button className="btn btn-secondary btn-sm" onClick={() => setTurnoMostrado(null)}>Ocultar</button>
+                                                        </div>
+
+                                                    ) : (
+                                                        <button className="btn btn-primary btn-sm" onClick={() => setTurnoMostrado(val.codigo_turno)}>Mostrar Más</button>
+                                                    )}
+                                                    <button className="btn btn-primary btn-sm" onClick={() => { setTurnoSeleccionado(val); setEditar(true); }}>Editar</button>
+                                                    <button className="btn btn-danger btn-sm" onClick={() => eliminarTurno(val.codigo_turno)}>Eliminar</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
