@@ -165,7 +165,6 @@ function TurnosPage(){
             console.error('Error al guardar el turno:', error);
             
             if (error.response && error.response.data && error.response.data.message) {
-                // Mostrar el mensaje de error específico del backend
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -174,7 +173,6 @@ function TurnosPage(){
                     position: 'center'
                 });
             } else {
-                // Mostrar un mensaje de error genérico
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',

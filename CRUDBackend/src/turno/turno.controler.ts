@@ -95,18 +95,24 @@ async function add(req: Request, res:Response){ //FUNCIONAL
         const { codigo_cliente, codigo_peluquero, /*codigo_servicio*/ fecha_hora, tipo_turno, porcentaje, estado } = req.body;
 
         // Verificamos si el cliente y el peluquero existen
-        const cliente = await em.findOne(Cliente, { codigo_cliente });
-        const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
-        /*const servicio = await em.findOne(Servicio, {codigo: codigo_servicio} )
-        if(!servicio){
-            return res.status(404).json({ message: 'El codigo del servicio no existe'})
-        }*/
+        const cod_cli = Number(codigo_cliente);
+        if(isNaN(cod_cli)){
+            return res.status(404).json({ message: 'El codigo de cliente es invalido'})
+        };
+        const cliente = await em.findOne(Cliente, { codigo_cliente:cod_cli });
+
+        const cod_pel = Number(codigo_peluquero);
+        if(isNaN(cod_pel)){
+            return res.status(404).json({ message: 'El codigo de peluquero es invalido'})
+        };
+        const peluquero = await em.findOne(Peluquero, { codigo_peluquero:cod_pel });
+
         if(!cliente){
-            return res.status(400).json({ message: 'El codigo del cliente no existe'})
-        }
+            return res.status(400).json({ message: 'El cliente no existe'})
+        };
         if(!peluquero){
-            return res.status(400).json({ message: 'El codigo del peluquero no existe'})
-        }
+            return res.status(400).json({ message: 'El peluquero no existe'})
+        };
 
         //VALIDACIONES//
 
@@ -159,7 +165,7 @@ async function update(req: Request, res: Response){
         // Verificar si sanitizedInput existe
         if (!req.body.sanitizedInput) {
             return res.status(400).json({ message: 'No hay datos para actualizar' });
-        }
+        };
 
         const { codigo_cliente, codigo_peluquero, /*codigo_servicio*/ fecha_hora, tipo_turno, porcentaje, estado } = req.body.sanitizedInput;
 
@@ -182,28 +188,30 @@ async function update(req: Request, res: Response){
         };
 
         // Verificar si el código del cliente existe
-        if (codigo_cliente) {
-            const cliente = await em.findOne(Cliente, { codigo_cliente });
-            if (!cliente) {
-                return res.status(404).json({ message: 'El código del cliente no existe' });
-            }
+        const cod_cli = Number(codigo_cliente);
+        if(isNaN(cod_cli)){
+            return res.status(404).json({ message: 'El codigo de cliente es invalido'})
         };
+        const cliente = await em.findOne(Cliente, { codigo_cliente:cod_cli });
+        if (!cliente) {
+            return res.status(404).json({ message: 'El código del cliente no existe' });
+        }
+        
 
         // Verificar si el código del peluquero existe
-        if (codigo_peluquero) {
-            const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
-            if (!peluquero) {
-                return res.status(404).json({ message: 'El código del peluquero no existe' });
-            }
+        const cod_pel = Number(codigo_peluquero);
+        if(isNaN(cod_pel)){
+            return res.status(404).json({ message: 'El codigo de peluquero es invalido'})
         };
 
-        //Verificar si el codigo del servicio existe.
-        /*if (codigo_servicio) {
-            const servicio = await em.findOne(Servicio, { codigo: codigo_servicio });
-            if (!servicio) {
-                return res.status(404).json({ message: 'El código del servicio no existe' });
-            }
-        }*/
+        const peluquero = await em.findOne(Peluquero, { codigo_peluquero:cod_pel });
+        if (!peluquero) {
+            return res.status(404).json({ message: 'El código del peluquero no existe' });
+        }
+        
+
+        turnoAActualizar.cliente = cliente;
+        turnoAActualizar.peluquero = peluquero;
 
         em.assign(turnoAActualizar, req.body.sanitizedInput)
         await em.flush()
