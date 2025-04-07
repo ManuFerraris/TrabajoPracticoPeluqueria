@@ -26,6 +26,9 @@ export class Cliente{
     @Property({ default: "Activo"})
     estado!: string;
 
+    @Property({nullable: false})
+    password!: string;
+
     @OneToMany(() => Turno, turno => turno.cliente)
     turnos = new Collection<Turno>(this);
 

@@ -27,9 +27,14 @@ function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
 
 //Funciones para validar:
 //----------------------//
-
+/*
+datejs
+datefns
+tempo
+luxon 
+*/
 function validaFecha_hora(fecha_hora:string){
-    const fechaHoy = new Date().toISOString().split('T')[0];
+    const fechaHoy = new Date().toISOString().split('T')[0]; //
     if(fecha_hora < fechaHoy){
         return false;
     }else {

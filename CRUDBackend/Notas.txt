@@ -2,4 +2,29 @@ Anotaciones necesarias (Backend):
     [✓]-> Realizar todas las validaciones necesarias en las CRUDS
     [✓]-> Poner mensajes aclaratorios sobre lo que esta ocurriendo
     [Probablemente todos (✓)]-> Manejo de errores (Todos)
-    [ ]-> Hay que corregir la relacion entre Servicio y TipoServicio ya que debe ser al reves.
+    [✓]-> Hay que corregir la relacion entre Servicio y TipoServicio ya que debe ser al reves.
+    []-> Integracion de MERCADO PAGO
+        * []-> Pantalla de selección de método de pago.
+        * []-> Pagina de confirmacion del pago.
+        * []-> Historial de pagos del cliente.
+    []-> Dahbord para Admins
+        * []-> Turnos agendados
+        * []-> Turnos cancelados
+        * []-> Ingresos generados
+        * []-> Peluquero con mas clientes
+    []-> Filtros en los CRUDs
+        * []-> Para Admin: Filtros por fecha, cliente, estado, peluquero, etc.
+    []-> Factura o comprobande de pago
+        * []-> Al terminar el pago, opción de ver/descargar un comprobante.
+    []-> Webhooks de Mercado Pago
+        * []-> Endpoint para recibir notificaciones automáticas de pagos (estado aprobado, pendiente, rechazado)
+        * []-> Sincronizar estado del pago con el turno correspondiente en la BD.
+    []-> Autenticacion y seguridad
+        * []-> Middleware para validar token JWT y roles.
+        * []-> Middleware para verificar si el usuario está activo (estado = activo/inactivo).
+        * []-> Recuperación de contraseña (por token o email).
+    []-> Sancionar turnos automáticamente
+        * []-> Parcialmente hecho, pero debemos adaptarlo
+    []-> Notificaciones
+        * []-> Envío de mails con Nodemailer (reserva confirmada, turno cancelado, sanción, etc.).
+        * []-> (Opcional) Envío de SMS o WhatsApp con Twilio.

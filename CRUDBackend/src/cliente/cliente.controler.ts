@@ -14,7 +14,8 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
         email: req.body.email,
         direccion: req.body.direccion,
         telefono: req.body.telefono,
-        codigo_localidad: req.body.codigo_localidad
+        codigo_localidad: req.body.codigo_localidad,
+        password: req.body.password
     }
     Object.keys(req.body.sanitizedInput).forEach(key => {
         if(req.body.sanitizedInput[key] === undefined) {
@@ -63,6 +64,11 @@ function validarDireccion(direccion: string): boolean {
     }else return false;
 }
 
+function validarPassword(contra:string):boolean{
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+    return regex.test(contra);
+}
+
 async function findAll(req:Request, res:Response){  //FUNCIONAL
     try{
         const cliente = await em.find(Cliente, {}, { populate: ['localidad'] })
@@ -95,11 +101,11 @@ async function getOne(req: Request, res:Response ){  //FUNCIONAL
 async function add(req: Request, res: Response) {
     try {
         // Extraer datos del cuerpo de la solicitud
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = req.body.sanitizedInput;
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password } = req.body.sanitizedInput;
         // Agregar logs para verificar los datos recibidos
         console.log("Datos recibidos:", req.body.sanitizedInput);
         // Validar que todos los campos requeridos estén presentes
-        if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono) {
+        if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono || !password) {
             return res.status(400).json({ message: 'Faltan campos requeridos' });
         }
         // Buscar la localidad
@@ -130,6 +136,10 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
 
+        if(!validarPassword(password)){
+            return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
+        }
+
         const estado_cli = "Activo"
 
         // Crear una nueva instancia de Cliente
@@ -141,13 +151,14 @@ async function add(req: Request, res: Response) {
         cliente.direccion = direccion;
         cliente.telefono = telefono;
         cliente.estado = estado_cli;
+        cliente.password = password;
         // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
-        res.status(201).json({ message: 'Cliente creado' });
+        return res.status(201).json({ message: 'Cliente creado', data:cliente });
     } catch (error: any) {
         // Manejo de errores
         console.error("Error al crear el cliente:", error);
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 async function update(req: Request, res: Response) {
@@ -169,7 +180,7 @@ async function update(req: Request, res: Response) {
 
         //VALIDACIONES//
         //**//
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = datosSanitizados;
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password } = datosSanitizados;
 
         if (!validarDni(dni)) {
             return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres' });
@@ -190,6 +201,10 @@ async function update(req: Request, res: Response) {
         if (!validarTelefono(telefono)) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
+
+        if(!validarPassword(password)){
+            return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
+        }
 //Validacion del codigo de localidad:
         if (codigo_localidad !== undefined && codigo_localidad !== null) {
             const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
@@ -205,9 +220,9 @@ async function update(req: Request, res: Response) {
         em.assign(clienteAActualizar, datosSanitizados);
         await em.flush();
 
-        res.status(200).json({ message: 'Cliente actualizado', data: clienteAActualizar });
+        return res.status(200).json({ message: 'Cliente actualizado', data: clienteAActualizar });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -226,10 +241,10 @@ async function remove(req: Request, res: Response){ //FUNCIONAL
             return res.status(400).json({ message: 'No se puede eliminar el cliente porque tiene turnos asignados' });
         }else{
             await em.removeAndFlush(cliente)
-            res.status(200).json({message: 'Cliente borrado Exitosamente'})
+            return res.status(200).json({message: 'Cliente borrado Exitosamente'})
         }
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 };
 
