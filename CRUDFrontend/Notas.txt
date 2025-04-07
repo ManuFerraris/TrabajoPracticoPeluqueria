@@ -8,10 +8,35 @@ Anotaciones necesarias (Frontend):
     []-> AD Eatablecer nevegacion entre las paginas. 
     []-> AD Enviar mail al cliente para que sepa de la asignacion del turno y sus datos. 
     []-> AD Ver API de MP para que el cliente pueda pagar. 
-    []-> AD Agregar contraseña del cliente.
+    [✓]-> AD Agregar contraseña del cliente.
     []-> Mostrar en listado de Servicio el codigo del TipoServicio al que pertenece .
 
     [✓]-> 1.Crear las CRUDs de Localidad -> Cliente, Servicio y luego Turno, ultimo TipoServicio.
     []-> AD 2.Organizar las paginas (menu o lo que sea). 
-    []-> AD 3.Pensar el frontend para que el cliente saque su turno. 
-    []-> 
+        * []-> Pagina de Login
+        * []-> Pagina de registro de cliente
+        * []-> Pagina de Administrador
+        * []-> Gestion de CRUDs (ya esta hecha parcialmente).
+        * []-> Pagina para agendar turno.
+        * []-> Historial de turnos del cliente
+        * []-> Pagina de perfil del cliente
+        * []-> Pagina de servicios y precios
+        * []-> Pagina de contacto
+    []-> Integracion de MERCADO PAGO
+        * []-> Pantalla de selección de método de pago 
+        * []-> Pagina de confirmacion de pagos
+        * []-> Historial de pagos del cliente
+    []-> Agenda de turnos
+        * []-> Validación visual de horarios disponibles (tipo calendario interactivo)
+        * []-> Deshabilitar fechas ya ocupadas.
+        * []-> Opción para cancelar turno con anticipación.
+    []-> Notificaciones al usuario
+        * []-> Alertas para confirmar acciones (turno reservado, cancelado, pago aprobado)
+        * []-> Sección de "Notificaciones recientes" en perfil cliente.
+    []-> Panel del peluquero
+        * []-> Ver los turnos del dia para cada peluquero
+        * []-> Cambiar estado de un turno
+    []-> Filtros en los CRUDs
+        * []-> Para Admin: Filtros por fecha, cliente, estado, peluquero, etc.
+    []-> Factura o comprobande de pago
+        * []-> Al terminar el pago, opción de ver/descargar un comprobante.
