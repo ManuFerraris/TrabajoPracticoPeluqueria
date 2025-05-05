@@ -1,0 +1,24 @@
+###Buscar un cliente con el email y la contraseña
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "peluquero1@example.com",
+    "password": "Ab123456!"
+}
+
+### Obtener clientes con token válido
+GET http://localhost:3000/api/clientes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RpZ28iOjE3LCJyb2wiOiJwZWx1cXVlcm8iLCJpYXQiOjE3NDY0MzU5NTYsImV4cCI6MTc0NjQzNjAxNn0.0sjonsgjn6jQa3allTQsoXVHJQD-qto7TpLj4nfEdyo
+
+### Obtener peluqueros con token válido
+GET http://localhost:3000/api/peluqueros
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RpZ28iOjE3LCJyb2wiOiJwZWx1cXVlcm8iLCJpYXQiOjE3NDY0MzY3NTksImV4cCI6MTc0NjQ0NzU1OX0.mzU8FiiWs0BK4IiBW8LE1AAEynGk8VEwLX3jAQDhxe0
+
+### Refresh token
+POST http://localhost:3000/auth/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RpZ28iOjE3LCJyb2wiOiJwZWx1cXVlcm8iLCJpYXQiOjE3NDY0MzY2NjksImV4cCI6MTc0NjQ0NzQ2OX0.vi5RuWqybvakQe6iTE1HMYJKtd2AiI38ign2Dc7mcwk"
+}

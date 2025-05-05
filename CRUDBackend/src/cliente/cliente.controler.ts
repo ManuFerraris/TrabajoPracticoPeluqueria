@@ -71,10 +71,18 @@ function validarPassword(contra:string):boolean{
 
 async function findAll(req:Request, res:Response){  //FUNCIONAL
     try{
-        const cliente = await em.find(Cliente, {}, { populate: ['localidad'] })
-        res.status(200).json({message: 'Todos los clientes encontrados', data: cliente})
+        const cliente = await em.findOne(Cliente, {
+            codigo_cliente: req.user.codigo
+        });
+        
+        if (!cliente) {
+            return res.status(404).json({ message: "Cliente no encontrado" });
+        }
+        
+        return res.json(cliente);
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        console.error("Error al obtener cliente:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 

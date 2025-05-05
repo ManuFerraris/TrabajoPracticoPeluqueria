@@ -6,7 +6,8 @@
   "main": "app.js",
   "scripts": {
     "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
-    "build": "tsc"
+    "build": "tsc",
+    "hashear-contraseñas": "tsx src/hashearContraseñas.ts"
   },
   "keywords": [],
   "author": "",
@@ -15,19 +16,23 @@
     "@mikro-orm/core": "6.3.6",
     "@mikro-orm/mysql": "6.3.6",
     "@mikro-orm/sql-highlighter": "1.0.1",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "4.19.2",
     "fast-glob": "^3.3.2",
+    "jsonwebtoken": "^9.0.2",
     "micromatch": "^4.0.7",
     "node-cron": "^3.0.3",
-    "reflect-metadata": "0.2.2"
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "4.17.21",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "20.14.9",
     "@types/node-cron": "^3.0.11",
     "tsc-watch": "6.2.0",
-    "typescript": "5.5.2"
+    "typescript": "^5.8.3"
   }
 }

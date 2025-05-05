@@ -4,19 +4,19 @@ import { Servicio } from "../Servicio/servicio.entity.js";
 @Entity()
 export class TipoServicio {
 
-    @PrimaryKey()
+    @PrimaryKey({type:'number'})
     codigo_tipo!: number;
 
-    @Property()
+    @Property({type:'string',})
     nombre!: string;
 
-    @Property({ nullable: true })
+    @Property({type:'string', nullable: true })
     descripcion?: string;
 
-    @Property({ nullable: true })
+    @Property({type:'number', nullable: true })
     duracion_estimada?: number;
 
-    @Property({ nullable: true })
+    @Property({type:'number', nullable: true })
     precio_base?: number;
 
     // Relación ManyToOne con Servicio
