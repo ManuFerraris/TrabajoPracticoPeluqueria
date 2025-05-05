@@ -4,25 +4,25 @@ import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
 
 @Entity()
 export class Servicio {
-    @PrimaryKey()
+    @PrimaryKey({type: 'number'})
     codigo!: number;
 
-    @Property({ nullable: false })
+    @Property({type:'number', nullable: false })
     monto!: number;
 
-    @Property({ nullable: false })
+    @Property({type:'string', nullable: false })
     estado!: string;
 
-    @Property({ nullable: true })
+    @Property({type:'number', nullable: true })
     adicional_adom!: number;
 
-    @Property({ nullable: true })
+    @Property({type:'string', nullable: true })
     ausencia_cliente!: string;
 
-    @Property({ nullable: false })
+    @Property({type:'string', nullable: false })
     medio_pago!: string;
 
-    @Property({ nullable: true})
+    @Property({type:'number', nullable: true})
     total!: number;
 
     @OneToOne(() => Turno, {nullable: false})

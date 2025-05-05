@@ -1,7 +1,7 @@
 import { PrimaryKey } from "@mikro-orm/core";
 
 export abstract class BaseEntity{
-    @PrimaryKey()
+    @PrimaryKey({type: 'number'})
     codigo?:number
 }
 

@@ -9,6 +9,7 @@ import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 import { buscadorRouter } from './buscador/buscador.route.js';
+import { loginRouter } from './auth/auth.routes.js';
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
@@ -56,27 +57,28 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 ///**************************************///
 app.use('/api/buscador', buscadorRouter);
 
+///***RUTA PARA EL LOGIN***///
+///**************************************///
+app.use('/auth', loginRouter);
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///
+
+//Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
+/*app.use('/',(req, res) => {
+    res.send('<h1>Hola!!</h1>');
+});*/
 
 // Middleware para manejar errores 404
 app.use((req,res)=>{
     res.status(404).send({message:"Recurso no encontrado"})
 })
 
-
 // Middleware para manejar errores internos del servidor
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Error interno del servidor', details: err.message });
 });
-
-//Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
-app.use('/',(req, res) => {
-    res.send('<h1>Hola!!</h1>');
-});
-
 
 await syncSchema() //Nos genera la base de datos con la estructura que nosotros le indicamos, NUNCA EN PRODUCCION
 app.listen(3000, ()=> {

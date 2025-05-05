@@ -3,22 +3,22 @@ import { Cliente } from "../cliente/clientes.entity.js";
 
 @Entity()
 export class Localidad {
-    @PrimaryKey()
+    @PrimaryKey({type: 'number'})
     codigo!:number;
 
-    @Property({nullable: false})
+    @Property({type: 'string', nullable: false})
     nombre!:string;
 
-    @Property({nullable: false})
+    @Property({type: 'string', nullable: false})
     provincia!:string;
 
-    @Property({nullable: false})
+    @Property({type: 'string', nullable: false})
     codigo_postal!:string;
 
-    @Property({nullable: false})
+    @Property({type: 'string', nullable: false})
     pais!:string;
 
-    @Property({nullable: true})
+    @Property({type: 'string', nullable: true})
     descripcion!:string;
 
     @OneToMany(() => Cliente, cliente => cliente.localidad)
