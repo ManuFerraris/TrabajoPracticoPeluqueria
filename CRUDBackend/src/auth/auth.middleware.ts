@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const ACCESS_TOKEN_SECRET = 'CLAVE_SECRETA'; // Debe coincidir con el usuario secreto usado para el access token.
-const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRETA'; // La clave secreta para el refresh token.
+const ACCESS_TOKEN_SECRET = 'CLAVE_SECRET'; // Debe coincidir con el usuario secreto usado para el access token.
+const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRET'; // La clave secreta para el refresh token.
 
 interface TokenPayload {
     codigo: number;
