@@ -14,8 +14,8 @@ function isCliente(user: Cliente | Peluquero): user is Cliente {
 };
 
 // La clave secreta para los tokens (¡en producción usar variables de entorno!)
-const ACCESS_TOKEN_SECRET = 'CLAVE_SECRETA';
-const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRETA'; // Se recomienda cambiar esta clave y guardarla en un lugar seguro, como una variable de entorno.
+const ACCESS_TOKEN_SECRET = 'CLAVE_SECRET';
+const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRET'; // Se recomienda cambiar esta clave y guardarla en un lugar seguro, como una variable de entorno.
 
 // login de cliente o peluquero
 // Recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token

@@ -3,5 +3,5 @@ POST http://localhost:3000/auth/logout
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RpZ28iOjE3LCJyb2wiOiJwZWx1cXVlcm8iLCJpYXQiOjE3NDY0MzY2NjksImV4cCI6MTc0NjQ0NzQ2OX0.vi5RuWqybvakQe6iTE1HMYJKtd2AiI38ign2Dc7mcwk"
+    "refreshToken": "<token_'1.b'>"
 }
