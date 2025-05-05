@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
     "email": "peluquero1@example.com",
-    "password": "Ab123456!!!"
+    "password": "Ab123456!"
 }
 
 ### Obtener clientes con token válido
