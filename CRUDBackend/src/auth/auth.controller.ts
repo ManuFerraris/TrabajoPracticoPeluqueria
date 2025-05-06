@@ -7,10 +7,22 @@ import { Cliente } from '../cliente/clientes.entity.js';
 import { Peluquero } from '../peluquero/peluqueros.entity.js';
 import { RefreshTokenRepository } from './refresh-token.repository.js';
 import { RefreshToken } from './refresh-token.entity.js';
+import { timingSafeEqual } from 'crypto';
 import { em } from '../shared/db/orm.js';
 
 function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
+};
+
+async function safeCompare(a: string, b: string): Promise<boolean> {
+    try {
+        return timingSafeEqual(
+            Buffer.from(a),
+            Buffer.from(b)
+        );
+    } catch {
+        return false;
+    };
 };
 
 // La clave secreta para los tokens (¡en producción usar variables de entorno!)
@@ -22,6 +34,10 @@ const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRET'; // Se recomienda camb
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     console.log("Login recibido con:", email, password);
+
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email y contraseña son requeridos' });
+    };
 
     let user: Cliente | Peluquero | null = null;
     let rol: 'cliente' | 'peluquero' | null = null; // Asignamos el rol recibido a la variable rol  
@@ -36,19 +52,23 @@ export const login = async (req: Request, res: Response) => {
 
     console.log("Rol recibido:", rol);
 
-    if (!user) {
+    if (!user || !rol) {
+        // Operación dummy para mantener tiempo constante
+        await bcrypt.compare('dummy', '$2a$12$dummyhashdummyhashdummyha');
         return res.status(401).json({ message: 'Email o contraseña incorrectos' });
     };
 
-    if (!rol) {
-        return res.status(401).json({ message: 'Rol no detectado' });
-    };
+    // Verificación de contraseña con protección contra timing attacks
+    const passwordsMatch = await bcrypt.compare(password, user.password);
 
-    // Verificamos la contraseña
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+    // Operación dummy para mantener tiempo constante en caso de error
+    const dummyCompare = await bcrypt.compare('dummy', '$2a$12$dummyhashdummyhashdummyha'); 
+
+    if (!passwordsMatch) {
+        // Comparación segura en tiempo para evitar leaks de información
+        await safeCompare(password, password);
         return res.status(401).json({ message: 'Email o contraseña incorrectos' });
-    }
+    };
 
     // Usamos el type guard isCliente para discriminar entre Cliente y Peluquero
     let codigo: number;
@@ -56,7 +76,7 @@ export const login = async (req: Request, res: Response) => {
         codigo = user.codigo_cliente;
     } else {
         codigo = user.codigo_peluquero;
-    }
+    };
 
     // Generar el token JWT
     const accessToken = jwt.sign(

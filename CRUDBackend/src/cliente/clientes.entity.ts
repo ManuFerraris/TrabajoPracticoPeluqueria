@@ -27,7 +27,7 @@ export class Cliente{
     @Property({type: 'string', default: "Activo"})
     estado!: string;
 
-    @Property({type: 'string', nullable: false})
+    @Property({type: 'string', nullable: false, length: 100})
     password!: string;
 
     @Property({type: 'string', default: 'cliente' })

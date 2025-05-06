@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
@@ -5,6 +6,8 @@ import { Localidad } from "../localidad/localidad.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
+
+const SALT_ROUNDS = 12; // Número de rondas de hashing (mayor = más seguro pero más lento)
 
 function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
@@ -15,7 +18,9 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
         direccion: req.body.direccion,
         telefono: req.body.telefono,
         codigo_localidad: req.body.codigo_localidad,
-        password: req.body.password
+        password: req.body.password,
+        estado: req.body.estado,
+        rol: req.body.rol
     }
     Object.keys(req.body.sanitizedInput).forEach(key => {
         if(req.body.sanitizedInput[key] === undefined) {
@@ -109,21 +114,19 @@ async function getOne(req: Request, res:Response ){  //FUNCIONAL
 async function add(req: Request, res: Response) {
     try {
         // Extraer datos del cuerpo de la solicitud
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password } = req.body.sanitizedInput;
-        // Agregar logs para verificar los datos recibidos
-        console.log("Datos recibidos:", req.body.sanitizedInput);
-        // Validar que todos los campos requeridos estén presentes
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password, estado, rol } = req.body.sanitizedInput;
+        
         if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono || !password) {
             return res.status(400).json({ message: 'Faltan campos requeridos' });
         }
-        // Buscar la localidad
+        
         const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
         if (!localidad) {
             return res.status(400).json({ message: 'Localidad no encontrada' });
         }
 
         //VALIDACIONES//
-        //**//
+        //************//
         if (!validarDni(dni)) {
             return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres'})
         }
@@ -148,7 +151,17 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
         }
 
+        // Verificar si el cliente ya existe
+        const clienteExistente = await em.findOne(Cliente, { dni });
+        if (clienteExistente) {
+            return res.status(400).json({ message: 'El cliente ya existe' });
+        };
+
+        //HASHEO DE CONTRASEÑA//
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        
         const estado_cli = "Activo"
+        const rol_cli = "cliente"
 
         // Crear una nueva instancia de Cliente
         const cliente = new Cliente();
@@ -159,12 +172,20 @@ async function add(req: Request, res: Response) {
         cliente.direccion = direccion;
         cliente.telefono = telefono;
         cliente.estado = estado_cli;
-        cliente.password = password;
+        cliente.password = hashedPassword;
+        cliente.rol = rol_cli;
+
         // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
-        return res.status(201).json({ message: 'Cliente creado', data:cliente });
+        return res.status(201).json({ 
+            message: 'Cliente creado', 
+            data: {
+                ...cliente,
+                password: undefined // No devolvemos el hash en la respuesta!!!!!!!
+            }
+        });
+
     } catch (error: any) {
-        // Manejo de errores
         console.error("Error al crear el cliente:", error);
         return res.status(500).json({ message: error.message });
     }
@@ -188,7 +209,7 @@ async function update(req: Request, res: Response) {
 
         //VALIDACIONES//
         //**//
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password } = datosSanitizados;
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password, rol } = datosSanitizados;
 
         if (!validarDni(dni)) {
             return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres' });
@@ -210,9 +231,6 @@ async function update(req: Request, res: Response) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
 
-        if(!validarPassword(password)){
-            return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
-        }
 //Validacion del codigo de localidad:
         if (codigo_localidad !== undefined && codigo_localidad !== null) {
             const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
@@ -223,12 +241,26 @@ async function update(req: Request, res: Response) {
         }
 
         const estado_cli = "Activo";
+        const rol_cli = "cliente";
         clienteAActualizar.estado = estado_cli;
+        clienteAActualizar.rol = rol_cli;
+
+        if (password) {
+            if(!validarPassword(password)) {
+                return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
+            }
+            datosSanitizados.password = await bcrypt.hash(password, SALT_ROUNDS);
+        };
 
         em.assign(clienteAActualizar, datosSanitizados);
         await em.flush();
 
-        return res.status(200).json({ message: 'Cliente actualizado', data: clienteAActualizar });
+        return res.status(200).json({message: 'Cliente actualizado', 
+            data: {
+                ...clienteAActualizar,
+                password: undefined
+            },
+        });
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
     }
@@ -256,5 +288,9 @@ async function remove(req: Request, res: Response){ //FUNCIONAL
     }
 };
 
-export { sanitizeClienteInput, findAll, getOne, add, update, remove}
+async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+}
+
+export { sanitizeClienteInput, findAll, getOne, add, update, remove, comparePasswords}
 
