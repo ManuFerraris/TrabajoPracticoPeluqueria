@@ -1,5 +1,5 @@
 ###Buscar un cliente con el email y la contraseña
-POST http://localhost:3000/auth/login
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Authorization: Bearer <token_'1.a' y luego '1.c'>
 GET http://localhost:3000/api/peluqueros
 Authorization: Bearer <token_'1.a' y luego '1.c'>
 ### Refresh token
-POST http://localhost:3000/auth/refresh-token
+POST http://localhost:3000/api/auth/refresh-token
 Content-Type: application/json
 
 {

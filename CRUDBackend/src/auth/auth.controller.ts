@@ -29,8 +29,7 @@ async function safeCompare(a: string, b: string): Promise<boolean> {
 const ACCESS_TOKEN_SECRET = 'CLAVE_SECRET';
 const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRET'; // Se recomienda cambiar esta clave y guardarla en un lugar seguro, como una variable de entorno.
 
-// login de cliente o peluquero
-// Recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token
+// Login de cliente o peluquero recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     console.log("Login recibido con:", email, password);
@@ -95,10 +94,29 @@ export const login = async (req: Request, res: Response) => {
     // Guardar el refresh token en la base de datos
     if (isCliente(user)) {
         await RefreshTokenRepository.add(refreshToken, user);
-    } else {
-        await RefreshTokenRepository.add(refreshToken, user);
-    }
-    return res.json({ accessToken, refreshToken });
+    };
+
+    if(user instanceof Cliente){
+    return res.json({
+        accessToken,
+        refreshToken,
+        user: {
+            codigo_cliente: user.codigo_cliente,
+            email: user.email,
+            rol,
+            nombre: user.NomyApe,}
+        });
+        } else{
+            return res.json({
+                accessToken,
+                refreshToken,
+                user: {
+                    codigo_peluquero: user.codigo_peluquero,
+                    email: user.email,
+                    rol,
+                    nombre: user.nombre,}
+                });
+        }
     };
 
 export const refreshToken = async (req: Request, res: Response) => {

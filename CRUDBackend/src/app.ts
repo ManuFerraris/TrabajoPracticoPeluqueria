@@ -59,7 +59,7 @@ app.use('/api/buscador', buscadorRouter);
 
 ///***RUTA PARA EL LOGIN***///
 ///**************************************///
-app.use('/auth', loginRouter);
+app.use('/api/auth', loginRouter);
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///
