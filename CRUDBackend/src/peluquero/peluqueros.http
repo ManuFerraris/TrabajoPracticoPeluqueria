@@ -9,18 +9,18 @@ POST http://localhost:3000/api/peluqueros
 Content-Type: application/json
 
 {
-    "nombre": "Carlos Rodriguez",
-    "fecha_Ingreso": "2008-02-26T00:00:00Z",
-    "tipo": "Domicilio"
+    "nombre": "Mirko Ostoich",
+    "fecha_Ingreso": "2017-08-26T00:00:00Z",
+    "tipo": "Domicilio",
+    "email": "mirkitosti@gmail.com",
+    "password": "Ab123456!"
 }
 
 ### modificar peluquero (PUT - recurso completo e idempotente)
-PUT http://localhost:3000/api/peluqueros/4
+PUT http://localhost:3000/api/peluqueros/42
 Content-Type: application/json
 
 {
-    "nombre": "Maria Gutierrez",
-    "fecha_Ingreso": "2008-02-26T00:00:00Z",
     "tipo": "Sucursal"
 }
 
