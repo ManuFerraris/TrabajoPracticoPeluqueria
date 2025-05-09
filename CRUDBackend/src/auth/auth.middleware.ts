@@ -35,7 +35,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     try {
         const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET); // Verificamos con la clave del refresh token
         req.user = decoded as TokenPayload; // Deberíamos establecer el mismo tipo de usuario
-        return next(); // Sigue a la ruta protegida
+        next(); // Sigue a la ruta protegida
     } catch (error) {
         return res.status(401).json({ message: 'Refresh token inválido o expirado' });
     }

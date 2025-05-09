@@ -63,8 +63,9 @@ export default function Login() {
         }
     };
 
-    if(auth.isAuthenticated){
-        return <Navigate to ="/homeCliente" />
+    if (auth.isAuthenticated) {
+        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+        return <Navigate to={destino} replace />;
     };
 
     return (

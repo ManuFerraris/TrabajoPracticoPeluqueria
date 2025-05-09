@@ -14,6 +14,10 @@ function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
 };
 
+function isPeluquero(user: Cliente | Peluquero): user is Cliente {
+    return (user as Peluquero).codigo_peluquero !== undefined;
+};
+
 async function safeCompare(a: string, b: string): Promise<boolean> {
     try {
         return timingSafeEqual(
@@ -65,7 +69,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (!passwordsMatch) {
         // Comparación segura en tiempo para evitar leaks de información
-        await safeCompare(password, password);
+        await safeCompare(password, dummyCompare.toString());
         return res.status(401).json({ message: 'Email o contraseña incorrectos' });
     };
 
@@ -81,18 +85,22 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
         { codigo, rol },
         ACCESS_TOKEN_SECRET,
-        { expiresIn: '1m' }
+        { expiresIn: '1h' }
     );
 
     // Crear el refresh token (expira en 30 días)
     const refreshToken = jwt.sign(
         { codigo, rol},
         REFRESH_TOKEN_SECRET,
-        { expiresIn: '3h' }
+        { expiresIn: '30d' }
     );
 
     // Guardar el refresh token en la base de datos
     if (isCliente(user)) {
+        await RefreshTokenRepository.add(refreshToken, user);
+    };
+
+    if(isPeluquero(user)) {
         await RefreshTokenRepository.add(refreshToken, user);
     };
 
@@ -169,9 +177,9 @@ export const logout = async (req: Request, res: Response) => {
             
             // Eliminar el refresh token de la base de datos
             if (decoded.rol === 'cliente') {
-                await RefreshTokenRepository.remove({ cliente: { codigo_cliente: decoded.codigo } });
+                await RefreshTokenRepository.remove({ token: refreshToken});
             } else if (decoded.rol === 'peluquero') {
-                await RefreshTokenRepository.remove({ peluquero: { codigo_peluquero: decoded.codigo } });
+                await RefreshTokenRepository.remove({ token: refreshToken });
             };
     
             return res.status(200).json({ message: 'Logout exitoso' });
