@@ -15,7 +15,7 @@ export default function HomeCliente() {
 
     const handleLogout = () => {
         auth.logout();
-        navigate('/', { replace: true });
+        navigate('/login', { replace: true });
     };
 
     return (

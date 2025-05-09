@@ -91,7 +91,10 @@ export default function Signup() {
                     timer: 1500
                 });
                 // Redirigir al login o hacer login automático?
-                return <Navigate to ="/" />
+                if (auth.isAuthenticated) {
+                    const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+                    return <Navigate to={destino} replace />;
+                };
             }else{
                 const errorData = await response.json();
                 console.log("Error al crear el usuario", errorData);
@@ -113,8 +116,9 @@ export default function Signup() {
 
     const auth = useAuth();
     
-    if(auth.isAuthenticated){
-        return <Navigate to="/dashboard" />
+    if (auth.isAuthenticated) {
+        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+        return <Navigate to={destino} replace />;
     };
 
     return (

@@ -27,15 +27,13 @@ function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
 
 async function findAll(req: Request, res:Response){  //FUNCIONAL
     try{
-            const peluquero = await em.findOne(Peluquero, {
-                codigo_peluquero: req.user.codigo
-            });
+            const peluquero = await em.find(Peluquero, {});
             
             if (!peluquero) {
                 return res.status(404).json({ message: "Peluquero no encontrado" });
             }
             
-            return res.json(peluquero);
+            return res.json({data: peluquero});
         }catch(error:any){
             console.error("Error al obtener peluquero:", error);
             return res.status(500).json({ message: "Error interno del servidor" });
