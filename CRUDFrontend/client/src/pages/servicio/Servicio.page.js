@@ -21,6 +21,8 @@ function ServiciosPage(){
     const [servicioSeleccionado, setServicioSeleccionado] = useState(false);
     const [editar, setEditar] = useState(false);
     const [alerta, setAlerta] = useState('');
+    const [servicioMostrado, setServicioMostrado] = useState(null);
+
     useEffect(() => {
         const fetchServicios = async () => {
             setLoading(true);
@@ -389,35 +391,41 @@ function ServiciosPage(){
                             <thead className="table-primary sticky-top">
                                 <tr>
                                     <th scope="col">Código</th>
-                                    <th scope="col">Monto</th>
-                                    <th scope="col">Medio de Pago</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col">Adic. a Dom.</th>
-                                    <th scope="col">Tipo Serv.</th>
                                     <th scope="col">Total</th>
-                                    <th scope="col">Aus. Cli.</th>
-                                    <th scope="col">Acciones</th>
+                                    <th scope="col" className="text-end" style={{ paddingRight: '100px' }}>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {
                                     servicios.map(val => (
                                         <tr key={val.codigo}>
-                                            <th>{val.codigo}</th>
-                                            <td>{val.monto}</td>
-                                            <td>{val.medio_pago}</td>
+                                            <td>{val.codigo}</td>
                                             <td>{val.estado}</td>
-                                            <td>{val.adicional_adom}</td>
-                                            <td>{val.tipoServicio?.tipo_servicio_codigo || 'N/A'}</td>
                                             <td>{val.total}</td>
-                                            <td>{val.ausencia_cliente}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setServicioSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarServicio(val.codigo)}>Eliminar</button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                }
+                                                <div className="d-flex justify-content-end gap-2">
+                                                    {servicioMostrado === val.codigo ?(
+                                                        <div>
+                                                            <p>Monto: {val.monto}</p>
+                                                            <p>Medio de Pago: {val.medio_pago}</p>
+                                                            <p>Adicional a Domicilio: {val.adicional_adom}</p>
+                                                            <p>Tipo de Servicio: {val.tipo_servicio_codigo}</p>
+                                                            <p>Ausencia Cliente: {val.ausencia_cliente}</p>
+                                                            <button className="btn btn-secondary" onClick={() => setServicioMostrado(null)}> Ocultar </button>
+                                                        </div>
+                                                
+                                                ): (
+                                                    <button className="btn btn-primary" onClick={() => setServicioMostrado(val.codigo)}> Mostrar Más </button>
+                                                )}
+
+                                                    <button className="btn btn-primary btn-sm" onClick={() => { setServicioSeleccionado(val); setEditar(true); }}>Editar</button>
+                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarServicio(val.codigo)}>Eliminar</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
                             </tbody>
                         </table>
                     </div>

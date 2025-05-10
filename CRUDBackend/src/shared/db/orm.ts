@@ -9,15 +9,16 @@ import { TipoServicio } from "../../TipoServicio/tiposervicio.entity.js";
 import { historialCliente } from "../../historialCliente/historialCliente.entity.js";
 import { historialPeluquero } from "../../historialPeluquero/historialPeluquero.entity.js";
 import { Servicio } from "../../Servicio/servicio.entity.js";
+import { RefreshToken } from "../../auth/refresh-token.entity.js";
 
 export const orm = await MikroORM.init({
-    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio, historialCliente, historialPeluquero, Servicio],
+    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio, Servicio, RefreshToken, historialCliente, historialPeluquero], // Lista de entidades que se van a usar en la base de datos
     entitiesTs: ['src/**/*.entity.ts'],
     dbName: 'peluqueria',
     driver: MySqlDriver, // Usamos la propiedad 'driver' en lugar de 'type'
     clientUrl: 'mysql://root:root@localhost:3306/peluqueria',
     highlighter: new SqlHighlighter(),
-    debug: true,
+    debug: false,
     schemaGenerator:{ //Nunca se usa en produccion, SOLO en desarrollo
         disableForeignKeys: true,
         createForeignKeyConstraints: true,
@@ -29,3 +30,5 @@ export const syncSchema = async () => { //Puede generar la base de datos o actua
     const generator = orm.getSchemaGenerator()
     await generator.updateSchema()
 }
+
+export const em = orm.em.fork();

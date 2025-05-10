@@ -14,7 +14,8 @@ Content-Type: application/json
     "direccion": "Calle A 23",
     "email": "carlitos@example.com",
     "telefono": 2477123456,
-    "codigo_localidad": 1
+    "codigo_localidad": 1,
+    "password": "Aa45521!adf"
 }
 
 ### modificar cliente (PUT)
@@ -27,7 +28,8 @@ Content-Type: application/json
     "direccion": "Brandsen 805",
     "email": "arielitoElMagnifico@gmail.com",
     "telefono": "2044785658",
-    "codigo_localidad": 8
+    "codigo_localidad": 8,
+    "password": "Aa45521!adf"
 }
 
 ###Borrar un Cliente

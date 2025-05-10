@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
@@ -5,6 +6,8 @@ import { Localidad } from "../localidad/localidad.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
+
+const SALT_ROUNDS = 12; // Número de rondas de hashing (mayor = más seguro pero más lento)
 
 function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
@@ -14,7 +17,10 @@ function sanitizeClienteInput(req: Request, res: Response, next:NextFunction){
         email: req.body.email,
         direccion: req.body.direccion,
         telefono: req.body.telefono,
-        codigo_localidad: req.body.codigo_localidad
+        codigo_localidad: req.body.codigo_localidad,
+        password: req.body.password,
+        estado: req.body.estado,
+        rol: req.body.rol
     }
     Object.keys(req.body.sanitizedInput).forEach(key => {
         if(req.body.sanitizedInput[key] === undefined) {
@@ -63,12 +69,25 @@ function validarDireccion(direccion: string): boolean {
     }else return false;
 }
 
+function validarPassword(contra:string):boolean{
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+    return regex.test(contra);
+}
+
 async function findAll(req:Request, res:Response){  //FUNCIONAL
     try{
-        const cliente = await em.find(Cliente, {}, { populate: ['localidad'] })
-        res.status(200).json({message: 'Todos los clientes encontrados', data: cliente})
+        const cliente = await em.findOne(Cliente, {
+            codigo_cliente: req.user.codigo
+        });
+        
+        if (!cliente) {
+            return res.status(404).json({ message: "Cliente no encontrado" });
+        }
+        
+        return res.json(cliente);
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        console.error("Error al obtener cliente:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
@@ -95,21 +114,19 @@ async function getOne(req: Request, res:Response ){  //FUNCIONAL
 async function add(req: Request, res: Response) {
     try {
         // Extraer datos del cuerpo de la solicitud
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = req.body.sanitizedInput;
-        // Agregar logs para verificar los datos recibidos
-        console.log("Datos recibidos:", req.body.sanitizedInput);
-        // Validar que todos los campos requeridos estén presentes
-        if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono) {
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password, estado, rol } = req.body.sanitizedInput;
+        
+        if (!codigo_localidad || !dni || !NomyApe || !email || !direccion || !telefono || !password) {
             return res.status(400).json({ message: 'Faltan campos requeridos' });
         }
-        // Buscar la localidad
+        
         const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
         if (!localidad) {
             return res.status(400).json({ message: 'Localidad no encontrada' });
         }
 
         //VALIDACIONES//
-        //**//
+        //************//
         if (!validarDni(dni)) {
             return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres'})
         }
@@ -130,7 +147,21 @@ async function add(req: Request, res: Response) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
 
+        if(!validarPassword(password)){
+            return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
+        }
+
+        // Verificar si el cliente ya existe
+        const clienteExistente = await em.findOne(Cliente, { dni });
+        if (clienteExistente) {
+            return res.status(400).json({ message: 'El cliente ya existe' });
+        };
+
+        //HASHEO DE CONTRASEÑA//
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        
         const estado_cli = "Activo"
+        const rol_cli = "cliente"
 
         // Crear una nueva instancia de Cliente
         const cliente = new Cliente();
@@ -141,13 +172,22 @@ async function add(req: Request, res: Response) {
         cliente.direccion = direccion;
         cliente.telefono = telefono;
         cliente.estado = estado_cli;
+        cliente.password = hashedPassword;
+        cliente.rol = rol_cli;
+
         // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
-        res.status(201).json({ message: 'Cliente creado' });
+        return res.status(201).json({ 
+            message: 'Cliente creado', 
+            data: {
+                ...cliente,
+                password: undefined // No devolvemos el hash en la respuesta!!!!!!!
+            }
+        });
+
     } catch (error: any) {
-        // Manejo de errores
         console.error("Error al crear el cliente:", error);
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 async function update(req: Request, res: Response) {
@@ -169,7 +209,7 @@ async function update(req: Request, res: Response) {
 
         //VALIDACIONES//
         //**//
-        const { codigo_localidad, dni, NomyApe, email, direccion, telefono } = datosSanitizados;
+        const { codigo_localidad, dni, NomyApe, email, direccion, telefono, password, rol } = datosSanitizados;
 
         if (!validarDni(dni)) {
             return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres' });
@@ -190,6 +230,7 @@ async function update(req: Request, res: Response) {
         if (!validarTelefono(telefono)) {
             return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
         }
+
 //Validacion del codigo de localidad:
         if (codigo_localidad !== undefined && codigo_localidad !== null) {
             const localidad = await em.findOne(Localidad, { codigo: codigo_localidad });
@@ -200,14 +241,28 @@ async function update(req: Request, res: Response) {
         }
 
         const estado_cli = "Activo";
+        const rol_cli = "cliente";
         clienteAActualizar.estado = estado_cli;
+        clienteAActualizar.rol = rol_cli;
+
+        if (password) {
+            if(!validarPassword(password)) {
+                return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
+            }
+            datosSanitizados.password = await bcrypt.hash(password, SALT_ROUNDS);
+        };
 
         em.assign(clienteAActualizar, datosSanitizados);
         await em.flush();
 
-        res.status(200).json({ message: 'Cliente actualizado', data: clienteAActualizar });
+        return res.status(200).json({message: 'Cliente actualizado', 
+            data: {
+                ...clienteAActualizar,
+                password: undefined
+            },
+        });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -226,12 +281,16 @@ async function remove(req: Request, res: Response){ //FUNCIONAL
             return res.status(400).json({ message: 'No se puede eliminar el cliente porque tiene turnos asignados' });
         }else{
             await em.removeAndFlush(cliente)
-            res.status(200).json({message: 'Cliente borrado Exitosamente'})
+            return res.status(200).json({message: 'Cliente borrado Exitosamente'})
         }
     }catch(error:any){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 };
 
-export { sanitizeClienteInput, findAll, getOne, add, update, remove}
+async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+}
+
+export { sanitizeClienteInput, findAll, getOne, add, update, remove, comparePasswords}
 

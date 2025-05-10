@@ -1,0 +1,23 @@
+###Buscar un cliente con el email y la contraseña
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "peluquero1@example.com",
+    "password": "Ab123456!"
+}
+
+### Obtener clientes con token válido
+GET http://localhost:3000/api/clientes
+Authorization: Bearer <token_'1.a' y luego '1.c'>
+
+### Obtener peluqueros con token válido
+GET http://localhost:3000/api/peluqueros
+Authorization: Bearer <token_'1.a' y luego '1.c'>
+### Refresh token
+POST http://localhost:3000/api/auth/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "<token_'1.b'>"
+}

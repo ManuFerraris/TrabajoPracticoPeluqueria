@@ -272,7 +272,7 @@ async function update(req: Request, res: Response) { //FUNCIONAL
         if(isNaN(cod_Tur)){
             return res.status(404).json({ message: 'Codigo de turno invalido.' });
         };
-        if (cod_Tur !== undefined) {
+        if (cod_Tur) {
             const turno = await em.findOne(Turno, { codigo_turno: cod_Tur });
 
             if (!turno) {
@@ -297,12 +297,40 @@ async function update(req: Request, res: Response) { //FUNCIONAL
             return res.status(404).json({ message: 'Turno no encontrado.' });
         };
 
+        if (!tipo_Servicio) {
+            return res.status(404).json({ message: 'El tipo de servicio no existe.' });
+        };
+
         //Calculamos el total del servicio.
         //Sacamos el porcentaje del turno
+        const monto_num = Number(monto)
+        if (isNaN(monto_num)) {
+            return res.status(400).json({ message: 'Monto inválido.' });
+        }
+
+        let adicional_adom_num = Number(adicional_adom)
+        if (isNaN(adicional_adom_num)) {
+            adicional_adom_num = 0;
+        }
+
         const porcentaje_turno = (turno.porcentaje)/100;
-        const prec_base = tipo_Servicio.precio_base;
-        let precioFinal = monto + adicional_adom + prec_base + monto*porcentaje_turno 
-        let precio_a_dom = monto*porcentaje_turno;
+        if (isNaN(porcentaje_turno)) {
+            return res.status(400).json({ message: 'Porcentaje del turno no válido.' });
+        }
+
+        const prec_base = Number(tipo_Servicio.precio_base);
+        if (isNaN(prec_base)) {
+            return res.status(400).json({ message: 'Precio base del tipo de servicio no válido.' });
+        }
+        let precioFinal = monto_num + adicional_adom_num + prec_base + monto_num*porcentaje_turno 
+        let precio_a_dom = monto_num*porcentaje_turno;
+
+        console.log('Adic a dom: ', adicional_adom_num)
+        console.log('monto: ', monto_num)
+        console.log('Porc. turno: ', porcentaje_turno)
+        console.log('Precio base: ', prec_base)
+        console.log('Precio final: ', precioFinal)
+        console.log('Precio a dom: ', precio_a_dom)
 
         const tip_tur = turno.tipo_turno;
         if(!tip_tur){

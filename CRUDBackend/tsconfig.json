@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2020",
-    "module": "ESNext",
+    "target": "ES2022", //es6
+    "module": "ESNEXT", // CommonJS
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
@@ -13,8 +13,20 @@
     "alwaysStrict": true,
     "skipLibCheck": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": true,
+    "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
   "include": ["src/**/*", "**/*.ts"],
   "exclude": ["node_modules"]
 }
+
+// Para crear la carpeta dist:
+//"target": "es6"
+//"module": "CommonJS"
+
+// Para hashear contraseñas:
+//"module": "ES2022"
+//"target": "ES2020"
+

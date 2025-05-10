@@ -1,0 +1,7 @@
+### Logout
+POST http://localhost:3000/auth/logout
+Content-Type: application/json
+
+{
+    "refreshToken": "<token_'1.b'>"
+}

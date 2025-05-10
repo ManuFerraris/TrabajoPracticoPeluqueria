@@ -6,19 +6,19 @@ import { Servicio } from "../Servicio/servicio.entity.js";
 @Entity()
 export class Turno {
 
-    @PrimaryKey()
+    @PrimaryKey({type:'number'})
     codigo_turno!: number;
 
-    @Property({ nullable: false })
+    @Property({type:'string', nullable: false })
     fecha_hora!: string;
 
-    @Property({ nullable: false })
+    @Property({type:'string', nullable: false })
     tipo_turno!: string;
 
-    @Property({ nullable: true })
+    @Property({type:'number', nullable: true })
     porcentaje!: number;
 
-    @Property({ nullable: false })
+    @Property({type:'string', nullable: false })
     estado!: string;
 
     @ManyToOne(() => Cliente, { nullable: false })
