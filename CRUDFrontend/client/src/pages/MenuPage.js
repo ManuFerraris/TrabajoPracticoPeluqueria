@@ -80,6 +80,26 @@ const MenuPage = () => {
                     </Card>
                 </Col>
 
+                <Col xs={12} sm={6} md={4} className="mb-4">
+                    <Card className="text-center">
+                        <Card.Body>
+                            <Card.Title>Historial de Peluquero</Card.Title>
+                            <Card.Text>Consulta los turnos que atendió cada peluquero.</Card.Text>
+                            <Button variant="primary" onClick={() => navigate('/historial-peluquero')}>Ver Historial de Peluquero</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+                <Col xs={12} sm={6} md={4} className="mb-4">
+                    <Card className="text-center">
+                        <Card.Body>
+                            <Card.Title>Historial de Cliente</Card.Title>
+                            <Card.Text>Consulta los turnos que sacó cada cliente y con qué peluquero.</Card.Text>
+                            <Button variant="primary" onClick={() => navigate('/historial-cliente')}>Ver Historial de Cliente</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
             </Row>
         </Container>
     );

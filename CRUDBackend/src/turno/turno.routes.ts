@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { findAll, getOne, add, update, remove, sanitizeTurnoInput } from "./turno.controler.js";
+import { findAll, getOne, add, update, remove, sanitizeTurnoInput} from "./turno.controler.js";
 
 export const turnoRouter = Router()
 

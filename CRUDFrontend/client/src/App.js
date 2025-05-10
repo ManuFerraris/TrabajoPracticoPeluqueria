@@ -8,6 +8,8 @@ import TurnosPage from "./pages/turno/Turno.page.js";
 import MenuPage from './pages/MenuPage';
 import ClientesPage from "./pages/cliente/Cliente.page.js";
 import Buscadorpage from "./pages/buscador/buscador.page.js";
+import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
+import HistorialClientePage from './pages/historialCliente/HistorialClientePage';
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
                 <Route path= "/turno" element={<TurnosPage/>} />
                 <Route path= "/cliente" element={<ClientesPage/>} />
                 <Route path= "/buscador" element={<Buscadorpage/>} />
+                <Route path="/historial-peluquero" element={<HistorialPeluqueroPage />} />
+                <Route path="/historial-cliente" element={<HistorialClientePage />} />
             </Routes>
         </Router>
     );

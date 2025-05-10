@@ -9,6 +9,8 @@ import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 import { buscadorRouter } from './buscador/buscador.route.js';
+import { historialClienteRouter } from './historialCliente/historialCliente.routes.js';
+import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
@@ -56,6 +58,13 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 ///**************************************///
 app.use('/api/buscador', buscadorRouter);
 
+///***HISTORIAL CLIENTES***///
+///*******************///
+app.use('/api/turnos/historial/cliente', historialClienteRouter);
+
+///***HISTORIAL PELUQUEROS***///
+///*******************///
+app.use('/api/turnos/historial/peluquero', historialPeluqueroRouter);
 
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///

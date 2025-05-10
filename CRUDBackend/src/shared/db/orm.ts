@@ -6,11 +6,12 @@ import { Cliente } from "../../cliente/clientes.entity.js";
 import { Turno } from "../../turno/turno.entity.js";
 import { Localidad } from "../../localidad/localidad.entity.js";
 import { TipoServicio } from "../../TipoServicio/tiposervicio.entity.js";
-
-
+import { historialCliente } from "../../historialCliente/historialCliente.entity.js";
+import { historialPeluquero } from "../../historialPeluquero/historialPeluquero.entity.js";
+import { Servicio } from "../../Servicio/servicio.entity.js";
 
 export const orm = await MikroORM.init({
-    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio],
+    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio, historialCliente, historialPeluquero, Servicio],
     entitiesTs: ['src/**/*.entity.ts'],
     dbName: 'peluqueria',
     driver: MySqlDriver, // Usamos la propiedad 'driver' en lugar de 'type'
