@@ -9,6 +9,9 @@ import { RefreshTokenRepository } from './refresh-token.repository.js';
 import { RefreshToken } from './refresh-token.entity.js';
 import { timingSafeEqual } from 'crypto';
 import { em } from '../shared/db/orm.js';
+import { sendPasswordResetEmail } from '../shared/emailService.js';
+import { generatePasswordResetToken, verifyPasswordResetToken } from './authService.js';
+
 
 function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
@@ -179,3 +182,67 @@ export const logout = async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'Token inválido o expirado' });
         };
     };
+
+    export const requestPasswordReset = async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email requerido' });
+    }
+
+    const user = await ClienteRepository.findByEmail(email);
+
+    if (!user) {
+        return res.status(404).json({ message: 'No se encontró un cliente con ese email' });
+    }
+
+    const token = generatePasswordResetToken(email);
+    await sendPasswordResetEmail(email, token);
+
+    return res.status(200).json({ message: 'Correo de recuperación enviado' });
+};
+
+// POST /auth/reset-password
+export const resetPassword = async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Token y nueva contraseña requeridos' });
+    }
+
+try {
+    const email = verifyPasswordResetToken(token);
+    if (!email) {
+        return res.status(400).json({ message: 'Token inválido o expirado' });
+    }
+
+    const user = await ClienteRepository.findByEmail(email);
+
+    if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await em.persistAndFlush(user);
+
+    return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+} catch (error) {
+    return res.status(500).json({ message: 'Error del servidor' });
+}
+}
+
+export const validateResetToken = (req: Request, res: Response) => {
+    const { token } = req.query;
+
+    if (!token || typeof token !== 'string') {
+        return res.status(400).json({ message: 'Token requerido' });
+    }
+
+    const email = verifyPasswordResetToken(token);
+    if (!email) {
+        return res.status(400).json({ message: 'Token inválido o expirado' });
+    }
+
+    return res.status(200).json({ message: 'Token válido', email });
+};
