@@ -15,16 +15,17 @@ import { loginRouter } from './auth/auth.routes.js';
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
-app.use(cors()); // Habilita CORS para todas las rutas
+app.options('*', cors());
+app.use(cors({
+    origin: 'http://localhost:3001', // Puerto del frontend!
+    credentials: true
+})); // Habilita CORS para todas las rutas
 app.use(express.json())//Para que express.json funcione para todos 
 
 //luego de los middleware base
 app.use((req, res, next) => {
     RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
 })
-//Antes de las rutas y middlewares de negocio
-
-
 
 ///***PELUQUERO***///
 ///***************///

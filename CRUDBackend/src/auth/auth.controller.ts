@@ -14,7 +14,7 @@ function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
 };
 
-function isPeluquero(user: Cliente | Peluquero): user is Cliente {
+function isPeluquero(user: Cliente | Peluquero): user is Peluquero {
     return (user as Peluquero).codigo_peluquero !== undefined;
 };
 
@@ -38,8 +38,12 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     console.log("Login recibido con:", email, password);
 
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email y contraseña son requeridos' });
+    if (!email) {
+        return res.status(400).json({ message: 'Email es requerido' });
+    };
+
+    if(!password){
+        return res.status(400).json({ message: 'Contraseña es requerida' });
     };
 
     let user: Cliente | Peluquero | null = null;
@@ -154,7 +158,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     
         return res.json({ accessToken });
         } catch (error) {
-        return res.status(403).json({ message: 'Refresh token inválido o expirado' });
+            return res.status(403).json({ message: 'Refresh token inválido o expirado' });
         };
     };
 

@@ -66,9 +66,14 @@ export default function HomePeluquero() {
                                     Ver mis Turnos
                                 </button>
 
-                                <button onClick={() => navigate("/historial-turnos")} className="btn btn-outline-primary btn-lg py-3">
+                                <button onClick={() => navigate("/historial-peluquero")} className="btn btn-outline-primary btn-lg py-3">
                                     <i className="bi bi-list-check me-2"></i>
-                                    Historial de Turnos
+                                    Historial de Peluquero
+                                </button>
+
+                                <button onClick={() => navigate("/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
+                                    <i className="bi bi-list-check me-2"></i>
+                                    Historial de Cliente
                                 </button>
 
                                 <button onClick={() => navigate("/editar-perfil")} className="btn btn-outline-secondary btn-lg py-3">

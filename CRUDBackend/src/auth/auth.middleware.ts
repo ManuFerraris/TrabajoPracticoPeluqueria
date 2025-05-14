@@ -9,7 +9,14 @@ interface TokenPayload {
     rol: string;
 };
 
+declare module 'express-serve-static-core' {
+    interface Request {
+    user?: TokenPayload;
+    }
+};
+
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    console.log('Estamos en el middleware de autenticación');
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,6 +31,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     if (authHeader.startsWith('Bearer ')) {
         try {
             const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET); // Verificamos con la clave del access token
+            console.log("Decoded JWT:", decoded);
             req.user = decoded as TokenPayload; // Ahora 'req.user' tiene el tipo correcto
             return next(); // Sigue a la ruta protegida
         } catch (error) {

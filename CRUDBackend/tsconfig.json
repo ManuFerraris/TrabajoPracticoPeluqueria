@@ -15,18 +15,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noImplicitAny": false,
-    "allowImportingTsExtensions": true,
     "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
   "include": ["src/**/*", "**/*.ts"],
   "exclude": ["node_modules"]
 }
-
-// Para crear la carpeta dist:
-//"target": "es6"
-//"module": "CommonJS"
-
-// Para hashear contraseñas:
-//"module": "ES2022"
-//"target": "ES2020"
-

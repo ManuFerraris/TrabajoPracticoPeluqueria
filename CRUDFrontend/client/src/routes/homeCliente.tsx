@@ -38,12 +38,9 @@ export default function HomeCliente() {
                                     Sacar Turno
                                 </button>
                                 
-                                <button 
-                                    onClick={() => navigate("/mis-turnos")} 
-                                    className="btn btn-outline-primary btn-lg py-3"
-                                >
+                                <button onClick={() => navigate("/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
                                     <i className="bi bi-list-check me-2"></i>
-                                    Ver Mis Turnos
+                                    Historial de Cliente
                                 </button>
                                 
                                 <button 

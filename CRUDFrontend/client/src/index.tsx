@@ -7,8 +7,6 @@ import reportWebVitals from './reportWebVitals.js';
 //Paginas publicas:
 import Login from './routes/Login.tsx';
 import Signup from './routes/signup.tsx';
-import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
-import HistorialClientePage from './pages/historialCliente/HistorialClientePage';
 
 //Rutas privadas (CRUDS):
 import PeluqueroPage from "./pages/peluquero/Peluqueropage.js";
@@ -20,8 +18,11 @@ import TurnosPage from "./pages/turno/Turno.page.js";
 import MenuPage from './pages/MenuPage.js';
 import Turnos from './routes/turnos.tsx';
 
+//Rutas privadas (Buscadores):
+import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
+import HistorialClientePage from './pages/historialCliente/HistorialClientePage';
+
 //Rutas privadas (no CRUDS):
-import Dashboard from './routes/dashboard.tsx';
 import ProtectedRoute from './routes/protectedRoute.tsx';
 import HomeCliente from './routes/homeCliente.tsx';
 import HomePeluquero from './routes/homePeluquero.tsx';
@@ -38,13 +39,11 @@ const router = createBrowserRouter([
       path: "/signup",
       element: <Signup />,
     },
-    { path: "/historial-cliente",element: <HistorialClientePage /> },
-    {path: "/historial-peluquero",element: <HistorialPeluqueroPage /> },
     {
       path: "/",
       element: <ProtectedRoute />,
       children: [
-        { path: "dashboard",element: <Dashboard /> },
+        
         { path: "turno", element: <Turnos /> },
         { path: "homeCliente", element: <HomeCliente /> },
         { path: "homePeluquero", element: <HomePeluquero /> },
@@ -56,6 +55,8 @@ const router = createBrowserRouter([
         { path: "turnos", element: <TurnosPage /> },
         { path: "clientes", element: <ClientesPage /> },
         { path: "menu", element: <MenuPage /> },
+        { path: "historial-cliente", element: <HistorialClientePage /> },
+        { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
       ],
     },
   ]);

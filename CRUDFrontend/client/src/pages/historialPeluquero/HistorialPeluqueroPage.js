@@ -7,11 +7,16 @@ function HistorialPeluqueroPage() {
     const [peluqueros, setPeluqueros] = useState([]);
     const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState('');
     const [turnos, setTurnos] = useState([]);
+    const accessToken = localStorage.getItem('accessToken'); // Obtener el token de acceso del localStorage
 
     useEffect(() => {
         const fetchPeluqueros = async () => {
             try {
-                const res = await Axios.get('http://localhost:3000/api/peluqueros');
+                const res = await Axios.get('http://localhost:3000/api/peluqueros', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                        }
+                    });
                 setPeluqueros(res.data.data || []);
             } catch (err) {
                 Swal.fire({
@@ -22,7 +27,7 @@ function HistorialPeluqueroPage() {
             }
         };
         fetchPeluqueros();
-    }, []);
+    }, [accessToken]);
 
     const obtenerHistorial = async () => {
         if (!peluqueroSeleccionado) {
@@ -34,7 +39,11 @@ function HistorialPeluqueroPage() {
             return;
         }
         try {
-            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/peluquero/${peluqueroSeleccionado}`);
+            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/peluquero/${peluqueroSeleccionado}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                    }
+                });
             setTurnos(res.data.data || []);
         } catch (err) {
             Swal.fire({

@@ -7,22 +7,29 @@ function HistorialClientePage() {
     const [clientes, setClientes] = useState([]);
     const [clienteSeleccionado, setClienteSeleccionado] = useState('');
     const [turnos, setTurnos] = useState([]);
+    const accessToken = localStorage.getItem('accessToken'); // Obtener el token de acceso del localStorage
 
     useEffect(() => {
         const fetchClientes = async () => {
             try {
-                const res = await Axios.get('http://localhost:3000/api/clientes');
+                console.log("Token de acceso:", accessToken);
+                const res = await Axios.get('http://localhost:3000/api/clientes', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                        }
+                    });
                 setClientes(res.data.data || []);
             } catch (err) {
+                console.error("Error detallado:", err.response?.data);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error al cargar los clientes',
+                    title: 'Error al cargar los clientes!!!',
                     confirmButtonText: 'Aceptar'
                 });
             }
         };
         fetchClientes();
-    }, []);
+    }, [accessToken]);
 
     const obtenerHistorial = async () => {
         if (!clienteSeleccionado) {
@@ -34,7 +41,11 @@ function HistorialClientePage() {
             return;
         }
         try {
-            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/cliente/${clienteSeleccionado}`);
+            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/cliente/${clienteSeleccionado}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                    }
+                });
             setTurnos(res.data.data || []);
         } catch (err) {
             Swal.fire({
