@@ -38,3 +38,16 @@ Anotaciones necesarias (Backend):
 //"module": "ES2022"
 //"target": "ES2020"
 
+
+//Funcion del estilo dummy, usamos la dummy de Node.js para mas comodidad y legibilidad
+/*
+async function safeCompare(a: string, b: string): Promise<boolean> {
+    try {
+        return timingSafeEqual(
+            Buffer.from(a),
+            Buffer.from(b)
+        );
+    } catch {
+        return false;
+    };
+};*/

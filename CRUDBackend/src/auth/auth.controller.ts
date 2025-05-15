@@ -8,34 +8,35 @@ import { Cliente } from '../cliente/clientes.entity.js';
 import { Peluquero } from '../peluquero/peluqueros.entity.js';
 import { RefreshTokenRepository } from './refresh-token.repository.js';
 import { RefreshToken } from './refresh-token.entity.js';
-import { timingSafeEqual } from 'crypto';
 import { em } from '../shared/db/orm.js';
+import { FailedLoginRepository } from '../shared/security/failed-login.repository.js';
 
 //Cargar variables de entorno al inicio de la aplicación
 dotenv.config();
+
 // Claves secretas para firmar los tokens
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string; 
+
+const MAX_ATTEMPTS = 5; //Nuemro maximo de intentos permitidos
+const BLOCK_TIME = 15 * 60; //15 minutos en segundos
 
 function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
 };
 
-async function safeCompare(a: string, b: string): Promise<boolean> {
-    try {
-        return timingSafeEqual(
-            Buffer.from(a),
-            Buffer.from(b)
-        );
-    } catch {
-        return false;
-    };
-};
-
 // Login de cliente o peluquero recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    //console.log("Login recibido con:", email, password);
+
+    //Verificar si el usuario ha excedido el limite de inttentos
+    const failedAttempts = await FailedLoginRepository.getAttempts(email)
+
+    if(failedAttempts >= MAX_ATTEMPTS){
+        return res.status(429).json({ 
+            message: "Demasiados intentos de login. Espera 15 minutos o verifica tu correo."
+        });
+    };
 
     if (!email) {
         return res.status(400).json({ message: 'Email es requerido' });
@@ -46,7 +47,7 @@ export const login = async (req: Request, res: Response) => {
     };
 
     let user: Cliente | Peluquero | null = null;
-    let rol: 'cliente' | 'peluquero' | null = null; // Asignamos el rol recibido a la variable rol  
+    let rol: 'cliente' | 'peluquero' | null = null;
     
     user = await ClienteRepository.findByEmail(email);
     if (user) {
@@ -55,25 +56,21 @@ export const login = async (req: Request, res: Response) => {
         user = await PeluqueroRepository.findByEmail(email);
         if (user) rol = 'peluquero';
     };
-    
-    //console.log("Usuario recibido:", user);
-    //console.log("Rol recibido:", rol);
 
     if (!user || !rol) {
         // Operación dummy para mantener tiempo constante
         await bcrypt.compare('dummy', '$2a$12$dummyhashdummyhashdummyha');
+        await FailedLoginRepository.incrementAttempts(email); // <- Registra el intento fallido en Redis
         return res.status(401).json({ message: 'Email o contraseña incorrectos' });
     };
 
     // Verificación de contraseña con protección contra timing attacks
     const passwordsMatch = await bcrypt.compare(password, user.password);
 
-    // Operación dummy para mantener tiempo constante en caso de error
-    const dummyCompare = await bcrypt.compare('dummy', '$2a$12$dummyhashdummyhashdummyha'); 
-
     if (!passwordsMatch) {
         // Comparación segura en tiempo para evitar leaks de información
-        await safeCompare(password, dummyCompare.toString());
+        await bcrypt.compare('dummy', '$2a$12$dummyhashdummyhashdummyha');
+        await FailedLoginRepository.incrementAttempts(email); // <- Registra el intento fallido en Redis
         return res.status(401).json({ message: 'Email o contraseña incorrectos' });
     };
 
@@ -100,23 +97,18 @@ export const login = async (req: Request, res: Response) => {
     );
 
     // Guardar el refresh token en la base de datos
-    if (isCliente(user)) {
-        try{
-            await RefreshTokenRepository.add(refreshToken, user);
-        }catch(error){
-            console.error("Error al guardar el refresh token del CLIENTE:", error);
-            return res.status(500).json({ message: 'Error al guardar el refresh token' });
-        };
-    }else{
-        try{
-            await RefreshTokenRepository.add(refreshToken, user);
-        } catch(error){
-            console.error("Error al guardar el refresh token del PELUQUERO:", error);
-            return res.status(500).json({ message: 'Error al guardar el refresh token' });
-        };
+    try{
+        await RefreshTokenRepository.add(refreshToken, user);
+    }catch(error){
+        console.error("Error al guardar el refresh token del CLIENTE:", error);
+        return res.status(500).json({ message: 'Error al guardar el refresh token' });
     };
 
-    if(user instanceof Cliente){
+    //Limpiar intentos fallidos al lograr un login exitoso
+    await FailedLoginRepository.resetAttempts(email)
+
+    //Devolver estructura que espera el frontend.
+    if(isCliente(user)){
     return res.json({
         accessToken,
         refreshToken,
@@ -154,48 +146,63 @@ export const refreshToken = async (req: Request, res: Response) => {
         const storedToken = await em.findOne(RefreshToken, { token });
 
         if (!storedToken) {
-        return res.status(403).json({ message: 'Refresh token inválido o ya no es válido (revocado)' });
+        return res.status(403).json({ message: 'El token ha sido revocado o eliminado.' });
         };
 
-        // Si el refresh token es válido, generamos un nuevo access token
+        // Generamos un nuevo access token
         const accessToken = jwt.sign(
             { codigo: decoded.codigo, rol: decoded.rol },
             ACCESS_TOKEN_SECRET,
-            { expiresIn: '3h' } // Nuevo access token con expiración de 1 hora
+            { expiresIn: '3h' }
         );
     
         return res.json({ accessToken });
         } catch (error) {
-            return res.status(403).json({ message: 'Refresh token inválido o expirado' });
-        };
+            if(error instanceof jwt.TokenExpiredError){
+                return res.status(401).json({ message: 'El token ha expirado, inicia sesion nuevamente' });
+            }else if(error instanceof jwt.JsonWebTokenError){
+                return res.status(403).json({ message: 'El token proporcionado es invalido'});
+            }else{
+                console.error("Error inesperado:", error);
+                return res.status(500).json({ message: 'Error interno del servidor' });
+            };
     };
+}
 
 export const logout = async (req: Request, res: Response) => {
-        const refreshToken = req.body.refreshToken; // Obtenemos el refresh token del cuerpo de la solicitud
+    const refreshToken = req.body.refreshToken; // Obtenemos el refresh token del cuerpo de la solicitud
     
-        if (!refreshToken) {
-            return res.status(400).json({ message: 'No se proporcionó el refresh token' });
+    if (!refreshToken) {
+        return res.status(400).json({ message: 'El refresh token es obligatorio para cerrar sesión.' });
+    };
+
+    if(typeof refreshToken !== "string" || refreshToken.split('.').length !== 3){
+        return res.status(400).json({ message: 'El refresh token tiene un formato invalido.' })
+    };
+    
+    try {
+        // Verificamos el refresh token con la clave secreta
+        //const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as { codigo: number, rol: string };
+            
+        // Verificar el rol y el tipo de usuario
+        const storedToken = await em.findOne(RefreshToken, { token: refreshToken });
+        if (!storedToken) {
+            console.warn(`Intento de logout con un token inválido: ${refreshToken}`);
+            return res.status(404).json({ message: 'El refresh token no está registrado.' });
         };
-    
-        try {
-            // Verificamos el refresh token con la clave secreta
-            const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as { codigo: number, rol: string };
             
-            // Verificar el rol y el tipo de usuario
-            const storedToken = await em.findOne(RefreshToken, { token: refreshToken });
-            if (!storedToken) {
-                return res.status(403).json({ message: 'Refresh token inválido o ya no es válido (revocado)' });
-            };
-            
-            // Eliminar el refresh token de la base de datos
-            if (decoded.rol === 'cliente') {
-                await RefreshTokenRepository.remove({ token: refreshToken});
-            } else if (decoded.rol === 'peluquero') {
-                await RefreshTokenRepository.remove({ token: refreshToken });
-            };
-    
-            return res.status(200).json({ message: 'Logout exitoso' });
-        } catch (error) {
-            return res.status(403).json({ message: 'Token inválido o expirado' });
+        // Eliminar el refresh token de la base de datos
+        await RefreshTokenRepository.remove({ token: refreshToken});
+
+        return res.status(200).json({ message: 'Logout exitoso' });
+    } catch (error) {
+        if(error instanceof jwt.TokenExpiredError){
+            return res.status(401).json({ message: 'El refresh token ha expirado, inicia sesion nuevamente' });
+        } else if(error instanceof jwt.JsonWebTokenError){
+            return res.status(403).json({ message: 'El refresh token proporcionado es invalido'});
+        } else {
+            console.error("Error inesperado:", error);
+            return res.status(500).json({ message: 'Error interno del servidor' });
         };
     };
+};
