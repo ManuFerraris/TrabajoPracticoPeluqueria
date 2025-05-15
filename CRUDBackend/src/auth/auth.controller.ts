@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import { ClienteRepository } from '../cliente/cliente.repository.js';
 import { PeluqueroRepository } from '../peluquero/peluquero.repository.js';
@@ -10,12 +11,14 @@ import { RefreshToken } from './refresh-token.entity.js';
 import { timingSafeEqual } from 'crypto';
 import { em } from '../shared/db/orm.js';
 
+//Cargar variables de entorno al inicio de la aplicación
+dotenv.config();
+// Claves secretas para firmar los tokens
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string; 
+
 function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
-};
-
-function isPeluquero(user: Cliente | Peluquero): user is Peluquero {
-    return (user as Peluquero).codigo_peluquero !== undefined;
 };
 
 async function safeCompare(a: string, b: string): Promise<boolean> {
@@ -29,14 +32,10 @@ async function safeCompare(a: string, b: string): Promise<boolean> {
     };
 };
 
-// La clave secreta para los tokens (¡en producción usar variables de entorno!)
-const ACCESS_TOKEN_SECRET = 'CLAVE_SECRET';
-const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_CLAVE_SECRET'; // Se recomienda cambiar esta clave y guardarla en un lugar seguro, como una variable de entorno.
-
 // Login de cliente o peluquero recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    console.log("Login recibido con:", email, password);
+    //console.log("Login recibido con:", email, password);
 
     if (!email) {
         return res.status(400).json({ message: 'Email es requerido' });
@@ -48,7 +47,7 @@ export const login = async (req: Request, res: Response) => {
 
     let user: Cliente | Peluquero | null = null;
     let rol: 'cliente' | 'peluquero' | null = null; // Asignamos el rol recibido a la variable rol  
-
+    
     user = await ClienteRepository.findByEmail(email);
     if (user) {
         rol = 'cliente';
@@ -56,8 +55,9 @@ export const login = async (req: Request, res: Response) => {
         user = await PeluqueroRepository.findByEmail(email);
         if (user) rol = 'peluquero';
     };
-
-    console.log("Rol recibido:", rol);
+    
+    //console.log("Usuario recibido:", user);
+    //console.log("Rol recibido:", rol);
 
     if (!user || !rol) {
         // Operación dummy para mantener tiempo constante
@@ -101,11 +101,19 @@ export const login = async (req: Request, res: Response) => {
 
     // Guardar el refresh token en la base de datos
     if (isCliente(user)) {
-        await RefreshTokenRepository.add(refreshToken, user);
-    };
-
-    if(isPeluquero(user)) {
-        await RefreshTokenRepository.add(refreshToken, user);
+        try{
+            await RefreshTokenRepository.add(refreshToken, user);
+        }catch(error){
+            console.error("Error al guardar el refresh token del CLIENTE:", error);
+            return res.status(500).json({ message: 'Error al guardar el refresh token' });
+        };
+    }else{
+        try{
+            await RefreshTokenRepository.add(refreshToken, user);
+        } catch(error){
+            console.error("Error al guardar el refresh token del PELUQUERO:", error);
+            return res.status(500).json({ message: 'Error al guardar el refresh token' });
+        };
     };
 
     if(user instanceof Cliente){
@@ -136,7 +144,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     
     if (!token) {
         return res.status(401).json({ message: 'Refresh token no proporcionado' });
-    }
+    };
     
     try {
         // Verificamos el refresh token con la clave secreta
