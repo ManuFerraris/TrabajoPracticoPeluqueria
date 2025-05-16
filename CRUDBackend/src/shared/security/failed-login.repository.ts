@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 
 const redis = new Redis({
-    host: "0.0.0.0", // Dirección local
+    host: "127.0.0.1", // Dirección local
     port: 6379
 });
 

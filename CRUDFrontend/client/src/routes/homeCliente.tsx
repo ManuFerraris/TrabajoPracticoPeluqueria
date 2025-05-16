@@ -14,8 +14,14 @@ export default function HomeCliente() {
     }
 
     const handleLogout = () => {
-        auth.logout();
-        navigate('/login', { replace: true });
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+        try{
+            auth.logout();
+            navigate('/login', { replace: true });
+        }catch (error){
+            console.error("Error en el logout:", error);
+        };
     };
 
     return (

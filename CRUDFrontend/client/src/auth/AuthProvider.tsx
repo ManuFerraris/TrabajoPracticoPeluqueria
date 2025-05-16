@@ -118,18 +118,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Función para refrescar el token de acceso
     const refreshAuth = async (): Promise<boolean> => {
         if (!refreshToken) return false;
-
+        console.log("Intentando refrescar token con:", refreshToken);
         try {
-        const response = await fetch(`${API_URL}/auth/refresh-token`, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${refreshToken}`
-            }
-        });
+            const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refreshToken })
+            });
 
         if (response.ok) {
             const data = await response.json();
+            console.log("Nuevo accessToken obtenido:", data.accessToken);
             localStorage.setItem('accessToken', data.accessToken);
             setAccessToken(data.accessToken);
             return true;

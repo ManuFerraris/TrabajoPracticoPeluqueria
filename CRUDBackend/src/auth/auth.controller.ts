@@ -133,7 +133,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const refreshToken = async (req: Request, res: Response) => {
     const token = req.body.refreshToken; // Obtenemos el refresh token del cuerpo de la solicitud
-    
+    console.log("Token recibido en refreshToken: ", token);
     if (!token) {
         return res.status(401).json({ message: 'Refresh token no proporcionado' });
     };

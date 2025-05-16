@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, Navigate  } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -9,13 +10,35 @@ export default function HomePeluquero() {
     const rawUser = localStorage.getItem("user");
     const user = rawUser ? JSON.parse(rawUser) : null;
     
+    useEffect(() => {
+        const checkAuth = async () => {
+            if(!auth.isAuthenticated) return; //Si no esta autenticado no intenta renovar sesion.
+        
+            const refreshed = await auth.refreshAuth(); //Intenta renovar el token;
+            if(!refreshed) {
+                console.warn("Sesion expirada, cerrando sesión...");
+                auth.logout();
+                navigate("/login", { replace: true });
+            }
+        };
+        checkAuth();
+    },[auth, navigate]);
+
     if (!auth.isAuthenticated || !auth.user) {
         return <Navigate to="/login" replace />;
-    }
+    };
     
     const handleLogout = () => {
-        auth.logout();
-        navigate('/login', { replace: true });
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("accessToken");
+        try{
+            auth.logout(); //Espera respuesta antes de redirigir
+            navigate('/login', { replace: true });
+        } catch(error){
+            console.error("Error en el logout:", error);
+        };
     };
 
     return (
