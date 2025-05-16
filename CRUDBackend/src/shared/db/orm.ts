@@ -14,7 +14,7 @@ export const orm = await MikroORM.init({
     entitiesTs: ['src/**/*.entity.ts'],
     dbName: 'peluqueria',
     driver: MySqlDriver, // Usamos la propiedad 'driver' en lugar de 'type'
-    clientUrl: 'mysql://root:root@localhost:3306/peluqueria',
+    clientUrl: 'mysql://root:123456@localhost:3306/peluqueria',
     highlighter: new SqlHighlighter(),
     debug: true,
     schemaGenerator:{ //Nunca se usa en produccion, SOLO en desarrollo
