@@ -7,6 +7,8 @@ import reportWebVitals from './reportWebVitals.js';
 //Paginas publicas:
 import Login from './routes/Login.tsx';
 import Signup from './routes/signup.tsx';
+import RecoverPassword from './routes/recoverPassword.tsx';
+import ResetPassword from './routes/reset-password.tsx';
 
 //Rutas privadas (CRUDS):
 import PeluqueroPage from "./pages/peluquero/Peluqueropage.js";
@@ -30,9 +32,21 @@ const router = createBrowserRouter([
       path: "/",
       element: <Login />,
     },
+  {
+    path: "/login",
+    element: <Login />,
+  },
     {
       path: "/signup",
       element: <Signup />,
+    },
+    {
+    path: "/recuperar",
+    element: <RecoverPassword />,
+    },
+    { 
+      path: '/reset-password/:token', 
+      element: <ResetPassword /> 
     },
     {
       path: "/",
