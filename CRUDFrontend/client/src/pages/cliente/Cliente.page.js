@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 function ClientesPage(){
     const [clientes, setClientes] = useState([]);
@@ -23,14 +24,10 @@ function ClientesPage(){
     useEffect(() => {
         const fetchClientes = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/clientes');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setClientes(data.data || []);
+                const response = await axios.get(`${API_URL}/clientes`);
+                setClientes(response.data.data || []);
             } catch (error) {
-                setError(error.message);
+                setError(error.response?.data?.message || error.message);
             } finally {
                 setLoading(false);
             }
@@ -41,15 +38,12 @@ function ClientesPage(){
     useEffect(() => {
         const fetchLocalidades = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/localidades');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setLocalidades(data.data || []); 
+                const response = await axios.get(`${API_URL}/localidades`);
+                setLocalidades(response.data.data || []);
             } catch (error) {
                 console.error('Error al obtener las localidades:', error);
-            }
+                setError(error.response?.data?.message || error.message);
+            };
         };
         fetchLocalidades();
     }, []);
@@ -63,20 +57,21 @@ function ClientesPage(){
             setTelefono(clienteSeleccionado.telefono || '');
             setCodigo_Localidad(clienteSeleccionado.codigo_localidad || '');
             setEstado(clienteSeleccionado.estado || '');
-        }
+        };
     }, [clienteSeleccionado]);
 
     const getClientes = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/clientes');
+            const response = await axios.get(`${API_URL}/clientes`);
             const clientes = response.data.data;
             if (Array.isArray(clientes)) {
                 setClientes(clientes);
-            }
+            };
         } catch (error) {
             console.error('Error al obtener las clientes:', error);
+            setError(error.response?.data?.message || error.message);
             setClientes([]);
-        }
+        };
     };
 
     const validateForm = () => {
@@ -86,21 +81,21 @@ function ClientesPage(){
             errors.dni = "El DNI es obligatorio.";
         } else if (dni.length > 9) {
             errors.dni = "El DNI no puede tener más de 8 caracteres.";
-        }
+        };
 
         if (!NomyApe) {
             errors.NomyApe = "El nombre y apellido es obligatiorio.";
         } else if(NomyApe.length > 40){
-            errors.NomyApe = "El nombre y apellido no puede tener mas de 40 Caracteres"
-        }
+            errors.NomyApe = "El nombre y apellido no puede tener mas de 40 Caracteres";
+        };
 
         if (!direccion) {
             errors.direccion = "La direccion es obligatoria.";
-        }
+        };
 
         if(!codigo_localidad){
-            errors.codigo_localidad = "El codigo de la localidad es obligatorio"
-        }
+            errors.codigo_localidad = "El codigo de la localidad es obligatorio";
+        };
         
         return errors;
     };
@@ -115,7 +110,7 @@ function ClientesPage(){
 
         try {
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/clientes/${clienteSeleccionado.codigo_cliente}`, {
+                await axios.put(`${API_URL}/clientes/${clienteSeleccionado.codigo_cliente}`, {
                     dni: dni,
                     NomyApe: NomyApe,
                     email: email,
@@ -131,7 +126,7 @@ function ClientesPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/clientes', {
+                await axios.post(`${API_URL}/clientes`, {
                     dni: dni,
                     NomyApe: NomyApe,
                     email: email,
@@ -165,12 +160,12 @@ function ClientesPage(){
                 confirmButtonText: 'Aceptar',
                 position: 'center'
             });
-        }
-    }
+        };
+    };
 
     const eliminarCliente = (codigo_cliente) => {
         // Consulta si la cliente tiene algun turno guardado
-        Axios.get(`http://localhost:3000/api/turnos?codigo_cliente=${codigo_cliente}`)
+        axios.get(`${API_URL}/turnos?codigo_cliente=${codigo_cliente}`)
             .then(response => {
                 const turnosAsignados = response.data;
     
@@ -192,7 +187,7 @@ function ClientesPage(){
                         confirmButtonText: 'Sí, eliminarlo'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/clientes/${codigo_cliente}`)
+                            axios.delete(`${API_URL}/clientes/${codigo_cliente}`)
                                 .then(() => {
                                     getClientes();
                                     Swal.fire({
@@ -218,11 +213,11 @@ function ClientesPage(){
                                             text: 'Error al eliminar el cliente',
                                             confirmButtonText: 'Aceptar'
                                         });
-                                    }
+                                    };
                                 });
-                        }
+                        };
                     });
-                }
+                };
             })
             .catch(error => {
                 Swal.fire({

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 
 function PeluqueroList() {
@@ -25,7 +26,7 @@ function PeluqueroList() {
         const fetchPeluqueros = async () => {
             setLoading(true);
             try {
-                const response = await Axios.get('http://localhost:3000/api/peluqueros', {
+                const response = await axios.get(`${API_URL}/peluqueros`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                         }
@@ -66,7 +67,7 @@ function PeluqueroList() {
 
     const getPeluqueros = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/peluqueros',{
+            const response = await axios.get(`${API_URL}/peluqueros`,{
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }
@@ -140,8 +141,7 @@ function PeluqueroList() {
                     dataToSend.password = password;
                 };
             
-                await Axios.put(
-                    `http://localhost:3000/api/peluqueros/${peluqueroSeleccionado.codigo_peluquero}`,
+                await axios.put(`${API_URL}/peluqueros/${peluqueroSeleccionado.codigo_peluquero}`,
                     dataToSend,
                     {
                         headers: {
@@ -157,7 +157,7 @@ function PeluqueroList() {
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/peluqueros', {
+                await axios.post(`${API_URL}/api/peluqueros`, {
                     nombre: nombre,
                     fecha_Ingreso: new Date(fecha_Ingreso).toISOString().split('T')[0],
                     tipo: tipo,
@@ -206,7 +206,7 @@ function PeluqueroList() {
 
     const eliminarPeluquero = (codigo_peluquero) => {
         // Realiza una consulta para verificar si el peluquero tiene un turno asignado
-        Axios.get(`http://localhost:3000/api/turnos?codigo_peluquero=${codigo_peluquero}`, {
+        axios.get(`${API_URL}/turnos?codigo_peluquero=${codigo_peluquero}`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
@@ -236,7 +236,7 @@ function PeluqueroList() {
                         confirmButtonText: 'Sí, eliminarlo'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/peluqueros/${codigo_peluquero}`, {
+                            axios.delete(`${API_URL}/peluqueros/${codigo_peluquero}`, {
                                 headers: {
                                     Authorization: `Bearer ${accessToken}`
                                 }

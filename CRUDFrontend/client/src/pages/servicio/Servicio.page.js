@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 function ServiciosPage(){
     const [servicios, setServicios] = useState([]);
@@ -27,14 +28,10 @@ function ServiciosPage(){
         const fetchServicios = async () => {
             setLoading(true);
             try {
-                const response = await fetch('http://localhost:3000/api/servicios');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setServicios(data.data || []);
+                const response = await axios.get(`${API_URL}/servicios`);
+                setServicios(response.data.data || []);
             } catch (error) {
-                setError(error.message);
+                setError(error.response?.data?.message || error.message);
                 console.error('Error al cargar los servicios:', error);
             } finally {
                 setLoading(false);
@@ -43,13 +40,14 @@ function ServiciosPage(){
 
         const fetchTipoServicio = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/tipoServicio'); // Ruta de API para tipos de servicio
-                const data = await response.json();
+                const response = await axios.get(`${API_URL}/tipoServicio`);
+                const data = response.data;
                 setTipoServicio(data.data || []);
                 console.log("Tipos de Servicio cargados:", data.data);
             } catch (error) {
+                setError(error.response?.data?.message || error.message);
                 console.error("Error al cargar tipos de servicio:", error);
-            }
+            };
         };
         fetchServicios();
         fetchTipoServicio();
@@ -71,15 +69,16 @@ function ServiciosPage(){
 
     const getServicios = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/servicios');
+            const response = await axios.get(`${API_URL}/servicios`);
             const servicios = response.data.data;
             if (Array.isArray(servicios)) {
                 setServicios(servicios);
-            }
+            };
         } catch (error) {
+            setError(error.response?.data?.message || error.mensaje)
             console.error('Error al obtener los Servicios:', error);
             setServicios([]);
-        }
+        };
     };
 
     const validateForm = () => {
@@ -138,7 +137,7 @@ function ServiciosPage(){
                     tipo_servicio_codigo: tipo_servicio_codigo,
                 });
 
-                await Axios.put(`http://localhost:3000/api/servicios/${servicioSeleccionado.codigo}`, {
+                await axios.put(`${API_URL}/servicios/${servicioSeleccionado.codigo}`, {
                     monto: Number(monto),
                     estado: estado,
                     ausencia_cliente: ausencia_cliente,
@@ -164,7 +163,7 @@ function ServiciosPage(){
                     tipo_servicio_codigo: tipo_servicio_codigo,
                 });
     
-                await Axios.post('http://localhost:3000/api/servicios', {
+                await axios.post(`${API_URL}/servicios`, {
                     monto: Number(monto),
                     estado: estado,
                     ausencia_cliente: ausencia_cliente,
@@ -208,7 +207,7 @@ function ServiciosPage(){
     };
 
     const eliminarServicio = (codigo) => {
-        Axios.get(`http://localhost:3000/api/turnos?codigo=${codigo}`)
+        axios.get(`${API_URL}/turnos?codigo=${codigo}`)
             .then(response => {
                 const turnosAsignados = response.data;
     
@@ -230,7 +229,7 @@ function ServiciosPage(){
                         confirmButtonText: 'Sí, eliminarlo'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/servicios/${codigo}`)
+                            axios.delete(`${API_URL}/servicios/${codigo}`)
                                 .then(() => {
                                     getServicios();
                                     Swal.fire({

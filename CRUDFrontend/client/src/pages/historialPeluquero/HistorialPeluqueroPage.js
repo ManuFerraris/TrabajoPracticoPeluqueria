@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function HistorialPeluqueroPage() {
@@ -12,7 +13,7 @@ function HistorialPeluqueroPage() {
     useEffect(() => {
         const fetchPeluqueros = async () => {
             try {
-                const res = await Axios.get('http://localhost:3000/api/peluqueros', {
+                const res = await axios.get(`${API_URL}/peluqueros`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                         }
@@ -39,7 +40,7 @@ function HistorialPeluqueroPage() {
             return;
         }
         try {
-            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/peluquero/${peluqueroSeleccionado}`, {
+            const res = await axios.get(`${API_URL}/turnos/historial/peluquero/${peluqueroSeleccionado}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                     }

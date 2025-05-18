@@ -45,7 +45,7 @@ export default function HomePeluquero() {
         <div className="container py-5">
             <div className="text-center mb-5">
                 <h1 className="fw-bold text-primary">Bienvenido, {user.nombre}</h1>
-                <p className="text-muted fs-5">¿Sale corte rocho?</p>
+                <p className="text-muted fs-5">¿Cortamos hoy?</p>
             </div>
     
             {/* Resumen Rápido */}

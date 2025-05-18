@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 function LocalidadesPage(){
     const [localidades, setLocalidades] = useState([]);
@@ -23,11 +24,8 @@ function LocalidadesPage(){
         const fetchLocalidades = async () => {
             setLoading(true);
             try {
-                const response = await fetch('http://localhost:3000/api/localidades');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
+                const response = await axios.get(`${API_URL}/localidades`);
+                const data = response.data;
                 setLocalidades(data.data || []);
             } catch (error) {
                 setError(error.message);
@@ -50,7 +48,7 @@ function LocalidadesPage(){
 
     const getLocalidades = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/localidades');
+            const response = await axios.get(`${API_URL}/localidades`);
             const localidades = response.data.data;
             if (Array.isArray(localidades)) {
                 setLocalidades(localidades);
@@ -101,7 +99,7 @@ function LocalidadesPage(){
 
         try {
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/localidades/${localidadSeleccionada.codigo}`, {
+                await axios.put(`${API_URL}/localidades/${localidadSeleccionada.codigo}`, {
                     nombre: nombre,
                     provincia: provincia,
                     codigo_postal: codigo_postal,
@@ -116,7 +114,7 @@ function LocalidadesPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/localidades', {
+                await axios.post(`${API_URL}/localidades`, {
                     nombre: nombre,
                     provincia: provincia,
                     codigo_postal: codigo_postal,
@@ -158,7 +156,7 @@ function LocalidadesPage(){
 
     const eliminarLocalidad = (codigo) => {
         // Consulta si la localidad tiene algun cliente guardado
-        Axios.get(`http://localhost:3000/api/turnos?codigo=${codigo}`)
+        axios.get(`${API_URL}/turnos?codigo=${codigo}`)
             .then(response => {
                 const clientesAsignados = response.data;
     
@@ -182,7 +180,7 @@ function LocalidadesPage(){
                         confirmButtonText: 'Sí, eliminarla'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/localidades/${codigo}`)
+                            axios.delete(`http://localhost:3000/api${API_URL}/localidades/${codigo}`)
                                 .then(() => {
                                     getLocalidades();
                                     Swal.fire({

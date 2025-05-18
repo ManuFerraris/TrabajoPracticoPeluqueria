@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_URL } from '../../auth/constants.ts';
 
 function HistorialClientePage() {
     const [clientes, setClientes] = useState([]);
@@ -13,7 +14,7 @@ function HistorialClientePage() {
         const fetchClientes = async () => {
             try {
                 console.log("Token de acceso:", accessToken);
-                const res = await Axios.get('http://localhost:3000/api/clientes', {
+                const res = await axios.get(`${API_URL}/clientes`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                         }
@@ -41,7 +42,7 @@ function HistorialClientePage() {
             return;
         }
         try {
-            const res = await Axios.get(`http://localhost:3000/api/turnos/historial/cliente/${clienteSeleccionado}`, {
+            const res = await axios.get(`${API_URL}/turnos/historial/cliente/${clienteSeleccionado}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                     }

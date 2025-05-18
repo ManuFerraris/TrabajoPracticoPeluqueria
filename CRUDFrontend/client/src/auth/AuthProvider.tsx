@@ -1,4 +1,5 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const API_URL = 'http://localhost:3000';
 
@@ -85,12 +86,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setRefreshToken(refreshToken);
         setUser(userData);
         setIsAuthenticated(true);
-
-        // Redirige luego de actualizar el estado
-        /*if (navigate) {
-            const destino = userData.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
-            navigate(destino);
-        };*/
     };
 
     // Función para cerrar sesión
@@ -120,25 +115,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!refreshToken) return false;
         console.log("Intentando refrescar token con:", refreshToken);
         try {
-            const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refreshToken })
-            });
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log("Nuevo accessToken obtenido:", data.accessToken);
-            localStorage.setItem('accessToken', data.accessToken);
-            setAccessToken(data.accessToken);
-            return true;
-        }
+            const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken});
+            
+            if(response.status === 200){
+                const { accessToken } = response.data;
+                localStorage.setItem("accessToken", accessToken);
+                return true;
+            };
         } catch (error) {
-        console.error("Error al refrescar token:", error);
-        }
-
+        console.error("Error al refrescar token:", error.response?.data || error.message);
+        };
         logout();
         return false;
     };

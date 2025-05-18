@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 function TipoServicioPage(){
     const [TipoServicio, setTipoServicio] = useState([]);
@@ -21,17 +22,14 @@ function TipoServicioPage(){
     useEffect(() => {
         const fetchTipoServicio = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/tiposervicio');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
+                const response = await axios.get(`${API_URL}/tiposervicio`);
+                const data = response.data;
                 setTipoServicio(data.data || []);
             } catch (error) {
-                setError(error.message);
+                setError(error.response?.data?.message || error.mensaje);
             } finally {
                 setLoading(false);
-            }
+            };
         };
         fetchTipoServicio();
     }, []);
@@ -42,25 +40,21 @@ function TipoServicioPage(){
             setDescripcion(TSseleccionado.descripcion || '');
             setDuracion_estimada(TSseleccionado.duracion_estimada || '');
             setPrecio_base(TSseleccionado.precio_base || '');
-            //setservicio_codigo(TSseleccionado.servicio?.codigo || ''); //Traemos el objeto servicio relaciondado con TipoServicio y de ese objeto tomamos el codigo para mostrarlo
-            
-            //console.log("TSseleccionado:", TSseleccionado);  // Verifica todo el objeto
-            //console.log("Tipo de TSseleccionado:", typeof TSseleccionado);
-            //console.log("servicio_codigo en TSseleccionado:", TSseleccionado?.servicio_codigo);
         }
     }, [TSseleccionado]);
 
     const getTipoServicio = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/tiposervicio');
+            const response = await axios.get(`${API_URL}/tiposervicio`);
             const tipo_ser = response.data.data;
             if (Array.isArray(tipo_ser)) {
                 setTipoServicio(tipo_ser);
             }
         } catch (error) {
             console.error('Error al obtener los Tipos de Servicio:', error);
+            setError(error.response?.data?.message || error.mensaje);
             setTipoServicio([]);
-        }
+        };
     };
 
     const validateForm = () => {
@@ -75,9 +69,6 @@ function TipoServicioPage(){
         if (!descripcion) {
             errors.descripcion = "La descripcion es obligatoria.";
         }
-        /*if(!servicio_codigo){
-            errors.servicio_codigo = "El codigo del Servicio es obligatorio"
-        }*/
 
         if(!precio_base){
             errors.precio_base = "El precio base en obligatorio."
@@ -104,12 +95,11 @@ function TipoServicioPage(){
 
         try {
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/tiposervicio/${TSseleccionado.codigo_tipo}`, {
+                await axios.put(`${API_URL}/tiposervicio/${TSseleccionado.codigo_tipo}`, {
                     nombre: nombre,
                     descripcion: descripcion,
                     duracion_estimada: duracion_estimada,
                     precio_base: precio_base,
-                    //servicio_codigo: servicio_codigo
                 });
                 Swal.fire({
                     position: 'center',
@@ -119,12 +109,11 @@ function TipoServicioPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/tiposervicio', {
+                await axios.post(`${API_URL}/tiposervicio`, {
                     nombre: nombre,
                     descripcion: descripcion,
                     duracion_estimada: duracion_estimada,
                     precio_base: precio_base,
-                    //servicio_codigo: servicio_codigo
                 });
                 Swal.fire({
                     position: 'center',
@@ -160,7 +149,7 @@ function TipoServicioPage(){
 
     const eliminarTipoServicio = (codigo_tipo) => {
         // Consulta si el tipo de servicio tiene algun servicio 
-        Axios.get(`http://localhost:3000/api/tiposervicio?codigo_tipo=${codigo_tipo}`)
+        axios.get(`${API_URL}/tiposervicio?codigo_tipo=${codigo_tipo}`)
             .then(response => {
                 const TPasignado = response.data;
     
@@ -182,7 +171,7 @@ function TipoServicioPage(){
                         confirmButtonText: 'Sí, eliminarla'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Axios.delete(`http://localhost:3000/api/tiposervicio/${codigo_tipo}`)
+                            axios.delete(`${API_URL}/tiposervicio/${codigo_tipo}`)
                                 .then(() => {
                                     getTipoServicio();
                                     Swal.fire({
