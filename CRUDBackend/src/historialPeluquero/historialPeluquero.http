@@ -1,0 +1,2 @@
+### Obtener historial de un peluquero
+GET http://localhost:3000/api/historial-peluquero/5

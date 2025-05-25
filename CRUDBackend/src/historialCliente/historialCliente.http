@@ -1,0 +1,2 @@
+### Obtener historial de un cliente
+GET http://localhost:3000/api/historial-cliente/2

@@ -7,6 +7,7 @@ import { API_URL } from '../auth/constants.ts';
 import "./signup.css";
 import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
@@ -73,28 +74,24 @@ export default function Signup() {
         setIsSubmitting(true);
 
         try{
-            const response = await fetch(`${API_URL}/clientes`,{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData)
+            const response = await axios.post(`${API_URL}/clientes`, formData);
+            if(response.status === 200){
+                console.log("Usuario creado correctamente")
+            };
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Bienvenido!',
+                text: 'Usuario creado correctamente',
+                showConfirmButton: false,
+                timer: 1500
             });
-            if(response.ok){
-                console.log("Usuario creado correctamente");
-                Swal.fire({
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Bienvenido!',
-                    text: 'Usuario creado correctamente',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                // Redirigir al login o hacer login automático?
-                return <Navigate to ="/" />
+            // Redirigir al login o hacer login automático?
+            if (auth.isAuthenticated) {
+                const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+                return <Navigate to={destino} replace />;
             }else{
-                const errorData = await response.json();
-                console.log("Error al crear el usuario", errorData);
+                console.log("Error al crear el usuario", response.data);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -105,7 +102,7 @@ export default function Signup() {
                 // Manejar errores específicos del backend
             };
         } catch(error){
-            console.log("Error de red:", error);
+            console.log("Error de red:", error.response?.data || error.message);
         } finally {
             setIsSubmitting(false);
         };
@@ -113,8 +110,9 @@ export default function Signup() {
 
     const auth = useAuth();
     
-    if(auth.isAuthenticated){
-        return <Navigate to="/dashboard" />
+    if (auth.isAuthenticated) {
+        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+        return <Navigate to={destino} replace />;
     };
 
     return (

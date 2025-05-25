@@ -6,9 +6,8 @@ import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const peluqueroRouter = Router()
 
-//peluqueroRouter.get('/', findAll) <-esta ruta no es segura, no requiere autenticación
-peluqueroRouter.get('/', authMiddleware, authorizeRole('peluquero'), findAll) // Ruta protegida
-peluqueroRouter.get('/:codigo_peluquero', getOne) //Aqui si indicamos el codigo para realizar la busqueda.
-peluqueroRouter.post('/', sanitizePeluqueroInput, add)
-peluqueroRouter.put('/:codigo_peluquero', authorizeRole('peluquero'), sanitizePeluqueroInput, update)
-peluqueroRouter.delete('/:codigo_peluquero', remove)
+peluqueroRouter.get('/', authMiddleware, authorizeRole(['peluquero']), findAll) // Ruta protegida
+peluqueroRouter.get('/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero']), getOne) //Aqui si indicamos el codigo para realizar la busqueda.
+peluqueroRouter.post('/', authMiddleware, authorizeRole(['peluquero']), sanitizePeluqueroInput, add)
+peluqueroRouter.put('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero']), sanitizePeluqueroInput, update)
+peluqueroRouter.delete('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero']), remove)

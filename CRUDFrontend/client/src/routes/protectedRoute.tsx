@@ -7,7 +7,7 @@ export default function ProtectedRoute(){
     
     //Chequeamos si el usuario esta autenticado, si no lo redirigimos a la pagina de login.
     if (!auth.isAuthenticated) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/login" replace />;
     };
     
     return <Outlet />;

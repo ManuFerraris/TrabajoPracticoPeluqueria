@@ -66,6 +66,61 @@ function validaEstado(estado:string){
     }
 }
 
+function validaHorarioLaboral(fechaHora: string) {
+    const fechaTurno = new Date(fechaHora);
+    const diaSemana = fechaTurno.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+    const hora = fechaTurno.getHours();
+    const minutos = fechaTurno.getMinutes();
+
+    // Domingos 
+    if (diaSemana === 0) {
+        return { valido: false, mensaje: "No se pueden agendar turnos los domingos." };
+    }
+
+    // Lunes a viernes
+    if (diaSemana >= 1 && diaSemana <= 5) {
+        if (hora < 8 || hora >= 20) {
+            return { valido: false, mensaje: "El horario de atención es entre las 8:00hs y las 20:00hs." };
+        }
+    }
+
+    // Sábados
+    if (diaSemana === 6) {
+        if (hora < 8 || (hora >= 12)) {
+            return { valido: false, mensaje: "Los sábados, el horario de atención es entre las 8:00hs y las 12:00hs." };
+        }
+    }
+
+    return { valido: true };
+}
+
+async function validaTurnoUnicoPorDia(clienteId: number, fechaHora: string) {
+    const cliente = await em.findOne(Cliente, { codigo_cliente: clienteId });
+
+    if (!cliente) {
+        throw new Error('Cliente no encontrado');
+    }
+
+    const fechaTurno = new Date(fechaHora);
+
+    const inicioDelDia = new Date(fechaTurno);
+    inicioDelDia.setHours(0, 0, 0, 0);
+
+    const finDelDia = new Date(fechaTurno);
+    finDelDia.setHours(23, 59, 59, 999);
+
+    const turnosDelCliente = await em.find(Turno, {
+        cliente: cliente
+    });
+
+    const turnoEnEseDia = turnosDelCliente.find(t => {
+        const fechaTurnoExistente = new Date(t.fecha_hora);
+        return fechaTurnoExistente >= inicioDelDia && fechaTurnoExistente <= finDelDia;
+    });
+
+    return turnoEnEseDia ? false : true;
+}
+
 async function findAll(req:Request, res:Response){ //FUNCIONAL
     try{
         const turno = await em.find(Turno, {}, { populate: ['cliente', 'peluquero', 'servicio']})
@@ -137,6 +192,35 @@ async function add(req: Request, res:Response){ //FUNCIONAL
             return res.status(400).json({ message: 'El estado debe ser "Activo" o "Cancelado"'})
         };
 
+        // valido que el cliente no tenga ya un turno el mismo día
+        const clientePuedeSacarTurno = await validaTurnoUnicoPorDia(cliente.codigo_cliente, fecha_hora);
+        if (!clientePuedeSacarTurno) {
+            return res.status(400).json({ message: 'El cliente ya tiene un turno agendado ese día.' });
+        }
+
+
+        // valido horario laboral
+        const resultadoHorario = validaHorarioLaboral(fecha_hora);
+        if (!resultadoHorario.valido) {
+            return res.status(400).json({ message: resultadoHorario.mensaje });
+        }
+
+         // Validar que el peluquero no tenga ya un turno dentro de los 30 minutos anteriores o posteriores
+         const fechaTurno = new Date(fecha_hora);
+         const fechaInicio = new Date(fechaTurno.getTime() - 30 * 60000); // 30 min antes
+         const fechaFin = new Date(fechaTurno.getTime() + 30 * 60000);   // 30 min después
+ 
+         const turnoEnRango = await em.findOne(Turno, {peluquero,fecha_hora: {
+                 $gte: fechaInicio.toISOString(),
+                 $lte: fechaFin.toISOString()
+             }
+         });
+ 
+         if (turnoEnRango) {
+             return res.status(400).json({ message: 'El peluquero ya tiene un turno dentro de los 30 minutos del horario solicitado' });
+         }
+ 
+
         //Creacion del turno
         const turno = new Turno()
         turno.cliente = cliente;
@@ -204,19 +288,72 @@ async function update(req: Request, res: Response){
         
 
         // Verificar si el código del peluquero existe
-        const cod_pel = Number(codigo_peluquero);
-        if(isNaN(cod_pel)){
-            return res.status(404).json({ message: 'El codigo de peluquero es invalido'})
-        };
+        let peluqueroEntity: Peluquero | null = null;
+        if (codigo_peluquero) {
+            peluqueroEntity = await em.findOne(Peluquero, { codigo_peluquero });
+            if (!peluqueroEntity) {
+                return res.status(404).json({ message: 'El código del peluquero no existe' });
+            }
+        } else {
+            peluqueroEntity = turnoAActualizar.peluquero;
+        }
 
-        const peluquero = await em.findOne(Peluquero, { codigo_peluquero:cod_pel });
-        if (!peluquero) {
-            return res.status(404).json({ message: 'El código del peluquero no existe' });
+        // valido que el cliente no tenga dos turnos el mismo día 
+        if (fecha_hora || codigo_cliente) {
+            const clienteAValidar = codigo_cliente || turnoAActualizar.cliente.codigo_cliente;
+            const fechaAValidar = fecha_hora || turnoAActualizar.fecha_hora;
+
+            const fechaTurno = new Date(fechaAValidar);
+            const inicioDelDia = new Date(fechaTurno);
+            inicioDelDia.setHours(0, 0, 0, 0);
+
+            const finDelDia = new Date(fechaTurno);
+            finDelDia.setHours(23, 59, 59, 999);
+
+            const turnosDelCliente = await em.find(Turno, {
+                cliente: clienteAValidar
+            });
+
+            const otroTurno = turnosDelCliente.find(t => {
+                const fechaTurnoExistente = new Date(t.fecha_hora);
+                return fechaTurnoExistente >= inicioDelDia && fechaTurnoExistente <= finDelDia && t.codigo_turno !== codigo_turno;
+            });
+
+            if (otroTurno) {
+                return res.status(400).json({ message: 'El cliente ya tiene un turno agendado ese día.' });
+            }
+        }   
+
+
+        // validacion horario laboral
+        if (fecha_hora) {
+            const resultadoHorario = validaHorarioLaboral(fecha_hora);
+            if (!resultadoHorario.valido) {
+                return res.status(400).json({ message: resultadoHorario.mensaje });
+            }
+        }        
+
+         // Validar que el peluquero no tenga otro turno en un rango de 30 minutos
+         if (fecha_hora) {
+            const fechaTurno = new Date(fecha_hora);
+            const fechaInicio = new Date(fechaTurno.getTime() - 30 * 60000);
+            const fechaFin = new Date(fechaTurno.getTime() + 30 * 60000);
+
+            const otroTurno = await em.findOne(Turno, {
+                peluquero: peluqueroEntity,fecha_hora: {
+                    $gte: fechaInicio.toISOString(),
+                    $lte: fechaFin.toISOString()
+                },
+                codigo_turno: { $ne: codigo_turno } // Excluir el mismo turno actual
+            });
+
+            if (otroTurno) {
+                return res.status(400).json({ message: 'El peluquero ya tiene otro turno agendado dentro de los 30 minutos del horario solicitado' });
+            }
         }
         
-
         turnoAActualizar.cliente = cliente;
-        turnoAActualizar.peluquero = peluquero;
+        turnoAActualizar.peluquero = peluqueroEntity;
 
         em.assign(turnoAActualizar, req.body.sanitizedInput)
         await em.flush()
@@ -247,4 +384,7 @@ async function remove(req: Request, res: Response){
         return res.status(500).json({message: error.message})
     }
 }
+
+
+
 export {findAll, getOne, add, update, remove, sanitizeTurnoInput}

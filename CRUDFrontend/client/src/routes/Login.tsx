@@ -7,12 +7,13 @@ import { API_URL } from '../auth/constants.ts';
 import './Login.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
+import axios from "axios";
 
 
 export default function Login() {
 
-    const[email, setEmail] = useState("");
-    const[password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -25,21 +26,9 @@ export default function Login() {
         setError(null);
 
         try {
-            const response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                console.log('Error en la respuesta del servidor:', response.statusText);
-                throw new Error('Credenciales inválidas');
-            };
-
-            const data = await response.json();
-            console.log('Datos de respuesta:', data);
+            const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+            const data = response.data
+            console.log('Datos de respuesta con axios:', data);
 
             // Guardar tokens y autenticar usuario
             auth.login(
@@ -51,7 +40,6 @@ export default function Login() {
                 rol: data.user.rol,
                 nombre: data.user.NomyApe || data.user.nombre,
                 },
-            //navigate
             );
 
             const destino = data.user.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
@@ -65,8 +53,9 @@ export default function Login() {
         }
     };
 
-    if(auth.isAuthenticated){
-        return <Navigate to ="/homeCliente" />
+    if (auth.isAuthenticated) {
+        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+        return <Navigate to={destino} replace />;
     };
 
     return (

@@ -9,7 +9,7 @@ function isCliente(user: Cliente | Peluquero): user is Cliente {
 };
 
 export const RefreshTokenRepository = {
-    // Guardar un nuevo refresh token asociado a un cliente
+    // Guardar un nuevo refresh token asociado a un cliente o peluquero
     add: async (token: string, user: Cliente | Peluquero) => {
     const refreshToken = new RefreshToken();
     refreshToken.token = token;

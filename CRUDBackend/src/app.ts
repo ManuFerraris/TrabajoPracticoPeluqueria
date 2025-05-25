@@ -9,17 +9,87 @@ import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 import { buscadorRouter } from './buscador/buscador.route.js';
+import { historialClienteRouter } from './historialCliente/historialCliente.routes.js';
+import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
 import { AppError } from './shared/errors/AppError.js';
 import cors from 'cors';
 
-const app = express();
+const app = express() //app va a ser del tipo express
+app.options('*', cors());
+app.use(cors({
+    origin: 'http://localhost:3001', // Puerto del frontend!
+    credentials: true
+})); // Habilita CORS para todas las rutas
+app.use(express.json())//Para que express.json funcione para todos 
 
-app.use(cors());
-app.use(express.json());
-
+// Middleware para crear un contexto por request
 app.use((req, res, next) => {
-  RequestContext.create(orm.em, next);
+    RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
+})
+
+///***PELUQUERO***///
+///***************///
+app.use('/api/peluqueros', peluqueroRouter) //Decimos que use peluqueroRouter para que use todas las peticiones que llegan a esta ruta (definidas en la aplicacion).
+
+
+///***CLIENTE***///
+///*************///
+app.use('/api/clientes', clienteRouter)
+
+
+///***TURNO***///
+///***********///
+app.use('/api/turnos', turnoRouter)
+
+
+///***SERVICIO***///
+///***********///
+app.use('/api/servicios', servicioRouter)
+
+
+///***LOCALIDAD***///
+///**************///
+app.use('/api/localidades', localidadRouter)
+
+
+///***TIPO SERVICIO***///
+///*******************///
+app.use('/api/tiposervicio', tipoServicioRouter);
+
+///***BUSCADOR POR CODIGO DE PELUQUERO***///
+///**************************************///
+app.use('/api/buscador', buscadorRouter);
+
+///***HISTORIAL CLIENTES***///
+///*******************///
+app.use('/api/turnos/historial/cliente', historialClienteRouter);
+
+///***HISTORIAL PELUQUEROS***///
+///*******************///
+app.use('/api/turnos/historial/peluquero', historialPeluqueroRouter);
+
+///***RUTA PARA EL LOGIN***///
+///**************************************///
+app.use('/api/auth', loginRouter);
+
+///***RESPUESTAS PARA TODAS LAS CRUDS***///
+///*************************************///
+
+//Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
+/*app.use('/',(req, res) => {
+    res.send('<h1>Hola!!</h1>');
+});*/
+
+// Middleware para manejar errores 404
+app.use((req,res)=>{
+    res.status(404).send({message:"Recurso no encontrado"})
+})
+
+// Middleware para manejar errores internos del servidor
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Error interno del servidor', details: err.message });
 });
 
 // Rutas

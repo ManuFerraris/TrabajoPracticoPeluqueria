@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import { API_URL } from '../../auth/constants.ts';
 
 function Buscadorpage(){
     const [codigo_peluquero, setCodigo_peluquero] = useState([]);
@@ -13,13 +13,14 @@ function Buscadorpage(){
 
     const obtenerNombrePeluquero = async (codigo) => {
         try {
-            const response = await Axios.get(`http://localhost:3000/api/peluqueros/${codigo}`);
+            const response = await axios.get(`${API_URL}/peluqueros/${codigo}`);
             setNombre(response.data.nombre);
             console.log(response.data.nombre);
         } catch (err) {
-            setError('No se pudo obtener el nombre del peluquero.');
+            setError(error.response?.data?.message || error.message);
+            console.log('Error en consola: ', error.response?.data?.message || error.message)
             setNombre('');
-        }
+        };
     };
 
 
@@ -30,7 +31,7 @@ function Buscadorpage(){
         obtenerNombrePeluquero(codigo_peluquero);
 
         try {
-            const response = await Axios.get(`http://localhost:3000/api/buscador/${codigo_peluquero}`);
+            const response = await axios.get(`${API_URL}/buscador/${codigo_peluquero}`);
             setTurnos(response.data.data);
             Swal.fire('Éxito', 'Turnos cargados correctamente', 'success');
         } catch (err) {

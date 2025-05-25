@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "ES2022", //es6
-    "module": "ESNEXT", // CommonJS
+    "target": "ES2022",
+    "module": "ESNEXT",
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
@@ -17,15 +17,6 @@
     "noImplicitAny": false,
     "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
-  "include": ["src/**/*", "**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
-
-// Para crear la carpeta dist:
-//"target": "es6"
-//"module": "CommonJS"
-
-// Para hashear contraseñas:
-//"module": "ES2022"
-//"target": "ES2020"
-

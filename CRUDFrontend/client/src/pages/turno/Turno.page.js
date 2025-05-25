@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Axios from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { API_URL } from '../../auth/constants.ts';
 
 function TurnosPage(){
     const [turnos, setTurnos] = useState([]);
@@ -10,7 +11,6 @@ function TurnosPage(){
     const [/*porcentaje*/, setPorcentaje] = useState('');
     const [estado, setEstado] = useState('');
     const [codigo_cliente, setCodigo_cliente] = useState('');
-    //const [codigo_servicio, setCodigo_servicio] = useState('');
     const [codigo_peluquero, setCodigo_peluquero] = useState('');
     const [turnoMostrado, setTurnoMostrado] = useState(null);
 
@@ -26,17 +26,13 @@ function TurnosPage(){
         const fetchTurnos = async () => {
             setLoading(true);
             try {
-                const response = await fetch('http://localhost:3000/api/turnos');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setTurnos(data.data || []);
+                const response = await axios.get(`${API_URL}/turnos`);
+                setTurnos(response.data.data || []);
             } catch (error) {
-                setError(error.message);
+                setError(error.response?.data?.message || error.message);
             } finally {
                 setLoading(false);
-            }
+            };
         };
         fetchTurnos();
     }, []);
@@ -59,21 +55,21 @@ function TurnosPage(){
             setEstado(turnoSeleccionado.estado || '');
             setCodigo_cliente(turnoSeleccionado.cliente?.codigo_cliente || '');
             setCodigo_peluquero(turnoSeleccionado.peluquero?.codigo_peluquero || '');
-            //setCodigo_servicio(turnoSeleccionado.codigo_servicio || '');
-        }
+        };
     }, [turnoSeleccionado]);
 
     const getTurnos = async () => {
         try {
-            const response = await Axios.get('http://localhost:3000/api/turnos');
+            const response = await axios.get(`${API_URL}/turnos`);
             const turnos = response.data.data;
             if (Array.isArray(turnos)) {
                 setTurnos(turnos);
-            }
+            };
         } catch (error) {
             console.error('Error al obtener los turnos:', error);
+            setError(error.response?.data?.data|| error.mensaje);
             setTurnos([]);
-        }
+        };
     };
 
     const validateForm = () => {
@@ -84,32 +80,27 @@ function TurnosPage(){
             errors.fecha_hora = "La fecha es obligatoria.";
         } else if(fecha_hora < today){
             errors.fecha_hora = "La fecha no puede ser menor a la de hoy";
-        }
+        };
 
         if (!tipo_turno) {
             errors.tipo_turno = "El tipo es obligatorio.";
         } else if(tipo_turno !== "Sucursal" && tipo_turno !== "A Domicilio"){
             errors.tipo_turno = "Seleccione un tipo de turno.";
-        }
+        };
 
         if (!estado) {
             errors.estado = "El estado es obligatorio.";
         } else if(estado !== "Activo" && estado !== "Cancelado" && estado !=="Sancionado"){
             errors.estado = "Seleccione un estado.";
-        }
+        };
 
         if (!codigo_cliente) {
             errors.codigo_cliente = "El codigo de cliente es obligatorio.";
-        }
+        };
 
         if (!codigo_peluquero) {
             errors.codigo_peluquero = "El codigo de peluquero es obligatorio.";
-        }
-
-        /* if (!codigo_servicio){
-            errors.codigo_servicio = "El codigo de servicio es obligatorio"
-        }*/
-
+        };
         return errors;
     };
 
@@ -119,20 +110,16 @@ function TurnosPage(){
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
-        }
-
+        };
         try {
             const formattedDate = new Date(fecha_hora).toISOString();
             if (editar) {
-                await Axios.put(`http://localhost:3000/api/turnos/${turnoSeleccionado.codigo_turno}`, {
+                await axios.put(`${API_URL}/turnos/${turnoSeleccionado.codigo_turno}`, {
                     fecha_hora: formattedDate,
                     tipo_turno: tipo_turno,
-                    //porcentaje: porcentaje,
                     estado: estado,
                     codigo_cliente: Number(codigo_cliente),
-                    // codigo_servicio: Number(codigo_servicio),
                     codigo_peluquero: Number(codigo_peluquero)
-                    
                 });
                 Swal.fire({
                     position: 'center',
@@ -142,13 +129,11 @@ function TurnosPage(){
                     timer: 1500
                 });
             } else {
-                await Axios.post('http://localhost:3000/api/turnos', {
+                await axios.post(`${API_URL}/turnos`, {
                     fecha_hora: formattedDate,
                     tipo_turno: tipo_turno,
-                    //porcentaje: porcentaje,
                     estado: estado,
                     codigo_cliente: Number(codigo_cliente), 
-                    //codigo_servicio: Number(codigo_servicio),
                     codigo_peluquero: Number(codigo_peluquero),
                 });
                 Swal.fire({
@@ -158,7 +143,7 @@ function TurnosPage(){
                     showConfirmButton: false,
                     timer: 1500
                 });
-            }
+            };
             await getTurnos();
             resetForm();
         } catch (error) {
@@ -180,9 +165,9 @@ function TurnosPage(){
                     confirmButtonText: 'Aceptar',
                     position: 'center'
                 });
-            }
-        }
-    }
+            };
+        };
+    };
 
     const resetForm = () => {
         setFecha_hora("");
@@ -191,11 +176,10 @@ function TurnosPage(){
         setEstado("");
         setCodigo_cliente("");
         setCodigo_peluquero("");
-        //setCodigo_servicio("");
         setErrors({});
         setEditar(false);
         setTurnoSeleccionado(null);
-    }
+    };
 
     const eliminarTurno = (codigo_turno) => {
         Swal.fire({
@@ -208,7 +192,7 @@ function TurnosPage(){
             confirmButtonText: 'Sí, eliminarlo'
         }).then((result) => {
             if (result.isConfirmed) {
-                Axios.delete(`http://localhost:3000/api/turnos/${codigo_turno}`)
+                axios.delete(`${API_URL}/turnos/${codigo_turno}`)
                     .then(() => {
                         getTurnos();
                         Swal.fire({
@@ -234,9 +218,9 @@ function TurnosPage(){
                                 text: 'Error al eliminar el turno',
                                 confirmButtonText: 'Aceptar'
                             });
-                        }
+                        };
                     });
-            }
+            };
         });
     };
 
