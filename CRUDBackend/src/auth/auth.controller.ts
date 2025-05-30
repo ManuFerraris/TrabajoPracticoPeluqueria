@@ -206,23 +206,40 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 
-    export const requestPasswordReset = async (req: Request, res: Response) => {
+export const requestPasswordReset = async (req: Request, res: Response) => {
     const { email } = req.body;
 
     if (!email) {
         return res.status(400).json({ message: 'Email requerido' });
     }
 
-    const user = await ClienteRepository.findByEmail(email);
+    let user: Cliente | Peluquero | null = null;
+
+    // Intenta encontrar como Cliente
+    user = await ClienteRepository.findByEmail(email);
 
     if (!user) {
-        return res.status(404).json({ message: 'No se encontró un cliente con ese email' });
+        // Si no es Cliente, intenta como Peluquero
+        user = await PeluqueroRepository.findByEmail(email);
     }
 
+    if (!user) {
+        // Para mayor seguridad y evitar enumeración de emails,
+        // podrías considerar enviar siempre una respuesta genérica.
+        // Pero para el flujo funcional, si no hay usuario, no se puede proceder.
+        // Actualmente, tu frontend espera un error si el usuario no existe.
+        return res.status(404).json({ message: 'No se encontró un usuario con ese email' });
+    }
+
+    // generatePasswordResetToken solo necesita el email (según tu authService.ts)
     const token = generatePasswordResetToken(email);
+
+    // sendPasswordResetEmail enviará el correo con el link genérico
+    // ej: http://localhost:3001/reset-password/TOKEN
     await sendPasswordResetEmail(email, token);
 
-    return res.status(200).json({ message: 'Correo de recuperación enviado' });
+    // Tu frontend en recoverPassword.tsx espera un mensaje de éxito.
+    return res.status(200).json({ message: 'Correo de recuperación enviado si el email está registrado.' });
 };
 
 // POST /auth/reset-password
@@ -233,27 +250,48 @@ export const resetPassword = async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'Token y nueva contraseña requeridos' });
     }
 
-try {
-    const email = verifyPasswordResetToken(token);
-    if (!email) {
-        return res.status(400).json({ message: 'Token inválido o expirado' });
+    try {
+        // verifyPasswordResetToken devuelve el email o null (según tu authService.ts)
+        const emailFromToken = verifyPasswordResetToken(token);
+
+        if (!emailFromToken) {
+            // El frontend (reset-password.tsx) maneja este mensaje.
+            return res.status(400).json({ message: 'Token inválido o expirado' });
+        }
+
+        let user: Cliente | Peluquero | null = null;
+
+        // Intenta encontrar como Cliente usando el email del token
+        user = await ClienteRepository.findByEmail(emailFromToken);
+
+        if (!user) {
+            // Si no es Cliente, intenta como Peluquero
+            user = await PeluqueroRepository.findByEmail(emailFromToken);
+        }
+
+        if (!user) {
+            // Esto podría pasar si el usuario fue eliminado después de solicitar el token.
+            return res.status(404).json({ message: 'Usuario no encontrado con el email asociado al token' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        // El ORM (em) se encarga de actualizar la entidad correcta (Cliente o Peluquero)
+        await em.persistAndFlush(user);
+
+        // El frontend (reset-password.tsx) espera un mensaje de éxito.
+        return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+    } catch (error) { // Captura errores generales que no sean de JWT (bcrypt, db, etc.)
+        // Los errores de JWT (TokenExpiredError, JsonWebTokenError) ya los maneja verifyPasswordResetToken
+        // devolviendo null, lo cual es capturado por `if (!emailFromToken)`.
+        // Sin embargo, si verifyPasswordResetToken lanzara excepciones en lugar de retornar null,
+        // necesitarías los catch específicos para jwt.TokenExpiredError y jwt.JsonWebTokenError aquí.
+        // Basado en tu authService.ts, no los lanzará directamente a este nivel.
+        console.error("Error en resetPassword:", error);
+        return res.status(500).json({ message: 'Error del servidor al resetear la contraseña' });
     }
+};
 
-    const user = await ClienteRepository.findByEmail(email);
-
-    if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await em.persistAndFlush(user);
-
-    return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
-} catch (error) {
-    return res.status(500).json({ message: 'Error del servidor' });
-}
-}
 
 export const validateResetToken = (req: Request, res: Response) => {
     const { token } = req.query;
