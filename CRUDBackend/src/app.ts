@@ -1,4 +1,4 @@
-import 'reflect-metadata'
+import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
 import { peluqueroRouter } from './peluquero/peluquero.routes.js';
 import { orm, syncSchema } from './shared/db/orm.js';
@@ -12,7 +12,8 @@ import { buscadorRouter } from './buscador/buscador.route.js';
 import { historialClienteRouter } from './historialCliente/historialCliente.routes.js';
 import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
-import  cors  from 'cors'
+import { AppError } from './shared/errors/AppError.js';
+import cors from 'cors';
 
 const app = express() //app va a ser del tipo express
 app.options('*', cors());
@@ -22,7 +23,7 @@ app.use(cors({
 })); // Habilita CORS para todas las rutas
 app.use(express.json())//Para que express.json funcione para todos 
 
-//luego de los middleware base
+// Middleware para crear un contexto por request
 app.use((req, res, next) => {
     RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
 })
@@ -91,7 +92,40 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ message: 'Error interno del servidor', details: err.message });
 });
 
-await syncSchema() //Nos genera la base de datos con la estructura que nosotros le indicamos, NUNCA EN PRODUCCION
-app.listen(3000, ()=> {
-    console.log('Server running on http://localhost:3000/');
+// Rutas
+app.use('/api/peluqueros', peluqueroRouter);
+app.use('/api/clientes', clienteRouter);
+app.use('/api/turnos', turnoRouter);
+app.use('/api/servicios', servicioRouter);
+app.use('/api/localidades', localidadRouter);
+app.use('/api/tiposervicio', tipoServicioRouter);
+app.use('/api/buscador', buscadorRouter);
+app.use('/api/auth', loginRouter);
+
+// Middleware 404
+app.use((req, res) => {
+  res.status(404).json({ message: 'Recurso no encontrado' });
+});
+
+// Middleware de errores estándar
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
+  return res.status(500).json({
+    status: 'error',
+    message: 'Error interno del servidor',
+  });
+});
+
+await syncSchema();
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000/');
 });

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { AppError } from '../shared/errors/AppError.js'; //menejo de errores
 import { findAll, getOne, add, update, remove, sanitizePeluqueroInput } from "./peluquero.controler.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";

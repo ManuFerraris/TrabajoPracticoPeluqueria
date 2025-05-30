@@ -1,21 +1,21 @@
 import { Router } from "express";
-import { findAll, getOne, add, update, remove, sanitizeClienteInput} from "./cliente.controler.js";
+import { findAll, getOne, add, update, remove, sanitizeClienteInput } from "./cliente.controler.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 
-export const clienteRouter = Router()
+export const clienteRouter = Router();
 
-clienteRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'cliente']), findAll)
-/*clienteRouter.get(
-    '/',
-    (req, res, next) => { console.log("Paso 1"); next(); },
-    authMiddleware,
-    (req, res, next) => { console.log("Paso 2"); next(); },
-    authorizeRole(['peluquero', 'cliente']),
-    (req, res, next) => { console.log("Paso 3"); next(); },
-    findAll
-);*/
-clienteRouter.get('/:codigo_cliente',authMiddleware, authorizeRole(['peluquero']), getOne)
-clienteRouter.post('/',authMiddleware, authorizeRole(['peluquero']), sanitizeClienteInput, add)
-clienteRouter.put('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero']), sanitizeClienteInput, update) //Actualizar solo si está autenticado y es cliente
-clienteRouter.delete('/:codigo_cliente',authMiddleware, authorizeRole(['peluquero']), remove)
+// Ruta GET /: Todos los clientes (accesible por peluqueros y clientes)
+clienteRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'cliente']), findAll);
+
+// Ruta GET /:codigo_cliente: Detalle de cliente (solo peluqueros)
+clienteRouter.get('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero']), getOne);
+
+// Ruta POST /: Crear cliente (solo peluqueros)
+clienteRouter.post('/', authMiddleware, authorizeRole(['peluquero']), sanitizeClienteInput, add);
+
+// Ruta PUT /:codigo_cliente: Actualizar cliente (solo peluqueros)
+clienteRouter.put('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero']), sanitizeClienteInput, update);
+
+// Ruta DELETE /:codigo_cliente: Eliminar cliente (solo peluqueros)
+clienteRouter.delete('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero']), remove);

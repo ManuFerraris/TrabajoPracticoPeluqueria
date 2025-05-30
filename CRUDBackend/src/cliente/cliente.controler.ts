@@ -1,9 +1,11 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from "express";
+import { RequestContext } from '@mikro-orm/core';
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
 import { Localidad } from "../localidad/localidad.entity.js";
 import { Turno } from "../turno/turno.entity.js";
+import { AppError } from "../shared/errors/AppError.js"; //Manejo de errores
 
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
 

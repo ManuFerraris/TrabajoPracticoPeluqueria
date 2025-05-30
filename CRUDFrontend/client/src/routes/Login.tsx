@@ -6,7 +6,9 @@ import { useAuth } from '../auth/AuthProvider.tsx';
 import { API_URL } from '../auth/constants.ts';
 import './Login.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from 'react-router-dom';
 import axios from "axios";
+
 
 export default function Login() {
 
@@ -112,6 +114,13 @@ export default function Login() {
                                     </>
                                 ) : 'Iniciar Sesión'}
                             </button>
+
+                            <div className="text-center mt-3">
+                                <Link to="/recuperar" className="text-decoration-none">
+                                 ¿Olvidaste tu contraseña?
+                                </Link>
+                            </div>
+
                         </form>
 
                         <div className="mt-3 text-center">
