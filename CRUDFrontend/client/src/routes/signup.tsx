@@ -1,7 +1,7 @@
 import React from 'react';
 import DefaultLayout from '../layout/DefaultLayout.tsx';
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import { API_URL } from '../auth/constants.ts';
 import "./signup.css";
@@ -10,6 +10,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
 export default function Signup() {
+
+    const navigate = useNavigate(); //Hook para la redireccion
+
     const [formData, setFormData] = useState({
         dni: "",
         NomyApe: "",
@@ -74,22 +77,41 @@ export default function Signup() {
         setIsSubmitting(true);
 
         try{
-            const response = await axios.post(`${API_URL}/clientes`, formData);
-            if(response.status === 200){
-                console.log("Usuario creado correctamente")
-            };
-            Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: 'Bienvenido!',
-                text: 'Usuario creado correctamente',
-                showConfirmButton: false,
-                timer: 1500
+            const response = await axios.post(`${API_URL}/clientes/signup`, formData, {
+                validateStatus: (status) => status < 400 // Acepta códigos 200 y 201 como éxitos
             });
-            // Redirigir al login o hacer login automático?
-            if (auth.isAuthenticated) {
-                const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
-                return <Navigate to={destino} replace />;
+            
+            if (response.status === 201) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Bienvenido!",
+                    text: "Usuario creado correctamente",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                console.log("📡 Respuesta completa del backend:", response.data);
+                console.log("🔑 accessToken recibido:", response.data?.accessToken);
+                console.log("📂 userData recibido:", response.data?.data);
+
+                const userData = response.data?.data; // ✅ Corrección
+                const accessToken = response.data?.accessToken; // ✅ Corrección
+                const refreshToken = response.data?.refreshToken; // ✅ Corrección
+
+                if (!accessToken || !userData) {
+                    console.error("❌ Error: El backend envió un accessToken o userData vacío.");
+                    return;
+                }
+
+                auth.login(accessToken, refreshToken, userData); // ✅ Ahora se envía correctamente
+
+                // Redirigir al login o hacer login automático
+                if (auth.isAuthenticated) {
+                    console.log("🔍 Estado de autenticación después del signup:", auth.isAuthenticated);
+                    const destino = auth.user?.rol === "cliente" ? "/homeCliente" : "/homePeluquero";
+                    navigate(destino, {replace: true});
+                };
             }else{
                 console.log("Error al crear el usuario", response.data);
                 Swal.fire({
@@ -101,8 +123,15 @@ export default function Signup() {
                 });
                 // Manejar errores específicos del backend
             };
-        } catch(error){
-            console.log("Error de red:", error.response?.data || error.message);
+        } catch(error: any){
+            console.error("Error al crear usuario:", error.response?.data || error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.response?.data?.message || "Ha ocurrido un problema en el alta.",
+                confirmButtonText: "Aceptar",
+                position: "center"
+            });
         } finally {
             setIsSubmitting(false);
         };
@@ -112,7 +141,7 @@ export default function Signup() {
     
     if (auth.isAuthenticated) {
         const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
-        return <Navigate to={destino} replace />;
+        navigate(destino, {replace: true});
     };
 
     return (

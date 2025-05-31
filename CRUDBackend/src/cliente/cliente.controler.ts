@@ -1,10 +1,15 @@
 import bcrypt from 'bcryptjs';
+import  jwt  from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
 import { Localidad } from "../localidad/localidad.entity.js";
 import { Turno } from "../turno/turno.entity.js";
+import dotenv from "dotenv";
 
+dotenv.config();
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
 
 const SALT_ROUNDS = 12; // Número de rondas de hashing (mayor = más seguro pero más lento)
@@ -125,41 +130,22 @@ async function add(req: Request, res: Response) {
 
         //VALIDACIONES//
         //************//
-        if (!validarDni(dni)) {
-            return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres'})
-        }
-
-        if (!validarNomyApe(NomyApe)) {
-            return res.status(400).json({ message: 'El nombre y apellido no puede tener más de 40 caracteres.' });
-        }
-
-        if (!validarEmail(email)) {
-            return res.status(400).json({ message: 'El formato del email es inválido.' });
-        }
-
-        if (!validarDireccion(direccion)) {
-            return res.status(400).json({ message: 'La direccion no puede tener más de 80 caracteres.' });
-        }
-
-        if (!validarTelefono(telefono)) {
-            return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
-        }
-
-        if(!validarPassword(password)){
-            return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
-        }
+        if (!validarDni(dni)) return res.status(400).json({ message: 'El DNI debe tener 7 u 8 caracteres'})
+        if (!validarNomyApe(NomyApe)) return res.status(400).json({ message: 'El nombre y apellido no puede tener más de 40 caracteres.' });
+        if (!validarEmail(email)) return res.status(400).json({ message: 'El formato del email es inválido.' });
+        if (!validarDireccion(direccion)) return res.status(400).json({ message: 'La direccion no puede tener más de 80 caracteres.' });
+        if (!validarTelefono(telefono)) return res.status(400).json({ message: 'El formato del número de teléfono es inválido.' });
+        if(!validarPassword(password)) return res.status(400).json({ message: 'El formato de la contraseña es invalido.' });
 
         // Verificar si el cliente ya existe
         const clienteExistente = await em.findOne(Cliente, { dni });
         if (clienteExistente) {
+            console.log("❌ El cliente ya existe, cancelando creación.");
             return res.status(400).json({ message: 'El cliente ya existe' });
         };
 
         //HASHEO DE CONTRASEÑA//
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-        
-        const estado_cli = "Activo"
-        const rol_cli = "cliente"
 
         // Crear una nueva instancia de Cliente
         const cliente = new Cliente();
@@ -169,18 +155,41 @@ async function add(req: Request, res: Response) {
         cliente.email = email;
         cliente.direccion = direccion;
         cliente.telefono = telefono;
-        cliente.estado = estado_cli;
+        cliente.estado = "Activo";
         cliente.password = hashedPassword;
-        cliente.rol = rol_cli;
+        cliente.rol = "cliente";
 
         // Persistir el nuevo cliente en la base de datos
         await em.persistAndFlush(cliente);
-        return res.status(201).json({ 
-            message: 'Cliente creado', 
-            data: {
-                ...cliente,
-                password: undefined // No devolvemos el hash en la respuesta!!!!!!!
-            }
+
+        const accessToken = jwt.sign(
+            { codigo: cliente.codigo_cliente, email: cliente.email, rol: cliente.rol },
+            ACCESS_TOKEN_SECRET,
+            { expiresIn: "1h" }
+        );
+        console.log("🔑 Generando accessToken:", accessToken);
+
+        const refreshToken = jwt.sign(
+            { codigo: cliente.codigo_cliente },
+            REFRESH_TOKEN_SECRET,
+            { expiresIn: "7d" }
+        );
+        console.log("🔑 Generando accessToken:", refreshToken);
+
+        const responseData = {
+            message: "Cliente creado",
+            accessToken,
+            refreshToken,
+            data: { ...cliente, password: undefined }
+        };
+
+        console.log("✅ Respuesta del backend:", responseData);
+
+        return res.status(201).json({
+            message: "Cliente creado",
+            accessToken,
+            refreshToken,
+            data: { ...cliente, password: undefined }
         });
 
     } catch (error: any) {

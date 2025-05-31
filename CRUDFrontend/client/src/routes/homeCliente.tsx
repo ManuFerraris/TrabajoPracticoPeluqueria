@@ -1,20 +1,33 @@
-import React from 'react';
-import { useNavigate, Navigate  } from 'react-router-dom';
+import React, {useEffect} from 'react';
+import { useNavigate  } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function HomeCliente() {
     const navigate = useNavigate();
     const auth = useAuth();
-    const rawUser = localStorage.getItem("user");
-    const user = rawUser ? JSON.parse(rawUser) : null;
 
-    if (!auth.isAuthenticated || !auth.user) {
-        return <Navigate to="/login" replace />;
-    }
+    const rawUser = localStorage.getItem("user");
+    let user = null;
+
+    try {
+        user = rawUser ? JSON.parse(rawUser) : null;
+    } catch (error) {
+        console.error("❌ Error al parsear userData:", error);
+        localStorage.removeItem("user"); // ✅ Evita datos corruptos en localStorage
+    };
+
+    useEffect(() => {
+        if (!auth.isAuthenticated || !auth.user) {
+            console.warn("🔄 Redirigiendo a login...");
+            navigate("/login", { replace: true });
+        }
+    }, [auth.isAuthenticated, auth.user, navigate]);
 
     const handleLogout = () => {
+        console.log("🚪 Cerrando sesión...");
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
         sessionStorage.removeItem("accessToken");
         try{
             auth.logout();

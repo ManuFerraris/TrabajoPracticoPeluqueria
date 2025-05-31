@@ -18,10 +18,11 @@ declare module 'express-serve-static-core' {
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     console.log('Estamos en el middleware de autenticación');
+    console.log("Header recibido:", req.headers.authorization);
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Token no proporcionado' });
+        return res.status(401).json({ message: '1 Token no proporcionado' });
     };
 
     const token = authHeader.split(' ')[1];

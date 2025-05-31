@@ -73,11 +73,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, []);
 
   // Función para iniciar sesión
-    const login = (
-        accessToken: string, 
-        refreshToken: string, 
-        userData: UserData,
-    ) => {
+    const login = (accessToken:string, refreshToken:string, userData: UserData ) => {
+        
+        if (!accessToken || !userData) {
+            console.error("❌ Error: El backend envió un accessToken o userData vacío.");
+            return;
+        };
+        
+        console.log("🔑 Guardando accessToken en localStorage:", accessToken);
+        console.log("📂 Guardando userData en localStorage:", JSON.stringify(userData));
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -86,6 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setRefreshToken(refreshToken);
         setUser(userData);
         setIsAuthenticated(true);
+
+        console.log("✅ `accessToken` guardado correctamente en localStorage.");
     };
 
     // Función para cerrar sesión
@@ -122,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 localStorage.setItem("accessToken", accessToken);
                 return true;
             };
-        } catch (error) {
+        } catch (error: any) {
         console.error("Error al refrescar token:", error.response?.data || error.message);
         };
         logout();

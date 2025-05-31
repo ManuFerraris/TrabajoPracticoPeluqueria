@@ -13,8 +13,14 @@ import { historialClienteRouter } from './historialCliente/historialCliente.rout
 import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
 import  cors  from 'cors'
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express() //app va a ser del tipo express
+
+console.log("🔍 ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
+console.log("🔍 REFRESH_TOKEN_SECRET:", process.env.REFRESH_TOKEN_SECRET);
+
 app.options('*', cors());
 app.use(cors({
     origin: 'http://localhost:3001', // Puerto del frontend!

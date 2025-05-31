@@ -12,6 +12,7 @@ function ClientesPage(){
     const [direccion, setDireccion] = useState('');
     const [telefono, setTelefono] = useState('');
     const [codigo_localidad, setCodigo_Localidad] = useState('');
+    const [password, setPassword] = useState('');
     const [/*estado*/, setEstado] = useState('');
     const [error, setError] = useState('');
     const [errors, setErrors] = useState('');
@@ -19,12 +20,19 @@ function ClientesPage(){
     const [clienteSeleccionado, setClienteSeleccionado] = useState('');
     const [editar, setEditar] = useState(false);
     const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const accessToken = localStorage.getItem('accessToken'); // Obtener el token de acceso del localStorage
+
     const [localidades, setLocalidades] = useState([]);
 
     useEffect(() => {
         const fetchClientes = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get(`${API_URL}/clientes`);
+                const response = await axios.get(`${API_URL}/clientes`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                        }
+                    });
                 setClientes(response.data.data || []);
             } catch (error) {
                 setError(error.response?.data?.message || error.message);
@@ -33,12 +41,16 @@ function ClientesPage(){
             }
         };
         fetchClientes();
-    }, []);
+    }, [accessToken]);
 
     useEffect(() => {
         const fetchLocalidades = async () => {
             try {
-                const response = await axios.get(`${API_URL}/localidades`);
+                const response = await axios.get(`${API_URL}/localidades`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                        }
+                    });
                 setLocalidades(response.data.data || []);
             } catch (error) {
                 console.error('Error al obtener las localidades:', error);
@@ -46,7 +58,7 @@ function ClientesPage(){
             };
         };
         fetchLocalidades();
-    }, []);
+    }, [accessToken]);
 
     useEffect(() => {
         if (clienteSeleccionado) {
@@ -57,6 +69,7 @@ function ClientesPage(){
             setTelefono(clienteSeleccionado.telefono || '');
             setCodigo_Localidad(clienteSeleccionado.codigo_localidad || '');
             setEstado(clienteSeleccionado.estado || '');
+            setPassword('');
         };
     }, [clienteSeleccionado]);
 
@@ -102,6 +115,7 @@ function ClientesPage(){
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("🚀 handleSubmit fue ejecutado!");
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -110,13 +124,24 @@ function ClientesPage(){
 
         try {
             if (editar) {
-                await axios.put(`${API_URL}/clientes/${clienteSeleccionado.codigo_cliente}`, {
-                    dni: dni,
-                    NomyApe: NomyApe,
-                    email: email,
-                    direccion: direccion,
-                    telefono: telefono,
-                    codigo_localidad: codigo_localidad
+                const dataToSend ={
+                    dni,
+                    NomyApe,
+                    email,
+                    direccion,
+                    telefono,
+                    codigo_localidad
+                };
+                if(password){
+                    dataToSend.password = password;
+                };
+                
+                await axios.put(`${API_URL}/clientes/${clienteSeleccionado.codigo_cliente}`,
+                    dataToSend,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
                 });
                 Swal.fire({
                     position: 'center',
@@ -126,6 +151,7 @@ function ClientesPage(){
                     timer: 1500
                 });
             } else {
+                console.log("Token recuperado en Clientes.Pages.js:", accessToken);
                 await axios.post(`${API_URL}/clientes`, {
                     dni: dni,
                     NomyApe: NomyApe,
@@ -133,7 +159,13 @@ function ClientesPage(){
                     direccion: direccion,
                     telefono: telefono,
                     codigo_localidad: codigo_localidad
-                });
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                }
+            );
                 Swal.fire({
                     position: 'center',
                     icon: 'success',
@@ -165,7 +197,11 @@ function ClientesPage(){
 
     const eliminarCliente = (codigo_cliente) => {
         // Consulta si la cliente tiene algun turno guardado
-        axios.get(`${API_URL}/turnos?codigo_cliente=${codigo_cliente}`)
+        axios.get(`${API_URL}/turnos?codigo_cliente=${codigo_cliente}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
             .then(response => {
                 const turnosAsignados = response.data;
     
@@ -187,7 +223,11 @@ function ClientesPage(){
                         confirmButtonText: 'Sí, eliminarlo'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            axios.delete(`${API_URL}/clientes/${codigo_cliente}`)
+                            axios.delete(`${API_URL}/clientes/${codigo_cliente}`, {
+                                headers: {
+                                    Authorization: `Bearer ${accessToken}`
+                                }
+                            })
                                 .then(() => {
                                     getClientes();
                                     Swal.fire({
