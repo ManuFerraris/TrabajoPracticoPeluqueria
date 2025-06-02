@@ -9,12 +9,12 @@ POST http://localhost:3000/api/clientes
 Content-Type: application/json
 
 {
-    "dni": "889944559",
-    "NomyApe": "Carlos Potmop",
+    "dni": "45314899",
+    "NomyApe": "Pedro Ferramondo",
     "direccion": "Calle A 23",
-    "email": "carlitos@example.com",
+    "email": "pferramondo22@gmail.com",
     "telefono": 2477123456,
-    "codigo_localidad": 1,
+    "codigo_localidad": 7,
     "password": "Aa45521!adf"
 }
 

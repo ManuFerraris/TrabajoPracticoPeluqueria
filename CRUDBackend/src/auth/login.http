@@ -21,3 +21,11 @@ Content-Type: application/json
 {
     "refreshToken": "<token_'1.b'>"
 }
+
+### Solicitar reseteo de contraseña
+POST http://localhost:3000/api/auth/request-password-reset
+Content-Type: application/json
+
+{
+  "email": "pferramondo22@gmail.com"
+}

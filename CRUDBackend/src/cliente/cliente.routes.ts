@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { findAll, getOne, add, update, remove, sanitizeClienteInput} from "./cliente.controler.js";
+import { findAll, getOne, add, update, remove, sanitizeClienteInput } from "./cliente.controler.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 
-export const clienteRouter = Router()
+export const clienteRouter = Router();
 
 clienteRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'cliente']), findAll)
 clienteRouter.get('/:codigo_cliente',authMiddleware, authorizeRole(['peluquero']), getOne)

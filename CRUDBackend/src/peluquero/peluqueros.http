@@ -26,3 +26,6 @@ Content-Type: application/json
 
 ###Borrar un Peluquero
 DELETE http://localhost:3000/api/peluqueros/2
+
+### prueba de error
+GET http://localhost:3000/api/peluqueros/error-test

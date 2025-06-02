@@ -1,15 +1,18 @@
 import bcrypt from 'bcryptjs';
 import  jwt  from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
+import { RequestContext } from '@mikro-orm/core';
 import { orm } from "../shared/db/orm.js";
 import { Cliente } from "./clientes.entity.js";
 import { Localidad } from "../localidad/localidad.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 import dotenv from "dotenv";
+import { AppError } from "../shared/errors/AppError.js"; //Manejo de errores
 
 dotenv.config();
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+
 const em = orm.em //Especie de repositorio de todas las entidades que tenemos.
 
 const SALT_ROUNDS = 12; // Número de rondas de hashing (mayor = más seguro pero más lento)
