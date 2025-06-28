@@ -1,13 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-
-//Roles disponibles
-type Roles = 'cliente' | 'peluquero' | 'admin';
-
-//Tipado del usuario
-interface UserData{
-    rol: Roles;
-    codigo: number;
-};
+import { UserData, Roles } from './auth.middleware.js';
 
 //Middleware que extiende el objeto Request con el usuario ya autenticado
 interface AuthenticatedRequest extends Request {
@@ -19,19 +11,28 @@ export const authorizeRole = (requiredRoles: Roles[]) => {
         const { user } = req;
 
         if (!user) {
-            return res.status(403).json({
+            return res.status(401).json({ // Cambiado a 401 Unauthorized
                 code: 'UNAUTHENTICATED',
-                message: 'Debe iniciar sesion para acceder al recurso'
+                message: 'Debe iniciar sesión para acceder al recurso.'
             });
         };
+
+        // El admin siempre tiene acceso
+        if (user.rol === 'admin') {
+            return next();
+        }
+        
+        //Verificar si el rol del usuario está en los roles requeridos
+        if (!requiredRoles.includes(user.rol)) {
+            return res.status(403).json({
+                code: 'FORBIDDEN',
+                message: 'No tiene permiso para acceder a este recurso.'
+            });
+        }
+
         next();
     };
 };
-
-
-
-
-
 
 
 

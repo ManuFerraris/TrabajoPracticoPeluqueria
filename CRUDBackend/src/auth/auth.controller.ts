@@ -49,15 +49,18 @@ export const login = async (req: Request, res: Response) => {
     };
 
     let user: Cliente | Peluquero | null = null;
-    let rol: 'cliente' | 'peluquero' | null = null;
     
+    // Unificamos la búsqueda del usuario
     user = await ClienteRepository.findByEmail(email);
-    if (user) {
-        rol = 'cliente';
-    } else {
+    if (!user) {
         user = await PeluqueroRepository.findByEmail(email);
-        if (user) rol = 'peluquero';
     };
+
+    // Verificamos si encontramos un usuario y luego leemos su rol desde la base de datos
+    let rol: 'cliente' | 'peluquero' | 'admin' | null = null;
+    if (user) {
+        rol = user.rol as 'cliente' | 'peluquero' | 'admin';
+    }
 
     if (!user || !rol) {
         // Operación dummy para mantener tiempo constante
@@ -86,14 +89,14 @@ export const login = async (req: Request, res: Response) => {
 
     // Generar el token JWT
     const accessToken = jwt.sign(
-        { codigo, rol },
+        { codigo, rol }, // El 'rol' ahora es el correcto
         ACCESS_TOKEN_SECRET,
         { expiresIn: '1h' }
     );
 
     // Crear el refresh token (expira en 30 días)
     const refreshToken = jwt.sign(
-        { codigo, rol},
+        { codigo, rol}, // El 'rol' ahora es el correcto
         REFRESH_TOKEN_SECRET,
         { expiresIn: '30d' }
     );
@@ -117,7 +120,7 @@ export const login = async (req: Request, res: Response) => {
         user: {
             codigo_cliente: user.codigo_cliente,
             email: user.email,
-            rol,
+            rol, // Este 'rol' ya viene correcto
             nombre: user.NomyApe,}
         });
         } else{
@@ -127,7 +130,7 @@ export const login = async (req: Request, res: Response) => {
                 user: {
                     codigo_peluquero: user.codigo_peluquero,
                     email: user.email,
-                    rol,
+                    rol, // Este 'rol' ya viene correcto
                     nombre: user.nombre,}
                 });
         }
