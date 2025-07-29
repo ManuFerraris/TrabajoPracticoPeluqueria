@@ -15,7 +15,7 @@ export interface UserData {
 // Esta declaración también debe usar el tipo actualizado
 declare module 'express-serve-static-core' {
     export interface Request {
-      user: UserData;
+        user: UserData;
     }
 };
 
