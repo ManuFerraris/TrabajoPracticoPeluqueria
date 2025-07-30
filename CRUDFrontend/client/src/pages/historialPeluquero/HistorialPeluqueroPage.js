@@ -87,21 +87,35 @@ function HistorialPeluqueroPage() {
                         <table className="table table-hover">
                             <thead className="table-primary sticky-top">
                                 <tr>
-                                    <th>Código de Turno</th>
-                                    <th>Fecha y Hora</th>
-                                    <th>Cliente Atendido</th>
+                                    <th>Código de turno</th>
+                                    <th>Fecha y hora</th>
+                                    <th>Cliente atendido</th>
+                                    <th>Monto</th>
+                                    <th>Estado de pago</th>
+                                    <th>Metodo de pago</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {turnos.length > 0 ? (
+                                {turnos.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="text-center">  {/* Pongo 6 celdas */}
+
+                                            No hay turnos disponibles
+                                        </td>
+                                    </tr>
+                                ) : (
                                     turnos.map(turno => (
                                         <tr key={turno.codigo_turno}>
                                             <td>{turno.codigo_turno}</td>
                                             <td>{formatFechaHora(turno.fecha_hora)}</td>
                                             <td>{turno.cliente?.NomyApe || 'No disponible'}</td>
+                                            {/* Estos de abajo pongo signo de pregunta x las dudas que no haya pago asociado al turno*/}
+                                            <td>{turno.pago ? `$${turno.pago.monto}` : '-'}</td>    {/* muestro con el signo $ delante*/}
+                                            <td>{turno.pago ? turno.pago.estado : 'Sin registrar'}</td> {/* muestra sin registrar si no hay pago */}
+                                            <td>{turno.pago ? turno.pago.metodo : '-'}</td> {/* muestra - si no hay pago*/}
                                         </tr>
                                     ))
-                                ) : (
+                                ) (
                                     <tr>
                                         <td colSpan="3" className="text-center">
                                             No hay turnos en el historial.

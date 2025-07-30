@@ -29,7 +29,7 @@ export async function obtenerHistorialPeluquero(req: Request, res: Response) {
         };
 
         const turnos = await em.find(Turno, { peluquero }, {
-            populate: ['cliente', 'servicio', 'peluquero']
+            populate: ['cliente', 'servicio', 'peluquero', 'pago']
         });
 
         return res.status(200).json({ message: "Historial del peluquero obtenido", data: turnos });
