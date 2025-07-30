@@ -13,6 +13,8 @@ import { historialClienteRouter } from './historialCliente/historialCliente.rout
 import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
 import { AppError } from './shared/errors/AppError.js';
+import { pagoRouter } from './pago/pago.routes.js';
+
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
@@ -75,6 +77,11 @@ app.use('/api/turnos/historial/peluquero', historialPeluqueroRouter);
 ///**************************************///
 app.use('/api/auth', loginRouter);
 
+///***RUTA PARA EL PAGO***///
+///**************************************///
+app.use('/api/pagos', pagoRouter);
+
+
 ///***RESPUESTAS PARA TODAS LAS CRUDS***///
 ///*************************************///
 
@@ -82,6 +89,7 @@ app.use('/api/auth', loginRouter);
 /*app.use('/',(req, res) => {
     res.send('<h1>Hola!!</h1>');
 });*/
+
 
 // Middleware para manejar errores 404
 app.use((req,res)=>{
@@ -103,6 +111,7 @@ app.use('/api/localidades', localidadRouter);
 app.use('/api/tiposervicio', tipoServicioRouter);
 app.use('/api/buscador', buscadorRouter);
 app.use('/api/auth', loginRouter);
+app.use('/api/pagos', pagoRouter); 
 
 // Middleware 404 | Ver para sacar y dejar los errores estándares
 app.use((req, res) => {

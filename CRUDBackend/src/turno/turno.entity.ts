@@ -2,6 +2,7 @@ import { Entity, Property, ManyToOne, Rel, PrimaryKey, OneToOne } from "@mikro-o
 import { Cliente } from "../cliente/clientes.entity.js";
 import { Peluquero } from "../peluquero/peluqueros.entity.js";
 import { Servicio } from "../Servicio/servicio.entity.js";
+import { Pago } from "../pago/pago.entity.js";
 
 @Entity()
 export class Turno {
@@ -29,4 +30,7 @@ export class Turno {
 
     @OneToOne(() => Servicio, servicio => servicio.turno, { nullable: true, orphanRemoval: true })
     servicio!: Rel<Servicio>;
+    
+    @OneToOne(() => Pago, pago => pago.turno, { nullable: true })
+    pago?: Pago;
 }

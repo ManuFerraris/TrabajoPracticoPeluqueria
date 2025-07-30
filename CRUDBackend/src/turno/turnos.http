@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/turnos
 
 ### obtener un turno
-GET http://localhost:3000/api/turnos/4
+GET http://localhost:3000/api/turnos/18
 
 ### crear turno
 POST http://localhost:3000/api/turnos
