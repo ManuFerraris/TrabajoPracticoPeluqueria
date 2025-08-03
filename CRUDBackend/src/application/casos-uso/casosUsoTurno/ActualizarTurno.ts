@@ -1,10 +1,10 @@
-import { Turno } from "../../turno/turno.entity.js";
-import { Peluquero } from "../../peluquero/peluqueros.entity.js";
-import { Cliente } from "../../cliente/clientes.entity.js";
+import { Turno } from "../../../turno/turno.entity.js";
+import { Peluquero } from "../../../peluquero/peluqueros.entity.js";
+import { Cliente } from "../../../cliente/clientes.entity.js";
 import { EntityManager } from "@mikro-orm/mysql";
-import { TurnoRepository } from "../interfaces/TurnoRepository.js";
-import { RegistrarTurnoDTO } from "./RegistrarTurnoDTO.js";
-import { validarTurnoDTO } from "./RegistrarTurnoDTO.js";
+import { TurnoRepository } from "../../interfaces/TurnoRepository.js";
+import { RegistrarTurnoDTO } from "../../dtos/RegistrarTurnoDTO.js";
+import { validarTurnoDTO } from "../../dtos/RegistrarTurnoDTO.js";
 
 export class ActualizarTurno {
     constructor(private readonly repo:TurnoRepository){};

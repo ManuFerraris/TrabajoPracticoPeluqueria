@@ -9,24 +9,24 @@ POST http://localhost:3000/api/servicios/
 Content-Type: application/json
 
 { 
-    "monto": 10000,
+    "monto": 12000,
     "estado": "Pendiente",
     "ausencia_cliente": "Se presento",
     "medio_pago": "Efectivo",
-    "turno_codigo_turno": 40,
+    "turno_codigo_turno": 47,
     "tipo_servicio_codigo": 3
 }
 
 ###Modificar un servicio (PUT)
-PUT http://localhost:3000/api/servicios/20
+PUT http://localhost:3000/api/servicios/11
 Content-Type: application/json
 
 {
     "monto": 9500.00,
     "estado": "Pendiente",
     "ausencia_cliente": "Se presento",
-    "medio_pago": "Mercado Pago",
-    "turno_codigo_turno": 28,
+    "medio_pago": "Efectivo",
+    "turno_codigo_turno": 18,
     "tipo_servicio_codigo": 3
 }
 

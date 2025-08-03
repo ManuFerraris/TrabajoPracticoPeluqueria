@@ -6,6 +6,14 @@ export class ServicioRepositoryORM implements ServicioRepository {
 
     constructor(private readonly em: EntityManager) {};
 
+    async guardar(servicio: Servicio): Promise<void> {
+        await this.em.persistAndFlush(servicio);
+    };
+
+    async getAllServicios(): Promise<Servicio[]> {
+        return await this.em.findAll(Servicio);
+    };
+
     async buscarServicio(codigo: number): Promise<Servicio | null> {
         const servicio = await this.em.findOne(
             Servicio,
