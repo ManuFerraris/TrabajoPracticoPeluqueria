@@ -1,11 +1,20 @@
 import { Request, Response, NextFunction } from "express";
-import { orm } from "../shared/db/orm.js";
+//import { orm } from "../shared/db/orm.js";
 import { Turno } from "./turno.entity.js";
 import { Cliente } from "../cliente/clientes.entity.js";
 import { Peluquero } from "../peluquero/peluqueros.entity.js";
-//import { Servicio } from "../Servicio/servicio.entity.js";
+import { validarParametrosFiltrado } from "./funcionesTurno/validarparametrosFiltrados.js";
+import { MikroORM, SqlEntityManager } from "@mikro-orm/mysql";
 
-const em = orm.em
+import { ListarTurnosFiltrados } from "../application/casos-uso/casosUsoTurno/ListarTurnosFiltrados.js";
+import { ListarTurnosCanceladosPorMes } from "../application/casos-uso/casosUsoTurno/ListarTurnosCancelados.js";
+import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
+import { ListarTurnos } from "../application/casos-uso/casosUsoTurno/getAllTurnos.js";
+import { BuscarTurno } from "../application/casos-uso/casosUsoTurno/BuscarTurno.js";
+import { EliminarTurno } from "../application/casos-uso/casosUsoTurno/EliminarTurno.js";
+import { ServicioRepositoryORM } from "../shared/db/ServicioRepositoryORM.js";
+
+//const em = orm.em
 
 function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
@@ -94,6 +103,7 @@ function validaHorarioLaboral(fechaHora: string) {
     return { valido: true };
 }
 
+/*
 async function validaTurnoUnicoPorDia(clienteId: number, fechaHora: string) {
     const cliente = await em.findOne(Cliente, { codigo_cliente: clienteId });
 
@@ -120,39 +130,75 @@ async function validaTurnoUnicoPorDia(clienteId: number, fechaHora: string) {
 
     return turnoEnEseDia ? false : true;
 }
+*/
 
-async function findAll(req:Request, res:Response){ //FUNCIONAL
+
+export const findAll = async (req:Request, res:Response): Promise<void> => { //FUNCIONAL
     try{
-        const turno = await em.find(Turno, {}, { populate: ['cliente', 'peluquero', 'servicio']})
+        const orm = (req.app.locals as {orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new ListarTurnos(repo);
+
+        const turnos = await casouso.ejecutar();
+
+        if(turnos.length === 0){
+            res.status(400).json({ movimientos: [], message: 'No se encontraron turnos.' });
+            return;
+        };
+
+        res.status(200).json(turnos);
+        return;
+
+    }catch(error:any){
+        console.error('Error al buscar los turnos.',error);
+        res.status(500).json({message: error.message})
+        return;
+    };
+};
+
+export const getOne = async (req: Request, res:Response ): Promise<void>=>{ //FUNCIONAL
+    try{
+        const {codigo_turno} = req.params;
+        
+        console.log("Codigo de turno", codigo_turno)
+        if (!codigo_turno) {
+            res.status(400).json({ message: 'Código de turno inválido' });
+            return;
+        };
+        const codigoNumero = Number(codigo_turno);
+
+        if(isNaN(codigoNumero)){
+            res.status(400).json({ message: 'El código de turno debe ser un numero.' });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new BuscarTurno(repo);
+
+        const turno = await casouso.ejecutar(codigoNumero);
+
         if(!turno){
-            return res.status(404).json({message: 'No hay turnos cargados'})
-        }
-        return res.status(200).json({message:'Todos los turnos encontados', data: turno})
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
-}
+            res.status(400).json({message: 'No se encontro el turno' });
+            return;
+        };
 
-async function getOne(req: Request, res:Response ){ //FUNCIONAL
-    try{
-        const codigo_turno = Number(req.params.codigo_turno.trim())
-        if (isNaN(codigo_turno)) {
-            return res.status(400).json({ message: 'Código de turno inválido' });
-        }
-        const turno = await em.findOne(Turno, {codigo_turno}, { populate: ['cliente', 'peluquero', 'servicio'] })
-        if (!turno) {
-            return res.status(404).json({ message: 'Turno no encontrado' });
-        }
-        return res.status(200).json({message:'Turno encontrado', data:turno})
+        res.status(200).json(turno);
+        return;
     }catch(error:any){
-        return res.status(500).json({ message: error.message })
-    }
-}
+        console.error('Error al buscar el turno.',error);
+        res.status(500).json({ message: error.message });
+        return;
+    };
+};
 
+/*
 async function add(req: Request, res:Response){ //FUNCIONAL
     try{
         // Extraemos los códigos de cliente y peluquero del cuerpo de la solicitud
-        const { codigo_cliente, codigo_peluquero, /*codigo_servicio*/ fecha_hora, tipo_turno, porcentaje, estado } = req.body;
+        const { codigo_cliente, codigo_peluquero, fecha_hora, tipo_turno, porcentaje, estado } = req.body;
 
         // Verificamos si el cliente y el peluquero existen
         const cod_cli = Number(codigo_cliente);
@@ -240,7 +286,8 @@ async function add(req: Request, res:Response){ //FUNCIONAL
         return res.status(500).json({message: error.message})
     }
 }
-
+*/
+/*
 async function update(req: Request, res: Response){
     try{
         const codigo_turno = Number(req.params.codigo_turno)
@@ -256,7 +303,7 @@ async function update(req: Request, res: Response){
             return res.status(400).json({ message: 'No hay datos para actualizar' });
         };
 
-        const { codigo_cliente, codigo_peluquero, /*codigo_servicio*/ fecha_hora, tipo_turno, porcentaje, estado } = req.body.sanitizedInput;
+        const { codigo_cliente, codigo_peluquero, fecha_hora, tipo_turno, porcentaje, estado } = req.body.sanitizedInput;
 
         //VALIDACIONES//
 
@@ -363,28 +410,121 @@ async function update(req: Request, res: Response){
         return res.status(500).json({message: error.message})
     }
 }
+*/
 
-async function remove(req: Request, res: Response){
+export const remove = async (req: Request, res: Response):Promise<void> => {
     try{
-        const codigo_turno = Number(req.params.codigo_turno.trim())
-        if (isNaN(codigo_turno)) {
-            return res.status(400).json({ message: 'Código de turno inválido' });
-        }
-        const turno = await em.findOne(Turno, { codigo_turno }, { populate: ['servicio'] });
-        if (!turno){
-            return res.status(404).json({ message: 'El turno no existe' });
-        }
-        // Eliminar el servicio asociado antes de eliminar el turno
-        if (turno.servicio) {
-            await em.removeAndFlush(turno.servicio); // Eliminar el servicio primero
-        }
-        await em.removeAndFlush(turno)
-        return res.status(200).json({ message: 'Turno eliminado exitosamente' })
+        const {codigo_turno} = req.params;
+        console.log("Codigo de turno", codigo_turno)
+
+        if (!codigo_turno) {
+            res.status(400).json({ message: 'Código de turno inválido' });
+            return;
+        };
+
+        const codigoNumero = Number(codigo_turno);
+        if(isNaN(codigoNumero)){
+            res.status(400).json({ message: 'El código de turno debe ser un numero.' });
+            return;
+        };
+
+        const orm = (req.app.locals as {orm:MikroORM}).orm;
+        const em = orm.em.fork();
+        const turnoRepo = new TurnoRepositoryORM(em);
+        const servicioRepo = new ServicioRepositoryORM(em);
+        const casouso = new EliminarTurno(turnoRepo, servicioRepo);
+
+        const errores = await casouso.ejecutar(codigoNumero);
+
+        if (errores.length > 0){
+            res.status(404).json({ message: 'El turno no existe' });
+            return;
+        };
+
+        res.status(200).json({ message: 'Turno eliminado exitosamente' })
+        return;
+
     }catch(error:any){
-        return res.status(500).json({message: error.message})
+        console.error('Error al eliminar el turno.',error);
+        res.status(500).json({message: error.message})
+        return;
     }
 }
 
 
+export const listarTurnosFiltrados = async (req:Request, res:Response): Promise<void> => {
+    try{
+        const {mes} = req.query;
+        
+        if(!mes){
+            res.status(400).json({ error: 'Falta el parametro \'mes\''});
+            return;
+        };
 
-export {findAll, getOne, add, update, remove, sanitizeTurnoInput}
+        const mesStr = req.query.mes?.toString() ?? '';
+
+        const errores = validarParametrosFiltrado(mesStr);
+        if(errores.length > 0){
+            res.status(400).json({ message: errores[0] });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm: MikroORM }).orm
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new ListarTurnosFiltrados(repo);
+
+        const turnos = await casouso.ejecutar(mes.toString());
+        if(turnos.length === 0){
+            res.status(404).json({ message: 'No se encontraron turnos filtrados' });
+            return;
+        };
+
+        res.status(200).json(turnos);
+        return;
+    }catch(error){
+        console.error('Error al listar turnos filtrados',error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    };
+};
+
+export const listarTurnosCanceladosPorMes = async(req: Request, res:Response): Promise<void> => {
+    try{
+        const {mes} = req.query;
+
+        if(!mes){
+            res.status(400).json({ error: 'Falta el parametro \'mes\''});
+            return;
+        };
+
+        const mesStr = req.query.mes?.toString() ?? '';
+
+        const errores = validarParametrosFiltrado(mesStr);
+        if(errores.length > 0){
+            res.status(400).json({ message: errores[0] });
+            return;
+        };
+
+        const orm = (req.app.locals as {orm:MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casoUso = new ListarTurnosCanceladosPorMes(repo);
+
+        const turnosCancelados = await casoUso.ejecutar(mes.toString());
+
+        if(turnosCancelados.length === 0){
+            res.status(400).json({ message: 'No se encontraron turnos cancelados en dicho mes.'})
+            return;
+        };
+
+        res.status(200).json(turnosCancelados);
+        return;
+    }catch(error){
+        console.error('Error al listar turnos cancelados en dicho mes',error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    }
+}
+
+//export {findAll, getOne, add, update, remove, sanitizeTurnoInput}

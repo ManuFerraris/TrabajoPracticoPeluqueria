@@ -10,7 +10,7 @@ export class Turno {
     codigo_turno!: number;
 
     @Property({type:'string', nullable: false })
-    fecha_hora!: string;
+    fecha_hora!: Date;
 
     @Property({type:'string', nullable: false })
     tipo_turno!: string;

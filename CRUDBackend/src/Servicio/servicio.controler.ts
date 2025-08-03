@@ -3,8 +3,12 @@ import { orm } from "../shared/db/orm.js";
 import { Servicio } from "./servicio.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
+import { MikroORM } from "@mikro-orm/mysql";
+import { ServicioRepositoryORM } from "../shared/db/ServicioRepositoryORM.js";
+import { BuscarServicio } from "../application/casos-uso/casosUsoServicio/buscarServicio.js";
+import { EliminarServicio } from "../application/casos-uso/casosUsoServicio/eliminarServicio.js";
 
-const em = orm.em;
+//const em = orm.em;
 
 function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) {
     /*if (!req.body) { return res.status(400).json({ message: 'No se proporcionaron datos en el cuerpo de la solicitud' }); }*/
@@ -68,6 +72,7 @@ function validaMedioDePago(medio_pago:string){
     return true;
 };
 
+/*
 async function findAll(req: Request, res: Response) {
     try {
         const servicios = await em.find(Servicio, {});
@@ -76,27 +81,49 @@ async function findAll(req: Request, res: Response) {
         return res.status(500).json({ message: error.message });
     }
 }
+*/
 
-async function getOne(req: Request, res: Response) {
+export const getOne = async (req: Request, res: Response) => {
     try {
+        const {codigo} = req.params;
+        if(!codigo){
+            res.status(400).json({ message: 'Código de servicio inválido' });
+            return;
+        };
 
-        const codigo = Number.parseInt(req.params.codigo);
-        if (isNaN(codigo)) {
+        const codigoNumero = Number(codigo);
+        if(isNaN(codigoNumero)){
+            res.status(400).json({ message: 'El codigo debe ser un numero.' });
+            return;
+        };
+
+        //const codigo = Number.parseInt(req.params.codigo);
+        if (isNaN(codigoNumero)) {
             return res.status(400).json({ message: 'Código de servicio inválido' });
         };
 
-        const servicio = await em.findOne(Servicio, { codigo });
-        if (servicio) {
-            return res.status(200).json({ message: 'Servicio encontrado', data: servicio });
-        } else {
-            return res.status(404).json({ message: 'Servicio no encontrado' });
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ServicioRepositoryORM(em);
+        const casouso = new BuscarServicio(repo);
+
+        const servicio = await casouso.ejecutar(codigoNumero);
+
+        if(!servicio){
+            res.status(400).json({message: 'No se encontro el Servicio' });
+            return;
         };
 
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
+        res.status(200).json(servicio);
+        return;
+    }catch(error:any){
+        console.error('Error al eliminar el turno.',error);
+        res.status(500).json({message: error.message})
+        return;
     }
 }
 
+/*
 async function add(req: Request, res: Response) {
     try {
         const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno, tipo_servicio_codigo, total } = req.body.sanitizedInput;
@@ -136,7 +163,6 @@ async function add(req: Request, res: Response) {
         };
 
         //VALIDACIONES//
-        //************//
 
         if(!validaMonto(monto)){
             return res.status(400).json({ message: 'El monto no puede ser menor a 0.'})
@@ -149,7 +175,7 @@ async function add(req: Request, res: Response) {
         /*if(!validaAdicionalAdom(adicional_adom)){
             return res.status(400).json({ message: 'El adicional a domicilio no debe ser menor que 0.'})
         };*/
-
+/*
         if(!validaAusenciaCliente(ausencia_cliente)){
             return res.status(400).json({ message: 'Las opciones validas son: "Se presento" o "Esta ausente."'})
         };
@@ -213,7 +239,9 @@ async function add(req: Request, res: Response) {
         return res.status(500).json({ message: error.message });
     }
 }
+*/
 
+/*
 async function update(req: Request, res: Response) { //FUNCIONAL
     try {
 
@@ -235,8 +263,8 @@ async function update(req: Request, res: Response) { //FUNCIONAL
         const { monto, estado, adicional_adom, ausencia_cliente, medio_pago, turno_codigo_turno, tipo_servicio_codigo } = req.body.sanitizedInput;
 
         //VALIDACIONES//
-        //************//
-
+        //************/
+/*
         if(!validaMonto(monto)){
             return res.status(400).json({ message: 'El monto no puede ser menor a 0.'})
         };
@@ -366,32 +394,43 @@ async function update(req: Request, res: Response) { //FUNCIONAL
         return res.status(500).json({ message: error.message });
     }
 }
+*/
 
-async function remove(req: Request, res: Response) {
+export const remove = async (req: Request, res: Response):Promise<void> => {
     try {
-
-        const codigo = Number.parseInt(req.params.codigo);
-        if (isNaN(codigo)) {
-            return res.status(400).json({ message: 'Código de servicio inválido' });
+        const {codigo} = req.params;
+        if(!codigo){
+            res.status(400).json({ message: 'Código de servicio inválido.' });
+            return;
         };
 
-        const servicio = await em.findOne(Servicio, { codigo });
-        if (!servicio) {
-            return res.status(404).json({ message: 'El servicio no existe' });
+        const codigoNumber = Number(codigo)
+        if (isNaN(codigoNumber)) {
+            res.status(400).json({ message: 'El codigo de servicio debe ser un numero.' });
+            return;
         };
 
-        const turno = await em.find(Turno, { servicio });
-        if( turno.length > 0){
-            return res.status(404).json({ message: 'El servicio esta asociado a un turno' });
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ServicioRepositoryORM(em);
+        const casouso = new EliminarServicio(repo);
+
+        const errores = await casouso.ejecutar(codigoNumber);
+
+        if(errores.length > 0){
+            const status = errores[0] === 'Servicio no encontrado.' ? 404 : 409; // 409 = Conflicto
+            res.status(status).json({ message: errores[0] });
+            return;
         };
 
-        // Eliminar el servicio de la base de datos
-        await em.removeAndFlush(servicio);
-        return res.status(200).json({ message: 'Servicio eliminado exitosamente' });
+        res.status(200).json({ message: 'Servicio eliminado exitosamente' });
+        return;
     
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
-    }
-}
+    }catch(error:any){
+        console.error('Error al eliminar el servicio.',error);
+        res.status(500).json({message: error.message})
+        return;
+    };
+};
 
-export { sanitizeServicioInput, findAll, getOne, add, update, remove };
+//export { sanitizeServicioInput, findAll, getOne, add, update, remove };

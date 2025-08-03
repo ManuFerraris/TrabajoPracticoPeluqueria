@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/turnos
 
 ### obtener un turno
-GET http://localhost:3000/api/turnos/4
+GET http://localhost:3000/api/turnos/17
 
 ### crear turno
 POST http://localhost:3000/api/turnos
@@ -33,4 +33,10 @@ Content-Type: application/json
 }
 
 ###Borrar un Turno
-DELETE http://localhost:3000/api/turnos/2
+DELETE http://localhost:3000/api/turnos/17
+
+### Filtrar Turnos por fecha
+GET http://localhost:3000/api/turnos/filtrados?mes=2024-10
+
+### Filtrar Turnos Cancelados por fecha
+GET http://localhost:3000/api/turnos/filtroCancelados?mes=2024-10

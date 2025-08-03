@@ -16,7 +16,8 @@ import { AppError } from './shared/errors/AppError.js';
 import  cors  from 'cors'
 
 const app = express() //app va a ser del tipo express
-
+app.locals.orm = orm; // Guardo la instancia global en el contecto de Express
+                      //para que cada Controller pueda acceder de manera local.
 app.options('*', cors());
 app.use(cors({
     origin: 'http://localhost:3001', // Puerto del frontend!
@@ -43,7 +44,6 @@ app.use('/api/clientes', clienteRouter)
 ///***TURNO***///
 ///***********///
 app.use('/api/turnos', turnoRouter)
-
 
 ///***SERVICIO***///
 ///***********///

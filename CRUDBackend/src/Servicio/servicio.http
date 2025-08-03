@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/servicios
 
 ### obtener un servicio
-GET http://localhost:3000/api/servicios/1
+GET http://localhost:3000/api/servicios/9
 
 ### crear servicio
 POST http://localhost:3000/api/servicios/
@@ -31,4 +31,4 @@ Content-Type: application/json
 }
 
 ###Borrar un servicio
-DELETE http://localhost:3000/api/servicios/3
+DELETE http://localhost:3000/api/servicios/9

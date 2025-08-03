@@ -1,0 +1,56 @@
+import { Turno } from "../../turno/turno.entity.js";
+import { TurnoRepository } from "../../application/interfaces/TurnoRepository.js";
+import { EntityManager } from "@mikro-orm/mysql";
+
+export class TurnoRepositoryORM implements TurnoRepository {
+
+    constructor(private readonly em: EntityManager) {};
+
+    async buscarPorFecha(desde: Date, hasta: Date): Promise<Turno[]> {
+        return await this.em.find(
+            Turno, 
+            {
+                fecha_hora: { $gte:desde, $lt:hasta }
+            },
+            { populate: ['cliente', 'peluquero', 'servicio'] }
+        );
+    };
+
+    async buscarTurnoCanceladoPorMes(desde: Date, hasta: Date): Promise<Turno[]> {
+        return await this.em.find(
+            Turno,
+            {
+                fecha_hora: {$gte: desde, $lt: hasta},
+                estado: 'Cancelado',
+            },
+            { populate: ['cliente', 'peluquero', 'servicio'] }
+        )
+    };
+
+    async getAllTurnos():Promise<Turno[]> {
+        return await this.em.findAll(
+            Turno,
+            { 
+                populate: ['cliente', 'peluquero', 'servicio']
+            }
+        );
+    };
+
+    async buscarTurno(codigo_turno: number): Promise<Turno | null> {
+        const turno = await this.em.findOne(
+            Turno,
+            {
+                codigo_turno
+            },
+            {
+                populate: ['cliente', 'peluquero', 'servicio']
+            },
+        );
+        if(turno) return turno;
+        return null;
+    }
+
+    async eliminarTurno(turno: Turno): Promise<void> {
+        await this.em.removeAndFlush(turno);
+    };
+};
