@@ -4,6 +4,8 @@ import { listarTurnosFiltrados,
     listarTurnosCanceladosPorMes,
     findAll,
     getOne,
+    add,
+    update,
     remove,
     } from "./turno.controller.js";
 
@@ -13,8 +15,7 @@ turnoRouter.get('/filtrados', listarTurnosFiltrados); //Express evalua el orden 
 turnoRouter.get('/filtroCancelados', listarTurnosCanceladosPorMes);
 turnoRouter.get('/', findAll);
 turnoRouter.get('/:codigo_turno', getOne);
-turnoRouter.delete('/:codigo_turno', remove)
-/*
-turnoRouter.post('/',sanitizeTurnoInput, add)
-turnoRouter.put('/:codigo_turno',sanitizeTurnoInput, update)
-*/
+turnoRouter.delete('/:codigo_turno', remove);
+turnoRouter.post('/', add);
+turnoRouter.put('/:codigo_turno', update)
+

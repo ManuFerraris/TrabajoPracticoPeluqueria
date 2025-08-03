@@ -49,7 +49,11 @@ export class TurnoRepositoryORM implements TurnoRepository {
         );
         if(turno) return turno;
         return null;
-    }
+    };
+    
+    async guardar(turno:Turno):Promise<void>{
+        await this.em.persistAndFlush(turno);
+    };
 
     async eliminarTurno(turno: Turno): Promise<void> {
         await this.em.removeAndFlush(turno);
