@@ -4,8 +4,8 @@ import { listarTurnosFiltrados,
     listarTurnosCanceladosPorMes,
     findAll,
     getOne,
-    remove
-    } from "./turno.controler.js";
+    remove,
+    } from "./turno.controller.js";
 
 export const turnoRouter = Router();
 

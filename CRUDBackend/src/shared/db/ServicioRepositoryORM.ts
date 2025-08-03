@@ -23,4 +23,19 @@ export class ServicioRepositoryORM implements ServicioRepository {
     async eliminarServicio(servico: Servicio): Promise<void> {
         await this.em.removeAndFlush(servico);
     };
+
+    async obtenerMontoTotalMensual(desde:Date, hasta:Date):Promise<Servicio[]>{
+        return await this.em.find(
+            Servicio,
+            {
+                ausencia_cliente: 'Se presento',
+                turno: {
+                    fecha_hora: {
+                    $gte: desde,
+                    $lt: hasta
+                    }
+                }
+            }
+        );
+    };
 };

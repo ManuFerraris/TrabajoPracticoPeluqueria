@@ -1,6 +1,7 @@
 import { Turno } from "../../turno/turno.entity.js";
 import { TurnoRepository } from "../../application/interfaces/TurnoRepository.js";
 import { EntityManager } from "@mikro-orm/mysql";
+import { FilterQuery } from "@mikro-orm/mysql";
 
 export class TurnoRepositoryORM implements TurnoRepository {
 

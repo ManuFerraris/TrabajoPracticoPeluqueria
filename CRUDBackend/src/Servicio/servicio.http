@@ -32,3 +32,6 @@ Content-Type: application/json
 
 ###Borrar un servicio
 DELETE http://localhost:3000/api/servicios/9
+
+### Obtener total mensual
+GET http://localhost:3000/api/servicios/ingresosMensuales?mes=2024-11

@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { getOne,
-    remove
-    } from "./servicio.controler.js";
+    remove,
+    ingresosMensuales
+    } from "./servicio.controller.js";
 
 export const servicioRouter = Router()
 
+servicioRouter.get('/ingresosMensuales', ingresosMensuales);
 //servicioRouter.get('/', findAll)
 servicioRouter.get('/:codigo', getOne)
 //servicioRouter.post('/', sanitizeServicioInput, add)

@@ -13,8 +13,8 @@ import { ListarTurnos } from "../application/casos-uso/casosUsoTurno/getAllTurno
 import { BuscarTurno } from "../application/casos-uso/casosUsoTurno/BuscarTurno.js";
 import { EliminarTurno } from "../application/casos-uso/casosUsoTurno/EliminarTurno.js";
 import { ServicioRepositoryORM } from "../shared/db/ServicioRepositoryORM.js";
+import { IngresosMensuales } from "../application/casos-uso/casosUsoServicio/IngresosMensuales.js";
 
-//const em = orm.em
 
 function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
@@ -525,6 +525,6 @@ export const listarTurnosCanceladosPorMes = async(req: Request, res:Response): P
         res.status(500).json({ error: 'Error interno del servidor' });
         return;
     }
-}
+};
 
 //export {findAll, getOne, add, update, remove, sanitizeTurnoInput}

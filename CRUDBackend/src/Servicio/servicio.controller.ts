@@ -1,17 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { orm } from "../shared/db/orm.js";
-import { Servicio } from "./servicio.entity.js";
-import { Turno } from "../turno/turno.entity.js";
-import { TipoServicio } from "../TipoServicio/tiposervicio.entity.js";
 import { MikroORM } from "@mikro-orm/mysql";
 import { ServicioRepositoryORM } from "../shared/db/ServicioRepositoryORM.js";
 import { BuscarServicio } from "../application/casos-uso/casosUsoServicio/buscarServicio.js";
 import { EliminarServicio } from "../application/casos-uso/casosUsoServicio/eliminarServicio.js";
+import { validarParametrosFiltrado } from "../turno/funcionesTurno/validarparametrosFiltrados.js";
+import { IngresosMensuales } from "../application/casos-uso/casosUsoServicio/IngresosMensuales.js";
 
-//const em = orm.em;
-
-function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) {
-    /*if (!req.body) { return res.status(400).json({ message: 'No se proporcionaron datos en el cuerpo de la solicitud' }); }*/
+/*function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {
         codigo: req.body.codigo,
         monto: req.body.monto,
@@ -29,11 +24,9 @@ function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) 
             delete req.body.sanitizedInput[key];
         }
     });
-
-    //console.log('Datos sanitizados:', req.body.sanitizedInput); // Para verificar los datos sanitizados
     next();
 }
-
+*/
 //Funciones para validar:
 //----------------------//
 
@@ -433,4 +426,38 @@ export const remove = async (req: Request, res: Response):Promise<void> => {
     };
 };
 
+export const ingresosMensuales = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const { mes } = req.query;
+        if(!mes){
+            res.status(400).json({ messaje: 'No se ingreso ningun mes.'});
+            return; 
+        };
+
+        const mesStr = req.query.mes?.toString() ?? '';
+        const errores = validarParametrosFiltrado(mesStr);
+        if(errores.length > 0){
+            res.status(400).json({ message: errores[0] });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ServicioRepositoryORM(em);
+        const casouso = new IngresosMensuales(repo);
+
+        const totalMes = await casouso.ejecutar(mes.toString());
+        if(totalMes === 0){
+            res.status(400).json({ message: 'No hubo facturacion en dicho mes.'})
+            return;
+        };
+
+        res.status(200).json(totalMes);
+        return;
+    }catch(error:any){
+        console.error('Error al calcular el total mensual.',error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+        return;
+    }
+}
 //export { sanitizeServicioInput, findAll, getOne, add, update, remove };

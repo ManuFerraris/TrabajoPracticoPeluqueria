@@ -28,9 +28,6 @@ export class Servicio {
     @OneToOne(() => Turno, {nullable: false})
     turno!: Rel<Turno>;
 
-    //@OneToMany(() => TipoServicio, tipoServicio => tipoServicio.servicio)
-    //tiposServicios = new Collection<TipoServicio>(this); 
-
     @ManyToOne(() => TipoServicio, { nullable: true })
     tipoServicio!: Rel<TipoServicio>;
 }
