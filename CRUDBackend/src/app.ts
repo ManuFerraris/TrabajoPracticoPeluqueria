@@ -94,7 +94,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ message: 'Error interno del servidor', details: err.message });
 });
 
-// Rutas
+// Rutas (verificar motivo de existencia).
 app.use('/api/peluqueros', peluqueroRouter);
 app.use('/api/clientes', clienteRouter);
 app.use('/api/turnos', turnoRouter);
@@ -104,7 +104,7 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 app.use('/api/buscador', buscadorRouter);
 app.use('/api/auth', loginRouter);
 
-// Middleware 404
+// Middleware 404 | Ver para sacar y dejar los errores estándares
 app.use((req, res) => {
   res.status(404).json({ message: 'Recurso no encontrado' });
 });

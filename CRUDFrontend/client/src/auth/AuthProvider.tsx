@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:3000';
 interface UserData {
     codigo: number;
     email: string;
-    rol: 'cliente' | 'peluquero';
+    rol: 'cliente' | 'peluquero'|'admin';
     nombre: string;
     // Agregar otros campos según necesidad
 }

@@ -6,8 +6,8 @@ import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const peluqueroRouter = Router()
 
-peluqueroRouter.get('/', authMiddleware, authorizeRole(['peluquero']), findAll) // Ruta protegida
-peluqueroRouter.get('/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero']), getOne) //Aqui si indicamos el codigo para realizar la busqueda.
-peluqueroRouter.post('/', authMiddleware, authorizeRole(['peluquero']), sanitizePeluqueroInput, add)
-peluqueroRouter.put('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero']), sanitizePeluqueroInput, update)
-peluqueroRouter.delete('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero']), remove)
+peluqueroRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'admin']), findAll) // Ruta protegida
+peluqueroRouter.get('/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero', 'admin']), getOne) //Aqui si indicamos el codigo para realizar la busqueda.
+peluqueroRouter.post('/', authMiddleware, authorizeRole(['peluquero', 'admin']), sanitizePeluqueroInput, add)
+peluqueroRouter.put('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero', 'admin']), sanitizePeluqueroInput, update)
+peluqueroRouter.delete('/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero', 'admin']), remove)

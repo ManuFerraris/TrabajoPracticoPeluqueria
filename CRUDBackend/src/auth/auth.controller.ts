@@ -12,8 +12,9 @@ import { em } from '../shared/db/orm.js';
 import { sendPasswordResetEmail } from '../shared/emailService.js';
 import { generatePasswordResetToken, verifyPasswordResetToken } from './authService.js';
 import { FailedLoginRepository } from '../shared/security/failed-login.repository.js';
+import { createClient } from 'redis'; //Ataques de fuerza beuta en recuperacion de password.
 
-//Cargar variables de entorno al inicio de la aplicación
+// Cargar variables de entorno al inicio de la aplicación
 dotenv.config();
 
 // Claves secretas para firmar los tokens
@@ -23,6 +24,12 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
 const MAX_ATTEMPTS = 5; //Nuemro maximo de intentos permitidos
 const BLOCK_TIME = 15 * 60; //15 minutos en segundos
 
+// Creamos instacia de redisClient:
+const redisClient = createClient();
+redisClient.connect(); 
+redisClient.on("error", (err) => console.error("Error en Redis:", err));
+
+// TypeGuard para verificar tipo de usuario:
 function isCliente(user: Cliente | Peluquero): user is Cliente {
     return (user as Cliente).codigo_cliente !== undefined;
 };
@@ -49,15 +56,18 @@ export const login = async (req: Request, res: Response) => {
     };
 
     let user: Cliente | Peluquero | null = null;
-    let rol: 'cliente' | 'peluquero' | null = null;
     
+    // Unificamos la búsqueda del usuario
     user = await ClienteRepository.findByEmail(email);
-    if (user) {
-        rol = 'cliente';
-    } else {
+    if (!user) {
         user = await PeluqueroRepository.findByEmail(email);
-        if (user) rol = 'peluquero';
     };
+
+    // Verificamos si encontramos un usuario y luego leemos su rol desde la base de datos
+    let rol: 'cliente' | 'peluquero' | 'admin' | null = null;
+    if (user) {
+        rol = user.rol as 'cliente' | 'peluquero' | 'admin';
+    }
 
     if (!user || !rol) {
         // Operación dummy para mantener tiempo constante
@@ -86,14 +96,14 @@ export const login = async (req: Request, res: Response) => {
 
     // Generar el token JWT
     const accessToken = jwt.sign(
-        { codigo, rol },
+        { codigo, rol }, // El 'rol' ahora es el correcto
         ACCESS_TOKEN_SECRET,
         { expiresIn: '1h' }
     );
 
     // Crear el refresh token (expira en 30 días)
     const refreshToken = jwt.sign(
-        { codigo, rol},
+        { codigo, rol}, // El 'rol' ahora es el correcto
         REFRESH_TOKEN_SECRET,
         { expiresIn: '30d' }
     );
@@ -117,7 +127,7 @@ export const login = async (req: Request, res: Response) => {
         user: {
             codigo_cliente: user.codigo_cliente,
             email: user.email,
-            rol,
+            rol, // Este 'rol' ya viene correcto
             nombre: user.NomyApe,}
         });
         } else{
@@ -127,7 +137,7 @@ export const login = async (req: Request, res: Response) => {
                 user: {
                     codigo_peluquero: user.codigo_peluquero,
                     email: user.email,
-                    rol,
+                    rol, // Este 'rol' ya viene correcto
                     nombre: user.nombre,}
                 });
         }
@@ -208,37 +218,50 @@ export const logout = async (req: Request, res: Response) => {
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
     const { email } = req.body;
+    const userIP = req.ip // Tomamos la ip del usuario que intenta resetear la password.
 
     if (!email) {
         return res.status(400).json({ message: 'Email requerido' });
-    }
+    };
+
+    //Verificar si el usuario ha excedido el limite de intentos.
+    const attempts = await redisClient.get(`reset_attempts:${userIP}`);
+
+    if (attempts && parseInt(attempts) >= 5) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Retardo artificial, es como una operacion dummi a la hora de comparar contraseñas ;)
+        return res.status(429).json({ message: "Demasiadas solicitudes de recuperación. Inténtalo más tarde." });
+    };
+
+    const newAttempts = await redisClient.incr(`reset_attempts:${userIP}`);
+    if (newAttempts === 1) { 
+        // Si es la primera vez que registra intentos, ponemos expiración de 5 minutos.
+        await redisClient.expire(`reset_attempts:${userIP}`, 300);
+    };
+    console.log("Intentos después de incrementar:", newAttempts);
 
     let user: Cliente | Peluquero | null = null;
 
-    // Intenta encontrar como Cliente
     user = await ClienteRepository.findByEmail(email);
-
     if (!user) {
-        // Si no es Cliente, intenta como Peluquero
         user = await PeluqueroRepository.findByEmail(email);
-    }
+    };
 
     if (!user) {
-        // Para mayor seguridad y evitar enumeración de emails,
-        // podrías considerar enviar siempre una respuesta genérica.
-        // Pero para el flujo funcional, si no hay usuario, no se puede proceder.
-        // Actualmente, tu frontend espera un error si el usuario no existe.
-        return res.status(404).json({ message: 'Si el email está registrado, recibirás un correo de recuperación.' });
-    }
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Retardo artificial ;)
+        // Siempre devolvemos una rta correcta a pesar de que sea incorrecta por seguridad!
+        return res.status(200).json({ message: 'Si el email está registrado, recibirás un correo de recuperación.' });
+    };
 
+    // Incrementamos los intentos de Redis, expira en 5 minutos (300 segundos).
+    await redisClient.setEx(`password_reset:${email}`, 300, "1");
+
+    // Si todo esta bien, se prosigue con la creacion del token!
     // generatePasswordResetToken solo necesita el email (según tu authService.ts)
     const token = generatePasswordResetToken(email);
 
-    // sendPasswordResetEmail enviará el correo con el link genérico
-    // ej: http://localhost:3001/reset-password/TOKEN
+    // sendPasswordResetEmail enviará el correo con el link genérico, ej: http://localhost:3001/reset-password/TOKEN
     await sendPasswordResetEmail(email, token);
-
-    // Tu frontend en recoverPassword.tsx espera un mensaje de éxito.
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Retardo artificial ;)
     return res.status(200).json({ message: 'Correo de recuperación enviado si el email está registrado.' });
 };
 
@@ -248,7 +271,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     if (!token || !newPassword) {
         return res.status(400).json({ message: 'Token y nueva contraseña requeridos' });
-    }
+    };
 
     try {
         // verifyPasswordResetToken devuelve el email o null (según authService.ts)
@@ -263,23 +286,18 @@ export const resetPassword = async (req: Request, res: Response) => {
 
         // Intenta encontrar como Cliente usando el email del token
         user = await ClienteRepository.findByEmail(emailFromToken);
-
         if (!user) {
-            // Si no es Cliente, intenta como Peluquero
             user = await PeluqueroRepository.findByEmail(emailFromToken);
-        }
-
+        };
         if (!user) {
             // Esto podría pasar si el usuario fue eliminado después de solicitar el token.
             return res.status(404).json({ message: 'Usuario no encontrado con el email asociado al token' });
-        }
+        };
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
-        // El ORM (em) se encarga de actualizar la entidad correcta (Cliente o Peluquero)
         await em.persistAndFlush(user);
 
-        // El frontend (reset-password.tsx) espera un mensaje de éxito.
         return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
     } catch (error) {
         console.error("Error en resetPassword:", error);

@@ -7,8 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 export default function HomePeluquero() {
     const navigate = useNavigate();
     const auth = useAuth();
-    const rawUser = localStorage.getItem("user");
-    const user = rawUser ? JSON.parse(rawUser) : null;
+    // Se utilizará auth.user para consistencia, ya que viene del estado del contexto.
+    const user = auth.user; 
     
     useEffect(() => {
         const checkAuth = async () => {
@@ -24,10 +24,12 @@ export default function HomePeluquero() {
         checkAuth();
     },[auth, navigate]);
 
-    if (!auth.isAuthenticated || !auth.user) {
+
+    if (!auth.isAuthenticated || !user) {
         return <Navigate to="/login" replace />;
     };
     
+
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
         sessionStorage.removeItem("accessToken");
@@ -44,17 +46,20 @@ export default function HomePeluquero() {
     return (
         <div className="container py-5">
             <div className="text-center mb-5">
-                <h1 className="fw-bold text-primary">Bienvenido, {user.nombre}</h1>
-                <p className="text-muted fs-5">¿Cortamos hoy?</p>
+                <h1 className="fw-bold text-primary">
+                    {user.rol === 'admin' ? 'Panel de Administrador' : `Bienvenido, ${user.nombre}`}
+                </h1>
+                <p className="text-muted fs-5">
+                    {user.rol === 'admin' ? 'Gestión completa del sistema' : '¿Cortamos hoy?'}
+                </p>
             </div>
     
-            {/* Resumen Rápido */}
             <div className="row mb-4">
                 <div className="col-md-4">
                     <div className="card text-white bg-primary mb-3 shadow-sm">
                         <div className="card-body">
                             <h5 className="card-title">Turnos activos</h5>
-                            <p className="card-text display-6">12</p> {/* dinámico en el futuro */}
+                            <p className="card-text display-6">12</p> 
                         </div>
                     </div>
                 </div>
@@ -76,7 +81,6 @@ export default function HomePeluquero() {
                 </div>
             </div>
     
-            {/* Acciones */}
             <div className="row justify-content-center">
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow border-0">
@@ -85,37 +89,33 @@ export default function HomePeluquero() {
                             <div className="d-grid gap-3">
 
                                 <button onClick={() => navigate("/listado-turnos")} className="btn btn-primary btn-lg py-3">
-                                    <i className="bi bi-calendar-plus me-2"></i>
                                     Ver mis Turnos
                                 </button>
 
                                 <button onClick={() => navigate("/historial-peluquero")} className="btn btn-outline-primary btn-lg py-3">
-                                    <i className="bi bi-list-check me-2"></i>
                                     Historial de Peluquero
                                 </button>
 
                                 <button onClick={() => navigate("/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
-                                    <i className="bi bi-list-check me-2"></i>
                                     Historial de Cliente
                                 </button>
 
                                 <button onClick={() => navigate("/editar-perfil")} className="btn btn-outline-secondary btn-lg py-3">
-                                    <i className="bi bi-person-gear me-2"></i>
                                     Editar Perfil
                                 </button>
 
-                                <button onClick={() => navigate("/peluquero")} className="btn btn-outline-primary btn-lg py-3">
-                                    <i className="bi bi-list-check me-2"></i>
-                                    Informacion de peluqueros
-                                </button>
+                                {/*Este boton solo se muestra al admin*/}
+                                {user.rol === 'admin' && (
+                                    <button onClick={() => navigate("/peluquero")} className="btn btn-outline-primary btn-lg py-3">
+                                        Informacion de peluqueros
+                                    </button>
+                                )}
 
                                 <button onClick={() => navigate("/baja-turno")} className="btn btn-outline-warning btn-lg py-3">
-                                    <i className="bi bi-calendar-x me-2"></i>
                                     Cancelar Turno
                                 </button>
 
                                 <button onClick={handleLogout} className="btn btn-danger btn-lg py-3 mt-4">
-                                    <i className="bi bi-box-arrow-right me-2"></i>
                                     Cerrar Sesión
                                 </button>
                             </div>
