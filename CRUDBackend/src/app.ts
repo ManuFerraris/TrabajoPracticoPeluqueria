@@ -14,6 +14,7 @@ import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquer
 import { loginRouter } from './auth/auth.routes.js';
 import { AppError } from './shared/errors/AppError.js';
 import { pagoRouter } from './pago/pago.routes.js';
+import { handleStripeWebhook } from './stripe/stripe.controller.js';
 
 import  cors  from 'cors'
 
@@ -24,6 +25,8 @@ app.use(cors({
     origin: 'http://localhost:3001', // Puerto del frontend!
     credentials: true
 })); // Habilita CORS para todas las rutas
+
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stipe necesito el cuerpo crudo como un Buffer.
 
 app.use(express.json())//Para que express.json funcione para todos 
 

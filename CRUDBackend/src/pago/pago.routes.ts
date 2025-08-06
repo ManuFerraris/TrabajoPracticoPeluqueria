@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   findAll,
   getOne,
-  add,
+  crearPago,
   update,
   remove,
   sanitizePagoInput
@@ -18,7 +18,7 @@ router.get('/', findAll);
 router.get('/:id', getOne);
 
 // POST nuevo pago
-router.post('/', sanitizePagoInput, add);
+router.post('/', crearPago);
 
 // PUT actualizar pago
 router.put('/:id', sanitizePagoInput, update);

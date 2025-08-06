@@ -2,15 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { orm } from "../shared/db/orm.js";
 import { Pago } from "./pago.entity.js";
 import { Turno } from "../turno/turno.entity.js";
+import Stripe from 'stripe';
+import { Servicio } from "../Servicio/servicio.entity.js";
 
 const em = orm.em;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 // Middleware para sanitizar la entrada
 function sanitizePagoInput(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {
         monto: req.body.monto,
         estado: req.body.estado,
-        metodo: req.body.metodo,  // corregido de metodo_pago a metodo
+        metodo: req.body.metodo,
         fecha: req.body.fecha,
         turno_codigo_turno: req.body.turno_codigo_turno,
     };
@@ -34,7 +37,7 @@ function validaEstado(estado: string) {
 }
 
 function validaMetodo(metodo: string) {
-    return metodo === 'Efectivo' || metodo === 'Mercado Pago';
+    return metodo === 'Efectivo' || metodo === 'Stripe';
 }
 
 // Obtener todos los pagos y con su turno asociado
@@ -101,7 +104,7 @@ async function add(req: Request, res: Response) {
         }
 
         if (!validaMetodo(metodo)) {
-            return res.status(400).json({ message: 'Las opciones válidas son "Efectivo" o "Mercado Pago".' });
+            return res.status(400).json({ message: 'Las opciones válidas son "Efectivo" o "Stripe".' });
         }
         // Validar si ya existe un pago para ese turno
         const pagoExistente = await em.findOne(Pago, { turno });
@@ -150,7 +153,7 @@ async function update(req: Request, res: Response) {
         }
 
         if (metodo !== undefined && !validaMetodo(metodo)) {
-            return res.status(400).json({ message: 'Las opciones válidas son "Efectivo" o "Mercado Pago".' });
+            return res.status(400).json({ message: 'Las opciones válidas son "Efectivo" o "Stripe".' });
         }
 
         if (turno_codigo_turno !== undefined) {
@@ -196,4 +199,70 @@ async function remove(req: Request, res: Response) {
     }
 }
 
-export { sanitizePagoInput, findAll, getOne, add, update, remove };
+async function crearPago(req: Request, res: Response) {
+    try {
+        const { turno_codigo_turno, metodo } = req.body;
+        // VALIDACIONES, NO USO MAS PARA EL CREATE EL SANITIZE INPUT
+        if (!turno_codigo_turno || !metodo) {
+            return res.status(400).json({ message: 'El código del turno y el método de pago son requeridos.' });
+        }
+        
+        const turno = await em.findOne(Turno, { codigo_turno: Number(turno_codigo_turno) }, { populate: ['servicio'] }); // NOTAR EL POPULATE
+        if (!turno) {
+            return res.status(404).json({ message: 'Turno no encontrado.' });
+        }
+
+        const pagoExistente = await em.findOne(Pago, { turno });
+        if (pagoExistente) {
+            return res.status(400).json({ message: 'Ya existe un pago para este turno.' });
+        }
+
+        // ACA DISCRIMINO POR EL METODO
+        if (metodo === 'Efectivo') { 
+            const { monto, estado } = req.body;
+
+            if (!validaMonto(monto) || !validaEstado(estado)) {
+                return res.status(400).json({ message: 'Monto o Estado no válidos para pago en efectivo.' });
+            }
+            
+            const pago = em.create(Pago, { monto, estado, metodo: 'Efectivo', fecha: new Date(), turno });
+            await em.persistAndFlush(pago);
+            return res.status(201).json({ message: 'Pago en Efectivo creado exitosamente', data: pago });
+        } 
+        else if (metodo === 'Stripe') {
+            const montoDesdeDB = turno.servicio.monto; // ACA ME TRAIGO EL PRECIO DEL SERVICIO QUE HICE EL POPULATE ANTES
+
+            const nuevoPago = em.create(Pago, {
+                monto: montoDesdeDB,
+                estado: 'Pendiente',
+                metodo: 'Stripe',
+                fecha: new Date(),
+                turno
+            });
+            await em.persistAndFlush(nuevoPago);
+
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [{
+                    price_data: { currency: 'ars', product_data: { name: ' Servicio de peluqueria ' }, unit_amount: montoDesdeDB * 100 },
+                    quantity: 1,
+                }],
+                mode: 'payment',
+                success_url: `http://localhost:3001/pago-exitoso`,
+                cancel_url: `http://localhost:3001/pago-cancelado`,
+                metadata: { pago_id: nuevoPago.id },  //Notar que aca paso en la metadata el id del pago
+            });                                       //esto va a servir despues para identificarlo y cambiar el estado a "pagado"
+
+            return res.status(200).json({ url: session.url });
+        } 
+        else {
+            return res.status(400).json({ message: 'Método de pago no válido. Use "Efectivo" o "Stripe".' });
+        }
+
+    } catch (error: any) {
+        return res.status(500).json({ message: "Error interno del servidor", details: error.message });
+    }
+}
+
+
+export { sanitizePagoInput, findAll, getOne, update, remove, crearPago };
