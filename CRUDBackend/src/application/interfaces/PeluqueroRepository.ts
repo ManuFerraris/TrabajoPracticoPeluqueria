@@ -5,4 +5,5 @@ export interface PeluqueroRepository {
     buscarPeluquero(codigo_peluquero:number):Promise<Peluquero | null>;
     guardar(peluquero:Peluquero):Promise<Peluquero>;
     eliminarPeluquero(peluquero:Peluquero):Promise<void>;
+    getAllPeluquerosConTurnosYCLientes():Promise<Peluquero[]>;
 };

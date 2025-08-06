@@ -4,12 +4,14 @@ import { findAll,
     getOne, 
     add,
     update, 
-    remove } from "./peluquero.controler.js";
+    remove,
+    top3Peluqueros } from "./peluquero.controler.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const peluqueroRouter = Router()
 
+peluqueroRouter.get('/topTresPeluqueros', top3Peluqueros);
 peluqueroRouter.get('/', /*authMiddleware, authorizeRole(['peluquero', 'admin']),*/ findAll);
 peluqueroRouter.get('/:codigo_peluquero', /*authMiddleware, authorizeRole(['peluquero', 'admin']),*/ getOne);
 peluqueroRouter.post('/', /*authMiddleware, authorizeRole(['peluquero', 'admin']), sanitizePeluqueroInput,*/ add);

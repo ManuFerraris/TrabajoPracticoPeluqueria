@@ -3,7 +3,6 @@ import { PeluqueroRepository } from "../../interfaces/PeluqueroRepository.js";
 import { RegistrarPeluqueroDTO, validarPeluqueroDTO } from "../../dtos/RegistrarPeluqueroDTO.js";
 import { EntityManager } from "@mikro-orm/core";
 import { hashearPassword } from "../../hashearPassword.js";
-import e from "express";
 
 export class ActualizarPeluquero{
     constructor(private readonly repo:PeluqueroRepository){};

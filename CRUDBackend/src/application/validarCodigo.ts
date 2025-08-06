@@ -1,9 +1,14 @@
-export function validarCodigo(codigo: number|string, nombreCampo:string = 'codigo'):string | null{
+export function validarCodigo(
+    codigo: any,
+    nombreCampo:string = 'codigo'):{
+        valor?: number;
+        error?: string } {
+
     const numero = Number(codigo);
     if(!codigo){
-        return `El ${nombreCampo} no fue provisto`;
+        return {error: `El ${nombreCampo} no fue provisto`};
     } else if(isNaN(numero)){
-        return `El ${nombreCampo} es inválido`;
+        return {error: `El ${nombreCampo} es inválido`};
     };
-    return null;
+    return { valor: Number(numero) };
 };

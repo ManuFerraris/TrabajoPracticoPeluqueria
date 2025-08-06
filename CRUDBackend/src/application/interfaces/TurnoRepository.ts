@@ -7,4 +7,5 @@ export interface TurnoRepository {
     buscarTurno(codigo_turno: number):Promise<Turno | null>;
     eliminarTurno(turno: Turno):Promise<void>;
     guardar(turno:Turno):Promise<void>;
+    getTurnosPorEstado(estado: string, codPel:number):Promise<Turno[]>;
 };

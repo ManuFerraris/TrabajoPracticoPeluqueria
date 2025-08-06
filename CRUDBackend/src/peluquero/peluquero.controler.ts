@@ -1,16 +1,13 @@
-import { Request, Response, NextFunction } from "express"
-import { Peluquero } from "./peluqueros.entity.js"
-import { Turno } from "../turno/turno.entity.js"
-import bcrypt from "bcryptjs"
-import { MikroORM } from "@mikro-orm/core"
-
+import { Request, Response, NextFunction } from "express";
+import { MikroORM } from "@mikro-orm/core";
 import { validarCodigo } from "../application/validarCodigo.js";
 import { PeluqueroRepositoryORM } from "../shared/db/PeluqueroRepositoryORM.js";
 import { FindAll } from "../application/casos-uso/casosUsoPeluquero/ListarPeluqueros.js";
 import { BuscarPeluquero } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluquero.js";
-import { RegistrarPeluquero } from "../application/casos-uso/casosUsoPeluquero/RegistrarPeluquero.js"
-import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/ActualizarPeluquero.js"
-import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js"
+import { RegistrarPeluquero } from "../application/casos-uso/casosUsoPeluquero/RegistrarPeluquero.js";
+import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/ActualizarPeluquero.js";
+import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js";
+import { PeluqueroConMasClientes } from "../application/casos-uso/casosUsoPeluquero/PeluqueroConMasClientes.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -22,6 +19,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
         const peluqueros = await casouso.ejecutar();
         if(peluqueros.length === 0){
             res.status(404).json({ message: "Peluquero no encontrado." })
+            return;
         };
 
         res.status(201).json({ data: peluqueros });
@@ -35,13 +33,12 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
 
 export const getOne = async (req:Request, res:Response):Promise<void> => {
     try{
-        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
-        if(errorCodigo){
-            res.status(400).json({ message: errorCodigo });
+        const codPel = req.params.codigo_peluquero;
+        const { valor: codigoPel, error: errorCodigo } = validarCodigo(codPel, 'codigo de peluquero');
+        if(errorCodigo || codigoPel === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
             return;
         };
-
-        const codigoPel = Number(req.params.codigo_peluquero);
 
         const orm = (req.app.locals as { orm: MikroORM}).orm;
         const em = orm.em.fork();
@@ -95,14 +92,13 @@ export const add = async (req:Request, res:Response):Promise<void> => {
 };
 
 export const update = async (req:Request, res:Response):Promise<void> => {
-    try{
-        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
-        if(errorCodigo){
-            res.status(400).json({ message: errorCodigo });
+    try{ 
+        const codPel = req.params.codigo_peluquero;
+        const { valor: codigoPel, error: errorCodigo } = validarCodigo(codPel, 'codigo de peluquero');
+        if(errorCodigo || codigoPel === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
             return;
         };
-
-        const codigoPel = Number(req.params.codigo_peluquero);
 
         const orm = (req.app.locals as { orm: MikroORM}).orm;
         const em = orm.em.fork();
@@ -133,39 +129,15 @@ export const update = async (req:Request, res:Response):Promise<void> => {
     }
 };
 
-/*
-async function remove(req: Request, res: Response){
-    try{
-        const codigo_peluquero = Number.parseInt(req.params.codigo_peluquero)
-        if(isNaN(codigo_peluquero)){
-            return res.status(400).json({ message: 'Código de peluquero inválido' });
-        }
-        const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
-        if(!peluquero){
-            return res.status(404).json({ message: 'Peluquero no encontrado' })
-        } 
-        const turnos = await em.find(Turno, { peluquero });
-        if (turnos.length > 0) {
-            return res.status(400).json({ message: 'No se puede eliminar el peluquero porque tiene turnos asignados' });
-        }
-        await em.removeAndFlush(peluquero)
-        return res.status(200).json({message: 'Peluquero borrado Exitosamente'})
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
-};
-*/
-
 export const remove = async (req:Request, res:Response):Promise<void> => {
     try{
-        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
-        if(errorCodigo){
-            res.status(400).json({ message: errorCodigo });
+        const codPel = req.params.codigo_peluquero;
+        const { valor: codigoPel, error: errorCodigo } = validarCodigo(codPel, 'codigo de peluquero');
+        if(errorCodigo || codigoPel === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
             return;
         };
-
-        const codigoPel = Number(req.params.codigo_peluquero);
-
+        
         const orm = (req.app.locals as { orm: MikroORM}).orm;
         const em = orm.em.fork();
         const repo = new PeluqueroRepositoryORM(em);
@@ -186,4 +158,27 @@ export const remove = async (req:Request, res:Response):Promise<void> => {
         res.status(500).json({ error: 'Error interno del servidor' });
         return;
     };
+};
+
+export const top3Peluqueros = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new PeluqueroConMasClientes(repo);
+
+        const peluqueros = await casouso.ejecutar();
+        if(peluqueros.length === 0){
+            res.status(404).json({ message: "Peluquero no encontrado." })
+            return;
+        };
+
+        res.status(200).json({ message: 'Top 3 de peluqueros con mas clientes: ', data:peluqueros});
+        return;
+
+    }catch(errores:any){
+        console.error('Error al eliminar al peluquero ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    }
 };

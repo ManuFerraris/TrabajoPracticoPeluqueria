@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/peluqueros
 
 ### obtener un peluquero
-GET http://localhost:3000/api/peluqueros/46
+GET http://localhost:3000/api/peluqueros/47
 
 ### crear nuevo peluquero
 POST http://localhost:3000/api/peluqueros
@@ -22,7 +22,7 @@ PUT http://localhost:3000/api/peluqueros/47
 Content-Type: application/json
 
 {
-    "tipo": "Sucursal"
+    "nombre": "El Dipi"
 }
 
 ###Borrar un Peluquero
@@ -30,3 +30,6 @@ DELETE http://localhost:3000/api/peluqueros/46
 
 ### prueba de error
 GET http://localhost:3000/api/peluqueros/error-test
+
+### Top 3 de peluqueros con mas clientes
+GET http://localhost:3000/api/peluqueros/topTresPeluqueros

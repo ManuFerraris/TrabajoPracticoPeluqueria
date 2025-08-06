@@ -1,6 +1,7 @@
 import { Peluquero } from "../../peluquero/peluqueros.entity.js";
 import { PeluqueroRepository } from "../../application/interfaces/PeluqueroRepository.js";
 import { EntityManager } from "@mikro-orm/core";
+import { populate } from "dotenv";
 
 export class PeluqueroRepositoryORM implements PeluqueroRepository {
 
@@ -21,5 +22,9 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
 
     async eliminarPeluquero(peluquero: Peluquero): Promise<void> {
         await this.em.removeAndFlush(peluquero);
+    };
+
+    getAllPeluquerosConTurnosYCLientes(): Promise<Peluquero[]> {
+        return this.em.findAll(Peluquero, {populate: ['turnos.cliente']})
     };
 };

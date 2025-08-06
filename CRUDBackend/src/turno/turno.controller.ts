@@ -12,6 +12,9 @@ import { ServicioRepositoryORM } from "../shared/db/ServicioRepositoryORM.js";
 import { RegistrarTurno } from "../application/casos-uso/casosUsoTurno/RegistrarTurno.js";
 import { RegistrarTurnoDTO, validarTurnoDTO } from "../application/dtos/RegistrarTurnoDTO.js";
 import { ActualizarTurno } from "../application/casos-uso/casosUsoTurno/ActualizarTurno.js";
+import { validarEstadoTurno } from "../application/validarEstadoTurno.js";
+import { FiltroTurnoPorPeluqueroYEstado } from "../application/casos-uso/casosUsoTurno/filtrosPorTurno.js";
+import { validarCodigo } from "../application/validarCodigo.js";
 
 function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
     req.body.sanitizedInput = {
@@ -57,17 +60,10 @@ export const findAll = async (req:Request, res:Response):Promise<void> => { //FU
 
 export const getOne = async (req: Request, res:Response ):Promise<void> => { //FUNCIONAL
     try{
-        const {codigo_turno} = req.params;
-        
-        console.log("Codigo de turno", codigo_turno)
-        if (!codigo_turno) {
-            res.status(400).json({ message: 'Código de turno inválido' });
-            return;
-        };
-        const codigoNumero = Number(codigo_turno);
-
-        if(isNaN(codigoNumero)){
-            res.status(400).json({ message: 'El código de turno debe ser un numero.' });
+        const codTur = req.params.codigo_turno;
+        const { valor: codTurno, error: errorCodigo } = validarCodigo(codTur, 'codigo de turno');
+        if(errorCodigo || codTurno === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
             return;
         };
 
@@ -76,7 +72,7 @@ export const getOne = async (req: Request, res:Response ):Promise<void> => { //F
         const repo = new TurnoRepositoryORM(em);
         const casouso = new BuscarTurno(repo);
 
-        const turno = await casouso.ejecutar(codigoNumero);
+        const turno = await casouso.ejecutar(codTurno);
 
         if(!turno){
             res.status(400).json({message: 'No se encontro el turno' });
@@ -122,6 +118,7 @@ export const add = async (req: Request, res:Response):Promise<void> => {
     };
 };
 
+//Corregir error de rango horario al actualizar una fecha.
 export const update = async (req:Request, res:Response):Promise<void> => {
     try{
         const orm = (req.app.locals as {orm:MikroORM}).orm;
@@ -129,7 +126,13 @@ export const update = async (req:Request, res:Response):Promise<void> => {
         const repo = new TurnoRepositoryORM(em);
         const casouso = new ActualizarTurno(repo);
 
-        const codTurno = Number(req.params.codigo_turno);
+        const codTur = req.params.codigo_turno;
+        const { valor: codTurno, error: errorCodigo } = validarCodigo(codTur, 'codigo de turno');
+        if(errorCodigo || codTurno === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
+            return;
+        };
+
         const dto = req.body;
 
         const actualizacion = true;
@@ -151,16 +154,9 @@ export const update = async (req:Request, res:Response):Promise<void> => {
 export const remove = async (req: Request, res: Response):Promise<void> => {
     try{
         const {codigo_turno} = req.params;
-        console.log("Codigo de turno", codigo_turno)
-
-        if (!codigo_turno) {
-            res.status(400).json({ message: 'Código de turno inválido' });
-            return;
-        };
-
-        const codigoNumero = Number(codigo_turno);
-        if(isNaN(codigoNumero)){
-            res.status(400).json({ message: 'El código de turno debe ser un numero.' });
+        const { valor: codTur, error: errorCodigo } = validarCodigo(codigo_turno, 'codigo de turno');
+        if(errorCodigo || codTur === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
             return;
         };
 
@@ -170,7 +166,7 @@ export const remove = async (req: Request, res: Response):Promise<void> => {
         const servicioRepo = new ServicioRepositoryORM(em);
         const casouso = new EliminarTurno(turnoRepo, servicioRepo);
 
-        const errores = await casouso.ejecutar(codigoNumero);
+        const errores = await casouso.ejecutar(codTur);
 
         if (errores.length > 0){
             res.status(404).json({ message: errores[0] });
@@ -184,9 +180,8 @@ export const remove = async (req: Request, res: Response):Promise<void> => {
         console.error('Error al eliminar el turno.',error);
         res.status(500).json({message: error.message})
         return;
-    }
+    };
 };
-
 
 export const listarTurnosFiltrados = async (req:Request, res:Response): Promise<void> => {
     try{
@@ -259,6 +254,42 @@ export const listarTurnosCanceladosPorMes = async(req: Request, res:Response): P
     }catch(error){
         console.error('Error al listar turnos cancelados en dicho mes',error);
         res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    }
+};
+
+export const filtrosPorTurno = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const estado = String(req.query.estado);
+        const errorEstado = validarEstadoTurno(estado);
+        if(errorEstado){
+            res.status(404).json({ message: errorEstado });
+            return;
+        };
+
+        const { valor: codPel, error: errorCodigo } = validarCodigo(req.query.codigo_peluquero, 'codigo de peluquero');
+        if(errorCodigo || codPel === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new FiltroTurnoPorPeluqueroYEstado(repo);
+
+        const turnos = await casouso.ejecutar(estado, codPel);
+        if(turnos.length === 0){
+            res.status(400).json({ movimientos: [], message: `No se encontraron turnos con el estado: ${estado} para dicho peluquero.` });
+            return;
+        };
+
+        res.status(200).json(turnos);
+        return;
+        
+    }catch(errores:any){
+        console.error('Ha ocurrido un error al filtrar los turnos por su estado.', errores);
+        res.status(500).json({ message: 'Error interno del servidor', errores});
         return;
     }
 };

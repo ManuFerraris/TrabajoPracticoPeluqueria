@@ -2,6 +2,7 @@ import { Turno } from "../../turno/turno.entity.js";
 import { TurnoRepository } from "../../application/interfaces/TurnoRepository.js";
 import { EntityManager } from "@mikro-orm/mysql";
 import { FilterQuery } from "@mikro-orm/mysql";
+import { populate } from "dotenv";
 
 export class TurnoRepositoryORM implements TurnoRepository {
 
@@ -57,5 +58,17 @@ export class TurnoRepositoryORM implements TurnoRepository {
 
     async eliminarTurno(turno: Turno): Promise<void> {
         await this.em.removeAndFlush(turno);
+    };
+
+    async getTurnosPorEstado(estadoIng: string, codPel:number): Promise<Turno[]> {
+        return await this.em.find(Turno,
+            {
+                estado: estadoIng,
+                peluquero: {codigo_peluquero:codPel}
+            },
+            {
+                populate: ['peluquero']
+            }
+        );
     };
 };

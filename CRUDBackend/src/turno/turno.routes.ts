@@ -7,10 +7,12 @@ import { listarTurnosFiltrados,
     add,
     update,
     remove,
+    filtrosPorTurno
     } from "./turno.controller.js";
 
 export const turnoRouter = Router();
 
+turnoRouter.get('/filtrosTurnoPorEstadoYPel', filtrosPorTurno);
 turnoRouter.get('/filtrados', listarTurnosFiltrados); //Express evalua el orden de las rutas.
 turnoRouter.get('/filtroCancelados', listarTurnosCanceladosPorMes);
 turnoRouter.get('/', findAll);
