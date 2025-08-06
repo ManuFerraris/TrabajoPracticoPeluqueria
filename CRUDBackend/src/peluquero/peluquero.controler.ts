@@ -1,175 +1,139 @@
 import { Request, Response, NextFunction } from "express"
-import { orm } from "../shared/db/orm.js"
 import { Peluquero } from "./peluqueros.entity.js"
 import { Turno } from "../turno/turno.entity.js"
 import bcrypt from "bcryptjs"
+import { MikroORM } from "@mikro-orm/core"
 
-const em = orm.em
+import { validarCodigo } from "../application/validarCodigo.js";
+import { PeluqueroRepositoryORM } from "../shared/db/PeluqueroRepositoryORM.js";
+import { FindAll } from "../application/casos-uso/casosUsoPeluquero/ListarPeluqueros.js";
+import { BuscarPeluquero } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluquero.js";
+import { RegistrarPeluquero } from "../application/casos-uso/casosUsoPeluquero/RegistrarPeluquero.js"
+import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/ActualizarPeluquero.js"
+import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js"
 
-const SALT_ROUNDS = 12;
-
-function sanitizePeluqueroInput(req: Request, res: Response, next:NextFunction){
-    req.body.sanitizedInput = {
-        codigo_peluquero: req.body.codigo_peluquero,
-        nombre:req.body.nombre,
-        fecha_Ingreso:req.body.fecha_Ingreso,
-        tipo: req.body.tipo,
-        rol: req.body.rol,
-        email: req.body.email,
-        password: req.body.password,
-        }
-    Object.keys(req.body.sanitizedInput).forEach(key => {
-        if(req.body.sanitizedInput[key] === undefined) {
-            delete req.body.sanitizedInput[key]}
-    })
-    next()
-}
-
-async function findAll(req: Request, res:Response){  //FUNCIONAL
+export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
-            const peluquero = await em.find(Peluquero, {});
-            
-            if (!peluquero) {
-                return res.status(404).json({ message: "Peluquero no encontrado" });
-            }
-            
-            return res.json({data: peluquero});
-        }catch(error:any){
-            console.error("Error al obtener peluquero:", error);
-            return res.status(500).json({ message: "Error interno del servidor" });
-        }
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new FindAll(repo);
+
+        const peluqueros = await casouso.ejecutar();
+        if(peluqueros.length === 0){
+            res.status(404).json({ message: "Peluquero no encontrado." })
+        };
+
+        res.status(201).json({ data: peluqueros });
+        return;
+    }catch(errores:any){
+        console.error('Error al traer los peluqueros: ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    };
 };
 
-async function getOne(req:Request, res:Response){  //FUNCIONAL
+export const getOne = async (req:Request, res:Response):Promise<void> => {
     try{
-        const codigo_peluquero = Number.parseInt(req.params.codigo_peluquero)
-        if (isNaN(codigo_peluquero)) {
-            return res.status(400).json({ message: 'Código de peluquero inválido' });
-        }
-        const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
+        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
+        if(errorCodigo){
+            res.status(400).json({ message: errorCodigo });
+            return;
+        };
 
-        if (peluquero) {
-            return res.status(200).json({ message: 'Peluquero encontrado', data: peluquero });
-        } else {
-            return res.status(404).json({ message: 'Peluquero no encontrado' });
-        }
-    }catch(error:any){
-        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
-    }
+        const codigoPel = Number(req.params.codigo_peluquero);
+
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new BuscarPeluquero(repo);
+
+        const peluquero = await casouso.ejecutar(codigoPel);
+        if(!peluquero){
+            res.status(404).json({ message: 'No se encontro el peluquero.' });
+            return;
+        };
+
+        res.status(200).json({ message: 'Peluquero encontrado', data: peluquero });
+        return;
+    }catch(errores){
+        console.error('Error al buscar el peluquero: ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    };
 };
 
-async function add(req: Request, res:Response){ //FUNCIONAL
-    try {
-        const { nombre, fecha_Ingreso, tipo, email, password } = req.body;
-        // Validación de campos
-        if (!nombre || !fecha_Ingreso || !tipo || !email || !password) {
-            return res.status(400).json({ message: 'Todos los campos son requeridos' });
-        }
-        if (isNaN(Date.parse(fecha_Ingreso))) {
-            return res.status(400).json({ message: 'Fecha de ingreso inválida' });
+export const add = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new RegistrarPeluquero(repo);
+
+        const dto = req.body;
+        const resultado = await casouso.ejecutar(dto, em);
+
+        if(Array.isArray(resultado)){
+            res.status(400).json({ message: resultado[0] })
+            return;
         };
 
-        // Verificar si el peluquero ya existe
-        const peluqueroExistente = await em.findOne(Peluquero, { email });
-        if (peluqueroExistente) {
-            return res.status(400).json({ message: 'El peluquero ya existe' });
-        };
-
-        if(tipo !== "Domicilio" && tipo !== "Sucursal"){
-            return res.status(400).json({ message: 'Tipo inválido, debe ser "Domicilio" o "Sucursal"' });
-        };
-
-        //HASHEO DE CONTRASEÑA//
-        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-                
-        const rol_pel = "peluquero"
-        
-        const peluquero = new Peluquero()
-        peluquero.nombre = nombre,
-        peluquero.fecha_Ingreso = new Date(fecha_Ingreso),
-        peluquero.tipo = tipo,
-        peluquero.rol = rol_pel,
-        peluquero.email = email,
-        peluquero.password = hashedPassword,
-
-        em.persist(peluquero);
-        await em.flush();
-        return res.status(201).json({ 
+        res.status(201).json({
             message: 'Peluquero creado', 
             data: {
-                ...peluquero,
+                ...resultado,
                 password: undefined // No devolvemos el hash en la respuesta!!!!!!!
             }
         });
-    }catch(error: any) {
-        return res.status(500).json({ message: error.message });
-    }
+        return;
+
+    }catch(errores:any){
+        console.error('Error al crear el peluquero: ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    };
 };
 
-async function update(req: Request, res: Response){ //FUNCIONAL
+export const update = async (req:Request, res:Response):Promise<void> => {
     try{
-        const codigo_peluquero = Number.parseInt(req.params.codigo_peluquero);
-
-        if(isNaN(codigo_peluquero)){
-            return res.status(400).json({ message: 'Código de peluquero inválido' });
+        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
+        if(errorCodigo){
+            res.status(400).json({ message: errorCodigo });
+            return;
         };
 
-        const peluquero = await em.findOne(Peluquero, { codigo_peluquero });
+        const codigoPel = Number(req.params.codigo_peluquero);
 
-        if(!peluquero){
-            return res.status(404).json({ message: 'Peluquero no encontrado' });
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new ActualizarPeluquero(repo);
+
+        const dto = req.body;
+        const actualizacion = true;
+        const peluqueroActualizado = await casouso.ejecutar(codigoPel, dto, em, actualizacion);
+
+        if(Array.isArray(peluqueroActualizado)){
+            res.status(400).json({ message: peluqueroActualizado[0] })
+            return;
         };
 
-        const { nombre, fecha_Ingreso, tipo, email, password, rol } = req.body.sanitizedInput;
-
-        if (fecha_Ingreso && isNaN(Date.parse(fecha_Ingreso))) {
-            return res.status(400).json({ message: 'Fecha de ingreso inválida' });
-        };
-
-        if (email && email !== peluquero.email) {
-            const peluqueroExistente = await em.findOne(Peluquero, { email });
-            if (peluqueroExistente) {
-                return res.status(400).json({ message: 'Ya existe un peluquero con ese email' });
-            }
-        };
-
-        if(tipo && tipo !== "Domicilio" && tipo !== "Sucursal"){
-            return res.status(400).json({ message: 'Tipo inválido, debe ser "Domicilio" o "Sucursal"' });
-        };
-
-        if(rol && rol!=="peluquero" && rol!=="admin"){
-            return res.status(400).json({ message: 'Rol inválido, debe ser "peluquero" o "admin"' });
-        };
-
-        // Re-hashear contraseña si fue enviada
-        let hashedPassword = peluquero.password;
-        if (password) {
-            hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-        };
-
-        em.assign(peluquero, {
-            ...(nombre && { nombre }),
-            ...(fecha_Ingreso && { fecha_Ingreso: new Date(fecha_Ingreso) }),
-            ...(tipo && { tipo }),
-            ...(email && { email }),
-            password: hashedPassword
-        });
-
-        await em.flush();
-
-        return res.status(200).json({
-            message: 'Peluquero actualizado',
+        res.status(201).json({
+            message: 'Peluquero actualizado', 
             data: {
-                ...peluquero,
-                password: undefined // NUNCA DEVOLVER EL HASH!!!!
+                ...peluqueroActualizado,
+                password: undefined // No devolvemos el hash en la respuesta!!!!!!!
             }
         });
-
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
+        return;
+    }catch(errores:any){
+        console.error('Error al actualizar al peluquero ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
     }
 };
 
+/*
 async function remove(req: Request, res: Response){
     try{
         const codigo_peluquero = Number.parseInt(req.params.codigo_peluquero)
@@ -190,5 +154,36 @@ async function remove(req: Request, res: Response){
         return res.status(500).json({message: error.message})
     }
 };
+*/
 
-export {findAll, getOne, add, update, remove, sanitizePeluqueroInput}
+export const remove = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const errorCodigo = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
+        if(errorCodigo){
+            res.status(400).json({ message: errorCodigo });
+            return;
+        };
+
+        const codigoPel = Number(req.params.codigo_peluquero);
+
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new EliminarPeluquero(repo);
+
+        const errores = await casouso.ejecutar(codigoPel);
+
+        if (errores.length > 0){
+            res.status(404).json({ message: errores[0] });
+            return;
+        };
+
+        res.status(200).json({ message: 'Peluquero eliminado exitosamente' })
+        return;
+
+    }catch(errores:any){
+        console.error('Error al eliminar al peluquero ', errores);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        return;
+    };
+};

@@ -2,22 +2,23 @@
 GET http://localhost:3000/api/peluqueros
 
 ### obtener un peluquero
-GET http://localhost:3000/api/peluqueros/1
+GET http://localhost:3000/api/peluqueros/46
 
 ### crear nuevo peluquero
 POST http://localhost:3000/api/peluqueros
 Content-Type: application/json
 
 {
-    "nombre": "Mirko Ostoich",
-    "fecha_Ingreso": "2017-08-26T00:00:00Z",
-    "tipo": "Domicilio",
-    "email": "mirkitosti@gmail.com",
+    "nombre": "El Dipi",
+    "fecha_Ingreso": "2022-08-26T00:00:00Z",
+    "tipo": "Sucursal",
+    "rol": "peluquero",
+    "email": "elDipacioPapa@gmail.com",
     "password": "Ab123456!"
 }
 
 ### modificar peluquero (PUT - recurso completo e idempotente)
-PUT http://localhost:3000/api/peluqueros/42
+PUT http://localhost:3000/api/peluqueros/47
 Content-Type: application/json
 
 {
@@ -25,7 +26,7 @@ Content-Type: application/json
 }
 
 ###Borrar un Peluquero
-DELETE http://localhost:3000/api/peluqueros/2
+DELETE http://localhost:3000/api/peluqueros/46
 
 ### prueba de error
 GET http://localhost:3000/api/peluqueros/error-test

@@ -173,7 +173,7 @@ export const remove = async (req: Request, res: Response):Promise<void> => {
         const errores = await casouso.ejecutar(codigoNumero);
 
         if (errores.length > 0){
-            res.status(404).json({ message: 'El turno no existe' });
+            res.status(404).json({ message: errores[0] });
             return;
         };
 
