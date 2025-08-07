@@ -80,7 +80,7 @@ export default function HomePeluquero() {
                     </div>
                 </div>
             </div>
-    
+
             <div className="row justify-content-center">
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow border-0">
@@ -104,11 +104,20 @@ export default function HomePeluquero() {
                                     Editar Perfil
                                 </button>
 
-                                {/*Este boton solo se muestra al admin*/}
                                 {user.rol === 'admin' && (
-                                    <button onClick={() => navigate("/peluquero")} className="btn btn-outline-primary btn-lg py-3">
-                                        Informacion de peluqueros
-                                    </button>
+                                    <>
+                                        <button onClick={() => navigate("/peluquero")} className="btn btn-outline-primary btn-lg py-3">
+                                            Información de Peluqueros
+                                        </button>
+                                        
+                                        <button onClick={() => navigate("/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">
+                                            Top 3 Peluqueros con Más Clientes
+                                        </button>
+
+                                        <button onClick={() => navigate("/panel-admin-cruds")} className="btn btn-outline-dark btn-lg py-3">
+                                            Panel de CRUDs
+                                        </button>
+                                    </>
                                 )}
 
                                 <button onClick={() => navigate("/baja-turno")} className="btn btn-outline-warning btn-lg py-3">

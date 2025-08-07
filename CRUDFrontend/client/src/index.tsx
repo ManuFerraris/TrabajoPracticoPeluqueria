@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthProvider.tsx';
 import "./index.css";
 import reportWebVitals from './reportWebVitals.js';
 
@@ -11,7 +12,7 @@ import RecoverPassword from './routes/recoverPassword.tsx';
 import ResetPassword from './routes/reset-password.tsx';
 
 //Rutas privadas (CRUDS):
-import PeluqueroPage from "./pages/peluquero/Peluqueropage.js";
+import PeluqueroList from './pages/peluquero/PeluqueroPage.tsx';
 import ClientesPage from "./pages/cliente/Cliente.page.js";
 import LocalidadesPage from "./pages/localidad/Localidad.page.js";
 import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.js";
@@ -28,9 +29,9 @@ import HistorialClientePage from './pages/historialCliente/HistorialClientePage'
 import ProtectedRoute from './routes/protectedRoute.tsx';
 import HomeCliente from './routes/homeCliente.tsx';
 import HomePeluquero from './routes/homePeluquero.tsx';
-
-import "./index.css";
-import { AuthProvider } from './auth/AuthProvider.tsx';
+import TopTresPeluquerosPage from './routes/topTresPeluquerosPage.tsx';
+import ListadoTurnosPage from './routes/ListadoTurnosPage.tsx';
+import PanelAdministracionCruds from './routes/PanelAdminCRUDs.tsx';
 
 const router = createBrowserRouter([
     {
@@ -62,15 +63,18 @@ const router = createBrowserRouter([
         { path: "homeCliente", element: <HomeCliente /> },
         { path: "homePeluquero", element: <HomePeluquero /> },
         //Rutas migradas de App.jsx:
-        { path: "peluquero", element: <PeluqueroPage /> },
-        { path: "localidad", element: <LocalidadesPage /> },
-        { path: "tipoServicio", element: <TipoServicioPage /> },
-        { path: "servicio", element: <ServiciosPage /> },
+        { path: "peluqueroList", element: <PeluqueroList /> },
+        { path: "localidades", element: <LocalidadesPage /> },
+        { path: "tipoServicios", element: <TipoServicioPage /> },
+        { path: "servicios", element: <ServiciosPage /> },
         { path: "turnos", element: <TurnosPage /> },
         { path: "clientes", element: <ClientesPage /> },
         { path: "menu", element: <MenuPage /> },
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
+        { path: "top-peluqueros", element: <TopTresPeluquerosPage/>},
+        { path: "listado-turnos", element: <ListadoTurnosPage/>},
+        { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>}
       ],
     },
   ]);

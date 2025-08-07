@@ -6,6 +6,7 @@ const API_URL = 'http://localhost:3000';
 // Datos que se van a almaecenar mientras el usuario este autenticado, se almacenaran en el localStorage
 interface UserData {
     codigo: number;
+    codigo_peluquero?: number;
     email: string;
     rol: 'cliente' | 'peluquero'|'admin';
     nombre: string;

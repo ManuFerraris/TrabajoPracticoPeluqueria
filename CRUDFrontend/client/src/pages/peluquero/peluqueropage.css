@@ -1,5 +1,0 @@
-.table-container {
-    overflow-y: auto;
-    overflow-x: hidden; /* Opcional: para evitar el desplazamiento horizontal */
-    position: relative; /* Asegura que el encabezado sticky no se sobreponga */
-}

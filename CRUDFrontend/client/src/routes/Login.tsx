@@ -36,6 +36,7 @@ export default function Login() {
                 data.refreshToken,
                 {
                 codigo: data.user.codigo_cliente || data.user.codigo_peluquero,
+                codigo_peluquero: data.user.codigo_peluquero,
                 email: data.user.email,
                 rol: data.user.rol,
                 nombre: data.user.NomyApe || data.user.nombre,
