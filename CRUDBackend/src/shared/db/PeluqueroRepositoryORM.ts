@@ -1,7 +1,7 @@
 import { Peluquero } from "../../peluquero/peluqueros.entity.js";
 import { PeluqueroRepository } from "../../application/interfaces/PeluqueroRepository.js";
 import { EntityManager } from "@mikro-orm/core";
-import { populate } from "dotenv";
+import { Turno } from "../../turno/turno.entity.js";
 
 export class PeluqueroRepositoryORM implements PeluqueroRepository {
 
@@ -17,6 +17,7 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
 
     async guardar(peluquero: Peluquero): Promise<Peluquero> {
         await this.em.persistAndFlush(peluquero);
+        console.log("Peluquero guardado y actualizado: ", peluquero)
         return peluquero;
     };
 
@@ -24,7 +25,18 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
         await this.em.removeAndFlush(peluquero);
     };
 
-    getAllPeluquerosConTurnosYCLientes(): Promise<Peluquero[]> {
+    async getAllPeluquerosConTurnosYCLientes(): Promise<Peluquero[]> {
         return this.em.findAll(Peluquero, {populate: ['turnos.cliente']})
+    };
+
+    async getMisTurnos(codigo_pel: number): Promise<Turno[]> {
+        return await this.em.find(
+            Turno,
+            {
+                estado: 'Activo',
+                peluquero: {codigo_peluquero: codigo_pel}
+            },
+            { populate: ['peluquero'] }
+        );
     };
 };

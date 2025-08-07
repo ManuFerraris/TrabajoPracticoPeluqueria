@@ -3,7 +3,7 @@ import { Peluquero } from "../../peluquero/peluqueros.entity.js";
 
 export interface RegistrarPeluqueroDTO {
     nombre:string;
-    fecha_Ingreso:Date;
+    fecha_Ingreso:string;
     tipo: "Sucursal" | "Domicilio";
     email: string;
     password:string;
@@ -25,15 +25,14 @@ export async function validarPeluqueroDTO(
     };
 
     let fechaValida = false;
+    if (dto.fecha_Ingreso) {
+        const fecha = new Date(dto.fecha_Ingreso);
+        fechaValida = !isNaN(fecha.getTime());
+    };
     if (!actualizacion && !fechaValida) {
     errores.push("Fecha de ingreso inválida.");
     };
-    if (dto.fecha_Ingreso) {
-        const fecha = new Date(dto.fecha_Ingreso);
-        if (!isNaN(fecha.getTime())) {
-            fechaValida = true;
-        };
-    };
+    
     
     if(!actualizacion && !dto.email ){
         errores.push("El email es obligatorio.");

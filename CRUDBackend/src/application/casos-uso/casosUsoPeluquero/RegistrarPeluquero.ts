@@ -13,7 +13,7 @@ export class RegistrarPeluquero{
 
         const peluquero = new Peluquero();
         peluquero.nombre = dto.nombre;
-        peluquero.fecha_Ingreso = new Date(dto.fecha_Ingreso);
+        peluquero.fecha_Ingreso = dto.fecha_Ingreso;
         peluquero.tipo = dto.tipo;
         peluquero.rol = dto.rol || 'peluquero';
         peluquero.email = dto.email;

@@ -15,8 +15,8 @@ import { loginRouter } from './auth/auth.routes.js';
 import { AppError } from './shared/errors/AppError.js';
 import  cors  from 'cors'
 
-const app = express() //app va a ser del tipo express
-app.locals.orm = orm; // Guardo la instancia global en el contecto de Express
+const app = express();
+app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
                       //para que cada Controller pueda acceder de manera local.
 app.options('*', cors());
 app.use(cors({

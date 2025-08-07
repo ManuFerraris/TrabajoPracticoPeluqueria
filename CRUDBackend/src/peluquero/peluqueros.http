@@ -33,3 +33,6 @@ GET http://localhost:3000/api/peluqueros/error-test
 
 ### Top 3 de peluqueros con mas clientes
 GET http://localhost:3000/api/peluqueros/topTresPeluqueros
+
+### Obtener mis turnos
+GET http://localhost:3000/api/peluqueros/misTurnos/49

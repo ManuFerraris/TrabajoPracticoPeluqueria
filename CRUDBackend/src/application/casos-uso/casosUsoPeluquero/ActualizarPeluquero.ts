@@ -15,17 +15,18 @@ export class ActualizarPeluquero{
         const errores = await validarPeluqueroDTO(dto, em, actualizacion, codigo_peluquero);
         if(errores.length>0) return {errores};
 
+        console.log("Fecha recibida en [ActualizarPeluquero ejecutar]: ", dto.fecha_Ingreso)
         if (dto.nombre) {peluqueroAActualizar.nombre = dto.nombre;};
         if (dto.fecha_Ingreso) {
-            const fecha = new Date(dto.fecha_Ingreso);
-            if (!isNaN(fecha.getTime())) { peluqueroAActualizar.fecha_Ingreso = fecha; }
-        };
+            console.log("Fecha asiganada en [peluqueroAActualizar.fecha_Ingreso]: ", dto.fecha_Ingreso)
+            peluqueroAActualizar.fecha_Ingreso = dto.fecha_Ingreso};
         if (dto.tipo) {peluqueroAActualizar.tipo = dto.tipo;}
         if (dto.rol) {peluqueroAActualizar.rol = dto.rol;}
         if (dto.email) {peluqueroAActualizar.email = dto.email;}
         if (dto.password) {peluqueroAActualizar.password = await hashearPassword(dto.password);}
 
-        
+        console.log("Objeto final antes de guardar:", peluqueroAActualizar);
+
         await this.repo.guardar(peluqueroAActualizar);
         return { errores: [], peluqueroActualizado: peluqueroAActualizar };
     };

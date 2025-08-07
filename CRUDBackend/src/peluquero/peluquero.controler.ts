@@ -8,6 +8,7 @@ import { RegistrarPeluquero } from "../application/casos-uso/casosUsoPeluquero/R
 import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/ActualizarPeluquero.js";
 import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js";
 import { PeluqueroConMasClientes } from "../application/casos-uso/casosUsoPeluquero/PeluqueroConMasClientes.js";
+import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/GetMisTurnos.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -181,4 +182,38 @@ export const top3Peluqueros = async (req:Request, res:Response):Promise<void> =>
         res.status(500).json({ error: 'Error interno del servidor' });
         return;
     }
+};
+
+export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const { valor: codigo_peluquero, error: error} = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
+        if(error || codigo_peluquero === undefined){
+            res.status(404).json({ message: error ?? 'codigo invalido'});
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casouso = new GetMisTurnos(repo);
+
+        const resultado = await casouso.ejecutar(codigo_peluquero);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado });
+            return;
+        };
+        if(resultado.length === 0){
+            res.status(204).json({ message: 'No posee turnos asignados' });
+            return;
+        };
+
+        res.status(200).json({ turnos: resultado });
+        return;
+
+    }catch(errores:any){
+        console.error('Error al eliminar al peluquero ', errores);
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
 };

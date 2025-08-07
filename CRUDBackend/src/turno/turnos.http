@@ -40,4 +40,4 @@ GET http://localhost:3000/api/turnos/filtrados?mes=2024-10
 GET http://localhost:3000/api/turnos/filtroCancelados?mes=2024-10
 
 ### Filtrar Turnos por su estado y peluquero.
-GET http://localhost:3000/api/turnos/filtrosTurnoPorEstadoYPel?codigo_peluquero=17&estado=Cancelado
+GET http://localhost:3000/api/turnos/filtrosTurnoPorEstadoYPel?codigo_peluquero=17&estado=Sancionado
