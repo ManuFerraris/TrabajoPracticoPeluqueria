@@ -2,31 +2,27 @@
 GET http://localhost:3000/api/localidades
 
 ###Obtener una localidad
-GET http://localhost:3000/api/localidades/1
+GET http://localhost:3000/api/localidades/6
 
 ###Dar de alta una Localidad
 POST http://localhost:3000/api/localidades
 Content-Type: application/json
 
 {
-    "nombre": "Pergamino",
-    "provincia": "Buenos Aires",
-    "codigo_postal": "perruno",
+    "nombre": "Calamuchita",
+    "provincia": "Cordoba",
+    "codigo_postal": "2578",
     "pais": "Argentina",
-    "descripcion": "Tenemos el arroyo mas contaminado del pais"
+    "descripcion": "Capital de la sierra"
 }
 
 ###Actualizar localidad
-PUT http://localhost:3000/api/localidades/1
+PUT http://localhost:3000/api/localidades/11
 Content-Type: application/json
 
 {
-    "nombre": "Colon",
-    "provincia": "Buenos Aires",
-    "codigo_postal": "2720",
-    "pais": "Argentina",
-    "descripcion": "Capital del Mate y hogar del unico Faro Pampeano"
+    "codigo_postal": "2577"
 }
 
 ###Eliminar localidad
-DELETE http://localhost:3000/api/localidades/3
+DELETE http://localhost:3000/api/localidades/12

@@ -16,24 +16,6 @@ import { validarEstadoTurno } from "../application/validarEstadoTurno.js";
 import { FiltroTurnoPorPeluqueroYEstado } from "../application/casos-uso/casosUsoTurno/filtrosPorTurno.js";
 import { validarCodigo } from "../application/validarCodigo.js";
 
-function sanitizeTurnoInput(req: Request, res: Response, next:NextFunction){
-    req.body.sanitizedInput = {
-        codigo: req.body.codigo,
-        codigo_peluquero:req.body.codigo_peluquero,
-        codigo_cliente:req.body.codigo_cliente,
-        //codigo_servicio: req.body.codigo_servicio,
-        fecha_hora: req.body.fecha_hora,
-        tipo_turno: req.body.tipo_turno,
-        porcentaje: req.body.porcentaje,
-        estado: req.body.estado
-    }
-    Object.keys(req.body.sanitizedInput).forEach(key => {
-        if(req.body.sanitizedInput[key] === undefined) {
-            delete req.body.sanitizedInput[key]}
-    })
-    next()
-};
-
 export const findAll = async (req:Request, res:Response):Promise<void> => { //FUNCIONAL
     try{
         const orm = (req.app.locals as {orm: MikroORM}).orm;
@@ -118,7 +100,6 @@ export const add = async (req: Request, res:Response):Promise<void> => {
     };
 };
 
-//Corregir error de rango horario al actualizar una fecha.
 export const update = async (req:Request, res:Response):Promise<void> => {
     try{
         const orm = (req.app.locals as {orm:MikroORM}).orm;

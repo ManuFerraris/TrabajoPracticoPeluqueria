@@ -1,103 +1,148 @@
 import { Request, Response, NextFunction } from "express";
-import { orm } from "../shared/db/orm.js";
-import { Localidad } from "./localidad.entity.js";
-import { Cliente } from "../cliente/clientes.entity.js";
+import { MikroORM } from "@mikro-orm/mysql";
+import { LocalidadRepositoryORM } from "../shared/db/LocalidadRepositoryORM.js";
+import { ListarLocalidades } from "../application/casos-uso/casosUsoLocalidad/ListarLocalidades.js";
+import { validarCodigo } from "../application/validarCodigo.js";
+import { BuscarLocalidad } from "../application/casos-uso/casosUsoLocalidad/ObtenerLocalidad.js";
+import { RegistrarLocalidad } from "../application/casos-uso/casosUsoLocalidad/RegistrarLocalidad.js";
+import { ActualizarLocalidad } from "../application/casos-uso/casosUsoLocalidad/ActualizarLocalidad.js";
+import { EliminarLocalidad } from "../application/casos-uso/casosUsoLocalidad/EliminarLocalidad.js";
 
-const em = orm.em
-
-function sanitizeLocalidadInput(req: Request, res: Response, next:NextFunction){
-    req.body.sanitizedInput = {
-        nombre:req.body.nombre,
-        provincia:req.body.provincia,
-        codigo_postal: req.body.codigo_postal,
-        pais: req.body.pais,
-        descripcion: req.body.descripcion,
-        }
-    Object.keys(req.body.sanitizedInput).forEach(key => {
-        if(req.body.sanitizedInput[key] === undefined) {
-            delete req.body.sanitizedInput[key]}
-    })
-    next()
-}
-
-async function findAll(req:Request, res:Response){  //FUNCIONAL
+export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
-        const localidad = await em.find(Localidad, {})
-        return res.status(200).json({message: 'Todas las localidades encontradas', data: localidad})
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
+        const orm = (req.app.locals as {orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new ListarLocalidades(repo);
+
+        const localidades = await casouso.ejecutar();
+
+        if(localidades.length === 0){
+            res.status(404).json({ message: 'No hay localidades cargadas'});
+            return;
+        };
+
+        res.status(201).json({ data: localidades });
+        return;
+
+    }catch(errores:any){
+        console.error('Error al traer las localidades ', errores);
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
 };
 
-async function getOne(req: Request, res:Response ){  //HAY QUE PROBAR
+export const getOne = async (req:Request, res:Response):Promise<void> => {
     try{
-        const codigo = Number.parseInt(req.params.codigo)
-        if (isNaN(codigo)) {
-            return res.status(400).json({ message: 'Código de localidad inválido' });
-        }
+        const {valor: codLoc, error: errorCodigo} = validarCodigo(req.params.codigo, 'codigo localidad');
+        if(errorCodigo || codLoc === undefined){
+            res.status(404).json({message: errorCodigo ?? 'Codigo invalido' });
+            return;
+        };
 
-        const localidad = await em.findOne(Localidad, { codigo });
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new BuscarLocalidad(repo);
 
-        if (localidad) {
-            res.status(200).json({ message: 'Localidad encontrada', data: localidad });
-        } else {
-            res.status(404).json({ message: 'Localidad no encontrada' });
-        }
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
-};
-
-async function add(req: Request, res:Response){
-    try{
-        const localidad = em.create(Localidad, req.body)
-        await em.flush()
-        return res.status(201).json({message: 'Localidad dada de alta', data: localidad})
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
-};
-
-async function update(req: Request, res: Response){ 
-    try{
-        const codigo = Number.parseInt(req.params.codigo)
-        if(isNaN(codigo)){
-            return res.status(400).json({ message: 'Código de localidad inválido' });
-        }
-        const localidad = await em.findOne(Localidad, { codigo });
+        const localidad = await casouso.ejecutar(codLoc);
 
         if(!localidad){
-            return res.status(404).json({ message: 'Localidad no encontrada' })
-        } else{
-            em.assign(localidad, req.body)
-            await em.flush()
-            return res.status(200).json({message: 'Localidad Actualizada'})
-        }
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
+            res.status(404).json({ message: `Localidad con codigo ${codLoc} no encontrada` });
+            return;
+        };
+
+        res.status(200).json({ message: 'Localidad encontrada', data: localidad });
+        return;
+    }catch(errores:any){
+        console.error( "Error al traer la localidad", errores );
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
 };
 
-async function remove(req: Request, res: Response){ 
+export const add = async (req:Request, res:Response):Promise<void> => {
     try{
-        const codigo = Number.parseInt(req.params.codigo)
-        if(isNaN(codigo)){
-            return res.status(400).json({ message: 'Código de Localidad inválido' });
-        }
-        const localidad = await em.findOne(Localidad, { codigo });
-        if(!localidad){
-            return res.status(404).json({ message: 'Localidad no encontrada' })
-        }
-        const clientes = await em.find(Cliente, { localidad });
-        if (clientes.length > 0) {
-            return res.status(400).json({ message: 'No se puede eliminar la localidad porque tiene clientes asignados' });
-        }
-        await em.removeAndFlush(localidad)
-        return res.status(200).json({message: 'Localidad eliminada'})
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new RegistrarLocalidad(repo);
 
-    }catch(error:any){
-        return res.status(500).json({message: error.message})
-    }
+        const dto = req.body;
+
+        const resultado = await casouso.ejecutar(dto, em);
+
+        if(Array.isArray(resultado)){
+            res.status(400).json({ errores: resultado });
+            return;
+        };
+
+        res.status(201).json({ message: 'Localidad creada con exito', resultado });
+        return;
+
+    }catch(errores:any){
+        console.error('Error al crear la localidad', errores);
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
 };
 
-export { findAll, getOne, add, update, remove, sanitizeLocalidadInput}
+export const update = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor: codVal, error: codError} = validarCodigo(req.params.codigo, 'codigo localidad');
+        if(codError || codVal === undefined){
+            res.status(404).json({errores: codError});
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new ActualizarLocalidad(repo);
+
+        const dto = req.body;
+        const actualizar = true;
+        const {errores, localidadActualizada} = await casouso.ejecutar(dto, codVal, em, actualizar);
+
+        if(errores.length > 0){
+            res.status(404).json({ message: errores[0] });
+            return;
+        };
+        res.status(201).json({ message: 'Localidad Actualizada', data: localidadActualizada});
+        return;
+
+    }catch(errores:any){
+        console.error('Error al actualizar una localidad', errores);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+        return;
+    };
+};
+
+export const remove = async(req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor: codVal, error: codError} = validarCodigo(req.params.codigo, 'codigo localidad');
+        if(codError || codVal === undefined){
+            res.status(404).json({ errores: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new EliminarLocalidad(repo);
+
+        const errores = await casouso.ejecutar(codVal);
+
+        if(errores.length > 0){
+            res.status(404).json({ message: errores[0] });
+            return;
+        };
+
+        res.status(200).json({ message: 'Localidad eliminada'});
+        return;
+
+    }catch(errores:any){
+        console.error('Error al eliminar la localidad', errores);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
