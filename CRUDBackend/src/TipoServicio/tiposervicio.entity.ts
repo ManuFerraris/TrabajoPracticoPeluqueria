@@ -19,11 +19,6 @@ export class TipoServicio {
     @Property({type:'number', nullable: true })
     precio_base?: number;
 
-    // Relación ManyToOne con Servicio
-
-    //@ManyToOne(() => Servicio, { nullable: true })
-    //servicio!: Rel<Servicio>;
-
     @OneToMany(() => Servicio, servicio => servicio.tipoServicio)
     servicio = new Collection<Servicio>(this); 
 }

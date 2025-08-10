@@ -9,6 +9,7 @@ import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/
 import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js";
 import { PeluqueroConMasClientes } from "../application/casos-uso/casosUsoPeluquero/PeluqueroConMasClientes.js";
 import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/GetMisTurnos.js";
+import { BuscarPeluqueroPorEmail } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluqueroPorEmail.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -214,6 +215,29 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
     }catch(errores:any){
         console.error('Error al eliminar al peluquero ', errores);
         res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
+};
+
+export const buscarPeluqueroPorEmail = async(req:Request, res:Response):Promise<void> => {
+    try {
+        const email = req.params.email;
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new PeluqueroRepositoryORM(em);
+        const casoUso = new BuscarPeluqueroPorEmail(repo);
+    
+        const peluquero = await casoUso.ejecutar(email);
+        if (!peluquero) {
+            res.status(404).json({ message: 'Peluquero no encontrado' });
+            return;
+        };
+    
+        res.status(200).json({ data: peluquero });
+        return;
+    }catch (error: any) {
+        console.error('Error al buscar peluquero por email:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
         return;
     };
 };

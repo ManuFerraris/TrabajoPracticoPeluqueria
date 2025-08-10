@@ -2,35 +2,42 @@
 GET http://localhost:3000/api/clientes
 
 ### obtener un cliente
-GET http://localhost:3000/api/clientes/2
+GET http://localhost:3000/api/clientes/11
 
 ### crear cliente
 POST http://localhost:3000/api/clientes
 Content-Type: application/json
 
 {
-    "dni": "45314899",
+    "dni": "14842578",
     "NomyApe": "Pedro Ferramondo",
     "direccion": "Calle A 23",
     "email": "pferramondo22@gmail.com",
     "telefono": 2477123456,
-    "codigo_localidad": 7,
-    "password": "Aa45521!adf"
+    "codigo_localidad": 78
 }
 
 ### modificar cliente (PUT)
-PUT http://localhost:3000/api/clientes/12
+PUT http://localhost:3000/api/clientes/7
 Content-Type: application/json
 
 {
-    "dni": "98765491",
-    "NomyApe": "Agustin Raggi",
-    "direccion": "Brandsen 805",
-    "email": "arielitoElMagnifico@gmail.com",
-    "telefono": "2044785658",
-    "codigo_localidad": 8,
-    "password": "Aa45521!adf"
+    "dni": "28453981"
 }
 
 ###Borrar un Cliente
-DELETE http://localhost:3000/api/clientes/3
+DELETE http://localhost:3000/api/clientes/47
+
+### Signup de cliente!
+POST http://localhost:3000/api/clientes/signup
+Content-Type: application/json
+
+{
+    "dni": "4859624",
+    "NomyApe": "El Peter Languila",
+    "direccion": "Calle A 23",
+    "email": "pererlang@gmail.com",
+    "telefono": 2477123456,
+    "codigo_localidad": 7,
+    "password": "Ab123456!"
+}

@@ -8,4 +8,5 @@ export interface PeluqueroRepository {
     eliminarPeluquero(peluquero:Peluquero):Promise<void>;
     getAllPeluquerosConTurnosYCLientes():Promise<Peluquero[]>;
     getMisTurnos(codigo_pel: number):Promise<Turno[]>;
+    findByEmail(email:string):Promise<Peluquero | null>;
 };

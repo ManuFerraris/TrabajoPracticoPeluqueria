@@ -3,7 +3,7 @@ import { findAll,
     getOne,
     add,
     update,
-    remove } from "./localidad.controler.js";
+    remove } from "./localidad.controller.js";
 
 export const localidadRouter = Router();
 

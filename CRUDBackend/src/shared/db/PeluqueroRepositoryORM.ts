@@ -39,4 +39,8 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
             { populate: ['peluquero'] }
         );
     };
+
+    async findByEmail(email: string): Promise<Peluquero | null> {
+        return await this.em.findOne(Peluquero, { email });
+    }
 };

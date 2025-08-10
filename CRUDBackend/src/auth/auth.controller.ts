@@ -2,8 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import { ClienteRepository } from '../cliente/cliente.repository.js';
-import { PeluqueroRepository } from '../peluquero/peluquero.repository.js';
+import { PeluqueroRepositoryORM } from '../shared/db/PeluqueroRepositoryORM.js';
+import { ClienteRepositoryORM } from '../shared/db/ClienteRepositoryORM.js';
 import { Cliente } from '../cliente/clientes.entity.js';
 import { Peluquero } from '../peluquero/peluqueros.entity.js';
 import { RefreshTokenRepository } from './refresh-token.repository.js';
@@ -13,6 +13,8 @@ import { sendPasswordResetEmail } from '../shared/emailService.js';
 import { generatePasswordResetToken, verifyPasswordResetToken } from './authService.js';
 import { FailedLoginRepository } from '../shared/security/failed-login.repository.js';
 import { createClient } from 'redis'; //Ataques de fuerza beuta en recuperacion de password.
+import { BuscarPeluqueroPorEmail } from '../application/casos-uso/casosUsoPeluquero/BuscarPeluqueroPorEmail.js';
+import { MikroORM } from '@mikro-orm/core';
 
 // Cargar variables de entorno al inicio de la aplicación
 dotenv.config();
@@ -36,6 +38,9 @@ function isCliente(user: Cliente | Peluquero): user is Cliente {
 
 // Login de cliente o peluquero recibe el email y la contraseña del cliente o peluquero y devuelve un token de acceso y un refresh token
 export const login = async (req: Request, res: Response) => {
+    const orm = (req.app.locals as { orm:MikroORM }).orm;
+    const em = orm.em.fork();
+
     const { email, password } = req.body;
 
     //Verificar si el usuario ha excedido el limite de inttentos
@@ -56,12 +61,17 @@ export const login = async (req: Request, res: Response) => {
     };
 
     let user: Cliente | Peluquero | null = null;
-    
-    // Unificamos la búsqueda del usuario
-    user = await ClienteRepository.findByEmail(email);
+    const clienteRepo = new ClienteRepositoryORM(em);
+    const peluqueroRepo = new PeluqueroRepositoryORM(em);
+
+    user = await clienteRepo.findByEmail(email);
     if (!user) {
-        user = await PeluqueroRepository.findByEmail(email);
+        user = await peluqueroRepo.findByEmail(email);
     };
+
+    if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
 
     // Verificamos si encontramos un usuario y luego leemos su rol desde la base de datos
     let rol: 'cliente' | 'peluquero' | 'admin' | null = null;
@@ -217,6 +227,9 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
+    const orm = (req.app.locals as { orm:MikroORM }).orm;
+    const em = orm.em.fork();
+
     const { email } = req.body;
     const userIP = req.ip // Tomamos la ip del usuario que intenta resetear la password.
 
@@ -240,10 +253,12 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     console.log("Intentos después de incrementar:", newAttempts);
 
     let user: Cliente | Peluquero | null = null;
+    const clienteRepo = new ClienteRepositoryORM(em);
+    const peluqueroRepo = new PeluqueroRepositoryORM(em);
 
-    user = await ClienteRepository.findByEmail(email);
+    user = await clienteRepo.findByEmail(email);
     if (!user) {
-        user = await PeluqueroRepository.findByEmail(email);
+        user = await peluqueroRepo.findByEmail(email);
     };
 
     if (!user) {
@@ -267,6 +282,9 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 
 // POST /auth/reset-password
 export const resetPassword = async (req: Request, res: Response) => {
+    const orm = (req.app.locals as { orm:MikroORM }).orm;
+    const em = orm.em.fork();
+
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
@@ -283,12 +301,14 @@ export const resetPassword = async (req: Request, res: Response) => {
         }
 
         let user: Cliente | Peluquero | null = null;
+        const clienteRepo = new ClienteRepositoryORM(em);
+        const peluqueroRepo = new PeluqueroRepositoryORM(em);
 
-        // Intenta encontrar como Cliente usando el email del token
-        user = await ClienteRepository.findByEmail(emailFromToken);
+        user = await clienteRepo.findByEmail(emailFromToken);
         if (!user) {
-            user = await PeluqueroRepository.findByEmail(emailFromToken);
+            user = await peluqueroRepo.findByEmail(emailFromToken);
         };
+        
         if (!user) {
             // Esto podría pasar si el usuario fue eliminado después de solicitar el token.
             return res.status(404).json({ message: 'Usuario no encontrado con el email asociado al token' });

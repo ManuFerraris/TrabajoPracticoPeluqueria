@@ -2,29 +2,26 @@
 GET http://localhost:3000/api/tiposervicio
 
 ### obtener un tipo de servicio
-GET http://localhost:3000/api/tiposervicio/
+GET http://localhost:3000/api/tiposervicio/3
 
 ### crear tipo de servicio
 POST http://localhost:3000/api/tiposervicio
 Content-Type: application/json
 
 {
-    "nombre": "Implante de pelo",
-    "descripcion": "Implante + Corte de cabello básico",
-    "duracion_estimada": 360,
-    "precio_base": 25.00
+    "nombre": "Cuidados Capilares",
+    "descripcion": "Masaje capilar + hidratacion + alisado",
+    "duracion_estimada": 180,
+    "precio_base": 36000
 }
 
 ### modificar un tipo de servicio (PUT)
-PUT http://localhost:3000/api/tiposervicio/1
+PUT http://localhost:3000/api/tiposervicio/11
 Content-Type: application/json
 
 {
-    "nombre": "Tintura",
-    "descripcion": "Corte de cabello básico + tintura completa",
-    "duracion_estimada": 120,
-    "precio_base": 45000.00
+    "duracion_estimada": 150
 }
 
 ###Borrar un tipo de servicio
-DELETE http://localhost:3000/api/tiposervicio/1
+DELETE http://localhost:3000/api/tiposervicio/10

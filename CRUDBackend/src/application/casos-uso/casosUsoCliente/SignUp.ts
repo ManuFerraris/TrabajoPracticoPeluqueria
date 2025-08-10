@@ -1,0 +1,31 @@
+import { Cliente } from "../../../cliente/clientes.entity.js";
+import { ClienteRepository } from "../../interfaces/ClienteRepository.js";
+import { ClienteDTO, validarClienteDTO } from "../../dtos/RegistrarClienteDTO.js";
+import { EntityManager } from "@mikro-orm/core";
+import { hashearPassword } from "../../hashearPassword.js";
+
+export class SignUp{
+    constructor(private readonly repo: ClienteRepository){};
+
+    async ejecutar(dto: ClienteDTO, em:EntityManager):Promise<{ cliente: Cliente } | string[]>{
+        const {errores, localidad: localidadExistente} = await validarClienteDTO(dto, em);
+        if(errores.length > 0 || localidadExistente === undefined){
+            return errores;
+        };
+        
+        const cliente = new Cliente();
+        cliente.NomyApe = dto.NomyApe;
+        cliente.direccion = dto.direccion;
+        cliente.dni = dto.dni;
+        cliente.email = dto.email;
+        cliente.localidad = localidadExistente;
+        cliente.telefono = dto.telefono;
+        cliente.estado = "Activo";
+        cliente.password = await hashearPassword(dto.password);
+        cliente.rol = "cliente";
+        
+        await this.repo.guardar(cliente);
+        
+        return {cliente};
+    };
+};

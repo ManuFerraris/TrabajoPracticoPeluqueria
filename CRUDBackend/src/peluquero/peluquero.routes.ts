@@ -6,7 +6,7 @@ import { findAll,
     update, 
     remove,
     top3Peluqueros,
-    getMisTurnos } from "./peluquero.controler.js";
+    getMisTurnos } from "./peluquero.controller.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 

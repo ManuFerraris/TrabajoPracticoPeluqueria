@@ -1,7 +1,7 @@
 import { Peluquero } from "../../../peluquero/peluqueros.entity.js";
 import { PeluqueroRepository } from "../../interfaces/PeluqueroRepository.js";
 import { Turno } from "../../../turno/turno.entity.js";
-import { findAll } from "../../../peluquero/peluquero.controler.js";
+import { findAll } from "../../../peluquero/peluquero.controller.js";
 
 export class EliminarPeluquero {
     constructor(private readonly repo: PeluqueroRepository){};
