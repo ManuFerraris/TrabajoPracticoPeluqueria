@@ -5,4 +5,4 @@ import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const historialClienteRouter = Router();
 
-historialClienteRouter.get('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero', 'cliente']), obtenerHistorialCliente);
+historialClienteRouter.get('/:codigo_cliente', authMiddleware, authorizeRole(['peluquero', 'cliente', 'admin']), obtenerHistorialCliente);

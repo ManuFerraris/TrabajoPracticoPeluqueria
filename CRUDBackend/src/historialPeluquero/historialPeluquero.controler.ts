@@ -7,6 +7,7 @@ const em = orm.em;
 
 export async function obtenerHistorialPeluquero(req: Request, res: Response) {
     try {
+        console.log("Codigo ingresado: ", req.params.codigo_peluquero)
         const codigo_peluquero_param = Number.parseInt(req.params.codigo_peluquero);
         
         // Forma correcta de acceder a los datos del usuario

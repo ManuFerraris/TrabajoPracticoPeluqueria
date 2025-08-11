@@ -22,7 +22,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
             return;
         };
 
-        res.status(201).json({ data: localidades });
+        res.status(200).json({ data: localidades });
         return;
 
     }catch(errores:any){
@@ -108,7 +108,7 @@ export const update = async (req:Request, res:Response):Promise<void> => {
             res.status(404).json({ message: errores[0] });
             return;
         };
-        res.status(201).json({ message: 'Localidad Actualizada', data: localidadActualizada});
+        res.status(200).json({ message: 'Localidad Actualizada', data: localidadActualizada});
         return;
 
     }catch(errores:any){

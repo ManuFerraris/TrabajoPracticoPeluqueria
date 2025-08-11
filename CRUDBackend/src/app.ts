@@ -1,8 +1,13 @@
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
-import { peluqueroRouter } from './peluquero/peluquero.routes.js';
-import { orm, syncSchema } from './shared/db/orm.js';
+import  cors  from 'cors'
+import { AppError } from './shared/errors/AppError.js';
+import { orm } from './shared/db/orm.js';
 import { RequestContext } from '@mikro-orm/core';
+import dotenv from "dotenv";
+
+// Routers
+import { peluqueroRouter } from './peluquero/peluquero.routes.js';
 import { clienteRouter } from './cliente/cliente.routes.js';
 import { turnoRouter } from './turno/turno.routes.js';
 import { localidadRouter } from './localidad/localidad.routes.js';
@@ -12,21 +17,21 @@ import { buscadorRouter } from './buscador/buscador.route.js';
 import { historialClienteRouter } from './historialCliente/historialCliente.routes.js';
 import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
-import { AppError } from './shared/errors/AppError.js';
-import  cors  from 'cors'
 
 const app = express();
 app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
                       //para que cada Controller pueda acceder de manera local.
-app.options('*', cors());
-app.use(cors({
-    origin: 'http://localhost:3001', // Puerto del frontend!
-    credentials: true
-})); // Habilita CORS para todas las rutas
 
-app.use(express.json())//Para que express.json funcione para todos 
+// CORS
+dotenv.config();
+const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
 
-// Middleware para crear un contexto por request
+//app.options('*', cors());
+app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas
+
+app.use(express.json()) //Para que express.json funcione para todos 
+
+// Contexto por Request
 app.use((req, res, next) => {
     RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
 })
@@ -65,34 +70,26 @@ app.use('/api/buscador', buscadorRouter);
 
 ///***HISTORIAL CLIENTES***///
 ///*******************///
-app.use('/api/turnos/historial/cliente', historialClienteRouter);
+app.use('/api/turnos/historial-cliente', historialClienteRouter);
 
 ///***HISTORIAL PELUQUEROS***///
 ///*******************///
-app.use('/api/turnos/historial/peluquero', historialPeluqueroRouter);
+app.use('/api/turnos/historial-peluquero', historialPeluqueroRouter);
 
 ///***RUTA PARA EL LOGIN***///
 ///**************************************///
 app.use('/api/auth', loginRouter);
 
-///***RESPUESTAS PARA TODAS LAS CRUDS***///
-///*************************************///
-
-//Le vamos a decir que conteste a todo lo que venga a la raiz de nuestro sitio
-/*app.use('/',(req, res) => {
-    res.send('<h1>Hola!!</h1>');
-});*/
-
-// Middleware para manejar errores 404
-app.use((req,res)=>{
-    res.status(404).send({message:"Recurso no encontrado"})
-})
-
-// Middleware para manejar errores internos del servidor
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Error interno del servidor', details: err.message });
-});
+app.use(express.json({
+  strict:true,
+  verify:(req, res, buf) => {
+    try{
+      JSON.parse(buf.toString());
+    }catch(error:any){
+      throw new AppError('JSON mal formado', 400);
+    };
+  }
+}));
 
 // Middleware 404 | Ver para sacar y dejar los errores estándares
 app.use((req, res) => {
@@ -101,7 +98,7 @@ app.use((req, res) => {
 
 // Middleware de errores estándar
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+  console.error(err.stack);
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -116,8 +113,4 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-await syncSchema();
-
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000/');
-});
+export default app;
