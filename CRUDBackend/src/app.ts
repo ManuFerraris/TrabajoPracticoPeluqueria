@@ -18,6 +18,11 @@ import { historialClienteRouter } from './historialCliente/historialCliente.rout
 import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
 
+import { pagoRouter } from './pago/pago.routes.js';
+import { handleStripeWebhook } from './stripe/stripe.controller.js';
+
+
+
 const app = express();
 app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
                       //para que cada Controller pueda acceder de manera local.
@@ -26,15 +31,28 @@ app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
 dotenv.config();
 const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
 
+
 //app.options('*', cors());
 app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas
-
-app.use(express.json()) //Para que express.json funcione para todos 
 
 // Contexto por Request
 app.use((req, res, next) => {
     RequestContext.create(orm.em, next) //em nos permite manejar todas nuestras entidades
 })
+
+// Usar express.raw solo para este endpoint!
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stipe necesito el cuerpo crudo como un Buffer.
+
+app.use(express.json({
+  strict:true,
+  verify:(req, res, buf) => {
+    try{
+      JSON.parse(buf.toString());
+    }catch(error:any){
+      throw new AppError('JSON mal formado', 400);
+    };
+  }
+}));
 
 ///***PELUQUERO***///
 ///***************///
@@ -51,12 +69,12 @@ app.use('/api/clientes', clienteRouter)
 app.use('/api/turnos', turnoRouter)
 
 ///***SERVICIO***///
-///***********///
+///**************///
 app.use('/api/servicios', servicioRouter)
 
 
 ///***LOCALIDAD***///
-///**************///
+///***************///
 app.use('/api/localidades', localidadRouter)
 
 
@@ -69,29 +87,25 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 app.use('/api/buscador', buscadorRouter);
 
 ///***HISTORIAL CLIENTES***///
-///*******************///
+///************************///
 app.use('/api/turnos/historial-cliente', historialClienteRouter);
 
 ///***HISTORIAL PELUQUEROS***///
-///*******************///
+///**************************///
 app.use('/api/turnos/historial-peluquero', historialPeluqueroRouter);
 
 ///***RUTA PARA EL LOGIN***///
-///**************************************///
+///************************///
 app.use('/api/auth', loginRouter);
 
-app.use(express.json({
-  strict:true,
-  verify:(req, res, buf) => {
-    try{
-      JSON.parse(buf.toString());
-    }catch(error:any){
-      throw new AppError('JSON mal formado', 400);
-    };
-  }
-}));
+///***RUTA PARA EL PAGO***///
+///***********************///
+app.use('/api/pagos', pagoRouter);
 
-// Middleware 404 | Ver para sacar y dejar los errores estándares
+///***RUTA PARA STRIPE***///
+///**********************///
+
+// Middleware 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Recurso no encontrado' });
 });
