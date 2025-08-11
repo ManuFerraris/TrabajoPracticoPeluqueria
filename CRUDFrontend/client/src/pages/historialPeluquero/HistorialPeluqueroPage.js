@@ -36,7 +36,7 @@ function HistorialPeluqueroPage() {
     const obtenerHistorial = async (codigoPeluquero) => {
         if (!codigoPeluquero) return; // No hace nada si no hay un código
         try {
-            const res = await axios.get(`${API_URL}/turnos/historial/peluquero/${codigoPeluquero}`, {
+            const res = await axios.get(`${API_URL}/turnos/historial-peluquero/${codigoPeluquero}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             console.log("Respuesta del servidor para historial peluquero:", res.data);

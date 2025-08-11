@@ -32,7 +32,7 @@ function HistorialClientePage() {
     const obtenerHistorial = async (codigoCliente) => {
         if (!codigoCliente) return;
         try {
-            const res = await axios.get(`${API_URL}/turnos/historial/cliente/${codigoCliente}`, {
+            const res = await axios.get(`${API_URL}/turnos/historial-cliente/${codigoCliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             console.log("Respuesta del servidor:", res.data); 
