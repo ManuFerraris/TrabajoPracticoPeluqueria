@@ -2,37 +2,39 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { API_URL } from '../../auth/constants.ts';
-import { useAuth } from '../../auth/AuthProvider.tsx';
+import { API_URL } from '../auth/constants.ts';
+import { useAuth } from '../auth/AuthProvider.tsx';
+import { useCallback } from 'react';
+
+interface Turno {
+    codigo_turno: number;
+    fecha_hora: string;
+    peluquero?: {
+        nombre: string;
+    };
+};
+
+interface Cliente {
+    codigo_cliente: number;
+    NomyApe: string;
+};
+
+interface UserData {
+    rol: string;
+    codigo: number;
+};
 
 function HistorialClientePage() {
-    const [turnos, setTurnos] = useState([]);
-    const { user: userData } = useAuth();
+    const [turnos, setTurnos] = useState<Turno[]>([]);
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [clienteSeleccionado, setClienteSeleccionado] = useState<string>('');
+    const { user: userData } = useAuth() as { user: UserData }; 
     const accessToken = localStorage.getItem('accessToken');
-    const [clientes, setClientes] = useState([]);
-    const [clienteSeleccionado, setClienteSeleccionado] = useState('');
 
-    useEffect(() => {
-        if (userData?.rol === 'admin') {
-            const fetchClientes = async () => {
-                try {
-                    const res = await axios.get(`${API_URL}/clientes`, { headers: { Authorization: `Bearer ${accessToken}` }});
-                    setClientes(res.data.data || []);
-                } catch (err) {
-                    console.error("Error cargando clientes para admin:", err);
-                    Swal.fire('Error', 'No se pudieron cargar los clientes.', 'error');
-                }
-            };
-            fetchClientes();
-        } else if (userData?.rol === 'cliente') {
-            obtenerHistorial(userData.codigo);
-        }
-    }, [userData, accessToken]);
-
-    const obtenerHistorial = async (codigoCliente) => {
+    const obtenerHistorial = useCallback(async (codigoCliente: string) => {
         if (!codigoCliente) return;
         try {
-            const res = await axios.get(`${API_URL}/clientes/misTurnosCliente/${codigoCliente}`, {
+            const res = await axios.get<{data:Turno[]; message?: string}>(`${API_URL}/clientes/misTurnosCliente/${codigoCliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             
@@ -47,9 +49,31 @@ function HistorialClientePage() {
             console.error("Error obteniendo el historial:", err);
             Swal.fire('Error', 'No se pudo obtener el historial.', 'error');
         }
-    };
+    }, [accessToken])
+    
+    useEffect(() => {
+        if (userData?.rol === 'admin') {
+            const fetchClientes = async () => {
+                try {
+                    const res = await axios.get(`${API_URL}/clientes`, { headers: { Authorization: `Bearer ${accessToken}` }});
+                    
+                    const clientes = res.data.data || [];
+                    setClientes(clientes);
 
-    const formatFechaHora = (fechaISO) => {
+                } catch (err) {
+                    console.error("Error cargando clientes para admin:", err);
+                    Swal.fire('Error', 'No se pudieron cargar los clientes.', 'error');
+                };
+            };
+            fetchClientes();
+        } else if (userData?.rol === 'cliente') {
+            obtenerHistorial(String(userData.codigo));
+        }
+    }, [userData, accessToken, obtenerHistorial]);
+
+    
+
+    const formatFechaHora = (fechaISO: string | undefined): string => {
         if (!fechaISO) return 'No disponible';
         const date = new Date(fechaISO);
         return date.toLocaleString('es-AR', {
@@ -114,7 +138,7 @@ function HistorialClientePage() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="3" className="text-center">
+                                        <td colSpan={3} className="text-center">
                                             No hay turnos en tu historial.
                                         </td>
                                     </tr>

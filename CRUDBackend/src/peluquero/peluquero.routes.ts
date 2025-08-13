@@ -6,14 +6,15 @@ import { findAll,
     update, 
     remove,
     top3Peluqueros,
-    getMisTurnos } from "./peluquero.controller.js";
+    getMisTurnos,
+    obtenerHistorialPeluquero } from "./peluquero.controller.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const peluqueroRouter = Router()
 
 peluqueroRouter.get('/topTresPeluqueros',authMiddleware, authorizeRole(['peluquero', 'admin']), top3Peluqueros);
-peluqueroRouter.get('/misTurnosPeluquero/:codigo_peluquero',authMiddleware, authorizeRole(['peluquero', 'admin']), getMisTurnos);
+peluqueroRouter.get('/misTurnosPeluquero/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero', 'admin']), obtenerHistorialPeluquero);
 peluqueroRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'admin']), findAll);
 peluqueroRouter.get('/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero', 'admin']), getOne);
 peluqueroRouter.post('/', authMiddleware, authorizeRole(['peluquero', 'admin']), add);

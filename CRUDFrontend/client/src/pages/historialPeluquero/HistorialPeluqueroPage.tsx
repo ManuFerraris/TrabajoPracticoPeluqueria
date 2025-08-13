@@ -4,39 +4,43 @@ import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { API_URL } from '../../auth/constants.ts';
 import { useAuth } from '../../auth/AuthProvider.tsx';
+import { useCallback } from 'react';
+
+interface Turno {
+    codigo_turno: number;
+    fecha_hora: string;
+    cliente?: {
+        NomyApe: string;
+    };
+    pago?: {
+        metodo: string;
+        monto: number;
+        estado: string;
+        fecha: Date;
+    };
+};
+
+interface Peluquero {
+    codigo_peluquero: number;
+    nombre: string;
+};
+
+interface UserData {
+    rol: 'cliente' | 'peluquero' | 'admin';
+    codigo: number;
+};
 
 function HistorialPeluqueroPage() {
-    const [turnos, setTurnos] = useState([]);
-    const { user: userData } = useAuth();
+    const [turnos, setTurnos] = useState<Turno[]>([]);
+    const [peluqueros, setPeluqueros] = useState<Peluquero[]>([]);
+    const { user: userData } = useAuth() as { user:UserData };
     const accessToken = localStorage.getItem('accessToken');
-    
-    // Estados para el selector del admin
-    const [peluqueros, setPeluqueros] = useState([]);
-    const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState('');
+    const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState<string>('');
 
-    useEffect(() => {
-        if (userData?.rol === 'admin') {
-            // Si es admin, carga la lista de todos los peluqueros para el selector
-            const fetchPeluqueros = async () => {
-                try {
-                    const res = await axios.get(`${API_URL}/peluqueros`, { headers: { Authorization: `Bearer ${accessToken}` }});
-                    setPeluqueros(res.data.data || []);
-                } catch (err) {
-                    console.error("Error cargando peluqueros para admin:", err);
-                    Swal.fire('Error', 'No se pudieron cargar los peluqueros.', 'error');
-                }
-            };
-            fetchPeluqueros();
-        } else if (userData?.rol === 'peluquero') {
-            // Si es peluquero, carga su propio historial automáticamente
-            obtenerHistorial(userData.codigo);
-        }
-    }, [userData, accessToken]);
-
-    const obtenerHistorial = async (codigoPeluquero) => {
-        if (!codigoPeluquero) return; // No hace nada si no hay un código
+    const obtenerHistorial = useCallback(async (codigoPeluquero: string) => {
+        if (!codigoPeluquero) return;
         try {
-            const res = await axios.get(`${API_URL}/peluqueros/misTurnosPeluquero/${codigoPeluquero}`, {
+            const res = await axios.get<{data:Turno[]; message?: string}>(`${API_URL}/peluqueros/misTurnosPeluquero/${codigoPeluquero}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
 
@@ -51,10 +55,33 @@ function HistorialPeluqueroPage() {
             console.error("Error obteniendo el historial del peluquero:", err);
             Swal.fire('Error', 'No se pudo obtener el historial del peluquero.', 'error');
         }
-    };
-    
+    }, [accessToken]);
+
+    useEffect(() => {
+        if (userData?.rol === 'admin') {
+            // Si es admin, carga la lista de todos los peluqueros para el selector
+            const fetchPeluqueros = async () => {
+                try {
+                    const res = await axios.get(`${API_URL}/peluqueros`, { headers: { Authorization: `Bearer ${accessToken}` }});
+                    
+                    const peluqueros = res.data.data || []
+                    console.log("Peluqueros traidos: ", peluqueros);
+
+                    setPeluqueros(peluqueros);
+                } catch (err) {
+                    console.error("Error cargando peluqueros para admin:", err);
+                    Swal.fire('Error', 'No se pudieron cargar los peluqueros.', 'error');
+                }
+            };
+            fetchPeluqueros();
+        } else if (userData?.rol === 'peluquero') {
+            // Si es peluquero, carga su propio historial automáticamente
+            obtenerHistorial(String(userData.codigo));
+        };
+    }, [userData, accessToken, obtenerHistorial]);
+
     // Función para dar formato a la fecha y hora
-    const formatFechaHora = (fechaISO) => {
+    const formatFechaHora = (fechaISO: string | undefined) => {
         if (!fechaISO) return 'No disponible';
         const date = new Date(fechaISO);
         return date.toLocaleString('es-AR', {
@@ -115,7 +142,7 @@ function HistorialPeluqueroPage() {
                                     ))
                                 ) : (
                                     <tr>
-                                    <td colSpan="6" className="text-center">No hay turnos disponibles</td>
+                                    <td colSpan={6} className="text-center">No hay turnos disponibles</td>
                                     </tr>
                                 )}
                             </tbody>

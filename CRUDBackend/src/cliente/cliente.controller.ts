@@ -11,7 +11,7 @@ import { SignUp } from '../application/casos-uso/casosUsoCliente/SignUp.js';
 import { TokenService } from '../application/tokenService.js';
 import { BuscarClientePorEmail } from "../application/casos-uso/casosUsoCliente/BuscarClientePorEmail.js";
 import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
-import { MisTurnosCliente } from "../application/casos-uso/casosUsoCliente/MisTurnosCLiente.js";
+import { HistMisTurnosCliente } from "../application/casos-uso/casosUsoCliente/HistMisTurnosCLiente.js";
 
 export const findAll = async(req:Request, res:Response):Promise<void> => {
     try{
@@ -218,7 +218,7 @@ export const obtenerHistorialCliente = async (req:Request, res:Response):Promise
         const orm = (req.app.locals as { orm:MikroORM }).orm;
         const em = orm.em.fork();
         const repo = new TurnoRepositoryORM(em);
-        const casouso = new MisTurnosCliente(repo);
+        const casouso = new HistMisTurnosCliente(repo);
 
         const loggedInUserId = req.user.codigo;
         const userRole = req.user.rol;

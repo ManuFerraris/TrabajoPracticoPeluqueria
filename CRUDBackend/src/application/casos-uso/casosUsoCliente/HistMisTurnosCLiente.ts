@@ -3,7 +3,7 @@ import { Turno } from "../../../turno/turno.entity.js";
 import { TurnoRepository } from "../../interfaces/TurnoRepository.js";
 import { EntityManager } from "@mikro-orm/core";
 
-export class MisTurnosCliente{
+export class HistMisTurnosCliente{
     constructor(private readonly repo:TurnoRepository){};
 
     async ejecutar(codCli:number, em:EntityManager):Promise<Turno[] | string>{
@@ -12,7 +12,7 @@ export class MisTurnosCliente{
         if(!cliente){
             return `No existe el cliente con codigo: ${codCli}`;
         };
-        const turnos = await this.repo.buscarTurnoCliente(cliente);
+        const turnos = await this.repo.buscarHistorialTurnoCliente(cliente);
         return turnos;
     };
 };

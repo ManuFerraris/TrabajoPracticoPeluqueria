@@ -4,6 +4,7 @@ import { EntityManager } from "@mikro-orm/core";
 import { FilterQuery } from "@mikro-orm/mysql";
 import { populate } from "dotenv";
 import { Cliente } from "../../cliente/clientes.entity.js";
+import { Peluquero } from "../../peluquero/peluqueros.entity.js";
 
 export class TurnoRepositoryORM implements TurnoRepository {
 
@@ -73,7 +74,7 @@ export class TurnoRepositoryORM implements TurnoRepository {
         );
     };
 
-    async buscarTurnoCliente(cliente:Cliente): Promise<Turno[]> {
+    async buscarHistorialTurnoCliente(cliente:Cliente): Promise<Turno[]> {
         return await this.em.find(Turno,
             {
                 cliente
@@ -83,4 +84,15 @@ export class TurnoRepositoryORM implements TurnoRepository {
             }
         );
     };
+
+    async buscarHistorialTurnoPeluquero(peluquero:Peluquero):Promise<Turno[]>{
+        return await this.em.find(Turno,
+            {
+                peluquero
+            },
+            {
+                populate: ['pago', 'servicio', 'cliente']
+            }
+        );
+    }
 };

@@ -23,7 +23,7 @@ import Turnos from './routes/turnos.tsx';
 
 //Rutas privadas (Buscadores):
 import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
-import HistorialClientePage from './pages/historialCliente/HistorialClientePage';
+import HistorialClientePage from './pages/HistorialClientePage.tsx';
 
 //Rutas privadas (no CRUDS):
 import ProtectedRoute from './routes/protectedRoute.tsx';

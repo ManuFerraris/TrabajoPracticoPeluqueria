@@ -36,7 +36,7 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
                 estado: 'Activo',
                 peluquero: {codigo_peluquero: codigo_pel}
             },
-            { populate: ['peluquero'] }
+            { populate: ['peluquero', 'pago'] }
         );
     };
 

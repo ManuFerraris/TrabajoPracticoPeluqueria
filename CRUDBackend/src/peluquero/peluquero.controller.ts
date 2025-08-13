@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { MikroORM } from "@mikro-orm/core";
 import { validarCodigo } from "../application/validarCodigo.js";
 import { PeluqueroRepositoryORM } from "../shared/db/PeluqueroRepositoryORM.js";
@@ -10,6 +10,8 @@ import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/El
 import { PeluqueroConMasClientes } from "../application/casos-uso/casosUsoPeluquero/PeluqueroConMasClientes.js";
 import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/MisTurnosPeluquero.js";
 import { BuscarPeluqueroPorEmail } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluqueroPorEmail.js";
+import { HistMisTurnosPeluquero } from "../application/casos-uso/casosUsoPeluquero/HistMisTurnosPeluquero.js";
+import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -200,12 +202,53 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
 
         const loggedInUserId = req.user.codigo;
         const userRole = req.user.rol;
-        if ((userRole === 'peluquero' || userRole === 'admin') && codigo_peluquero !== loggedInUserId) {
+        if (userRole === 'peluquero' && codigo_peluquero !== loggedInUserId) {
             res.status(403).json({ message: "No autorizado para ver este historial." });
             return;
         };
 
         const resultado = await casouso.ejecutar(codigo_peluquero);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado });
+            return;
+        };
+        if(resultado.length === 0){
+            res.status(200).json({ message: 'No posee turnos asignados', data:[] });
+            return;
+        };
+
+        res.status(200).json({ data: resultado });
+        return;
+
+    }catch(errores:any){
+        console.error('Error al eliminar al peluquero ', errores);
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    };
+};
+
+export const obtenerHistorialPeluquero = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const { valor: codigo_peluquero, error: error} = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
+        if(error || codigo_peluquero === undefined){
+            res.status(404).json({ message: error ?? 'codigo invalido'});
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new HistMisTurnosPeluquero(repo);
+
+        const loggedInUserId = req.user.codigo;
+        const userRole = req.user.rol;
+        if (userRole === 'peluquero' && codigo_peluquero !== loggedInUserId) {
+            res.status(403).json({ message: "No autorizado para ver este historial." });
+            return;
+        };
+
+        const resultado = await casouso.ejecutar(codigo_peluquero, em);
 
         if(typeof resultado === 'string'){
             res.status(404).json({ message: resultado });
