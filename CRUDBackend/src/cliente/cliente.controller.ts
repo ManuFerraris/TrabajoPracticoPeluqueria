@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { MikroORM } from '@mikro-orm/core';
-import { AppError } from "../shared/errors/AppError.js"; //Manejo de errores
 import { ClienteRepositoryORM } from '../shared/db/ClienteRepositoryORM.js';
 import { ListarClientes } from '../application/casos-uso/casosUsoCliente/ListarClientes.js';
 import { validarCodigo } from '../application/validarCodigo.js';
@@ -11,6 +10,8 @@ import { ActualizarCliente } from '../application/casos-uso/casosUsoCliente/Actu
 import { SignUp } from '../application/casos-uso/casosUsoCliente/SignUp.js';
 import { TokenService } from '../application/tokenService.js';
 import { BuscarClientePorEmail } from "../application/casos-uso/casosUsoCliente/BuscarClientePorEmail.js";
+import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
+import { MisTurnosCliente } from "../application/casos-uso/casosUsoCliente/MisTurnosCLiente.js";
 
 export const findAll = async(req:Request, res:Response):Promise<void> => {
     try{
@@ -202,6 +203,48 @@ export const buscarClientePorEmail = async (req: Request, res: Response): Promis
     }catch (error: any) {
         console.error('Error al buscar cliente por email:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
+        return;
+    };
+};
+
+export const obtenerHistorialCliente = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor:codCli, error:codError} = validarCodigo(req.params.codigo_cliente, 'codigo cliente');
+        if(codError || codCli === undefined){
+            res.status(400).json({ errores: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new TurnoRepositoryORM(em);
+        const casouso = new MisTurnosCliente(repo);
+
+        const loggedInUserId = req.user.codigo;
+        const userRole = req.user.rol;
+
+        if (userRole === 'cliente' && codCli !== loggedInUserId) {
+            res.status(403).json({ message: "No autorizado para ver este historial." });
+            return;
+        };
+
+        const resultado = await casouso.ejecutar(codCli, em);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado });
+            return;
+        };
+        if(resultado.length === 0){
+            res.status(200).json({ message: 'No posee turnos asignados', data: [] });
+            return;
+        };
+
+        res.status(200).json({ message: "Historial del cliente obtenido", data: resultado });
+        return;
+
+    }catch(errores:any){
+        console.error('Ha ocurrido un error al obtener el historial de turnos del cliente.', errores);
+        res.status(500).json({ message: 'Error interno del servidor', errores});
         return;
     };
 };

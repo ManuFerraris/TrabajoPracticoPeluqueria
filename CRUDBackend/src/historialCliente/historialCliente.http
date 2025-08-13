@@ -1,2 +1,0 @@
-### Obtener historial de un cliente
-GET http://localhost:3000/api/turnos/historial-cliente/5

@@ -7,8 +7,6 @@ import { Cliente } from "../../cliente/clientes.entity.js";
 import { Turno } from "../../turno/turno.entity.js";
 import { Localidad } from "../../localidad/localidad.entity.js";
 import { TipoServicio } from "../../TipoServicio/tiposervicio.entity.js";
-import { historialCliente } from "../../historialCliente/historialCliente.entity.js";
-import { historialPeluquero } from "../../historialPeluquero/historialPeluquero.entity.js";
 import { Servicio } from "../../Servicio/servicio.entity.js";
 import { Pago } from "../../pago/pago.entity.js";
 import { RefreshToken } from "../../auth/refresh-token.entity.js";
@@ -17,7 +15,7 @@ dotenv.config();
 const DATABASE_URL = process.env.DATABASE_URL as string; //URL de la base de datos
 
 export const orm = await MikroORM.init({
-    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio, Servicio, RefreshToken, historialCliente, historialPeluquero, Pago], // Lista de entidades que se van a usar en la base de datos
+    entities: [Cliente, Turno, Peluquero, Localidad, TipoServicio, Servicio, RefreshToken, Pago], // Lista de entidades que se van a usar en la base de datos
     entitiesTs: ['src/**/*.entity.ts'],
     dbName: 'peluqueria',
     driver: MySqlDriver, // Usamos la propiedad 'driver' en lugar de 'type'

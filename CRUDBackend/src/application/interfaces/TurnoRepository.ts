@@ -1,3 +1,4 @@
+import { Cliente } from "../../cliente/clientes.entity.js";
 import { Turno } from "../../turno/turno.entity.js";
 
 export interface TurnoRepository {
@@ -8,4 +9,5 @@ export interface TurnoRepository {
     eliminarTurno(turno: Turno):Promise<void>;
     guardar(turno:Turno):Promise<void>;
     getTurnosPorEstado(estado: string, codPel:number):Promise<Turno[]>;
+    buscarTurnoCliente(cliente:Cliente):Promise<Turno[]>
 };

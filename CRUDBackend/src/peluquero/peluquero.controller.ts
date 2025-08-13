@@ -8,7 +8,7 @@ import { RegistrarPeluquero } from "../application/casos-uso/casosUsoPeluquero/R
 import { ActualizarPeluquero } from "../application/casos-uso/casosUsoPeluquero/ActualizarPeluquero.js";
 import { EliminarPeluquero } from "../application/casos-uso/casosUsoPeluquero/EliminarPeluquero.js";
 import { PeluqueroConMasClientes } from "../application/casos-uso/casosUsoPeluquero/PeluqueroConMasClientes.js";
-import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/GetMisTurnos.js";
+import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/MisTurnosPeluquero.js";
 import { BuscarPeluqueroPorEmail } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluqueroPorEmail.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
@@ -198,6 +198,13 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
         const repo = new PeluqueroRepositoryORM(em);
         const casouso = new GetMisTurnos(repo);
 
+        const loggedInUserId = req.user.codigo;
+        const userRole = req.user.rol;
+        if ((userRole === 'peluquero' || userRole === 'admin') && codigo_peluquero !== loggedInUserId) {
+            res.status(403).json({ message: "No autorizado para ver este historial." });
+            return;
+        };
+
         const resultado = await casouso.ejecutar(codigo_peluquero);
 
         if(typeof resultado === 'string'){
@@ -205,11 +212,11 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
             return;
         };
         if(resultado.length === 0){
-            res.status(204).json({ message: 'No posee turnos asignados' });
+            res.status(200).json({ message: 'No posee turnos asignados', data:[] });
             return;
         };
 
-        res.status(200).json({ turnos: resultado });
+        res.status(200).json({ data: resultado });
         return;
 
     }catch(errores:any){

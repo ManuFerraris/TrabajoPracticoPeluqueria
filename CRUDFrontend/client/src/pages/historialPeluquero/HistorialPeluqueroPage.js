@@ -36,11 +36,17 @@ function HistorialPeluqueroPage() {
     const obtenerHistorial = async (codigoPeluquero) => {
         if (!codigoPeluquero) return; // No hace nada si no hay un código
         try {
-            const res = await axios.get(`${API_URL}/turnos/historial-peluquero/${codigoPeluquero}`, {
+            const res = await axios.get(`${API_URL}/peluqueros/misTurnosPeluquero/${codigoPeluquero}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
+
             console.log("Respuesta del servidor para historial peluquero:", res.data);
-            setTurnos(res.data.data || []);
+            const turnosRecibidos = res.data.data || []
+            setTurnos(turnosRecibidos);
+
+            if (turnosRecibidos.length === 0) {
+                Swal.fire('Historial vacío', 'No tenés turnos registrados aún.', 'info');
+            };
         } catch (err) {
             console.error("Error obteniendo el historial del peluquero:", err);
             Swal.fire('Error', 'No se pudo obtener el historial del peluquero.', 'error');

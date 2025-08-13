@@ -41,3 +41,6 @@ Content-Type: application/json
     "codigo_localidad": 7,
     "password": "Ab123456!"
 }
+
+### Obtener mis turnos
+GET http://localhost:3000/api/clientes/misTurnosCliente/49

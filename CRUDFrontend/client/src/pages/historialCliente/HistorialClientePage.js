@@ -32,11 +32,17 @@ function HistorialClientePage() {
     const obtenerHistorial = async (codigoCliente) => {
         if (!codigoCliente) return;
         try {
-            const res = await axios.get(`${API_URL}/turnos/historial-cliente/${codigoCliente}`, {
+            const res = await axios.get(`${API_URL}/clientes/misTurnosCliente/${codigoCliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
+            
             console.log("Respuesta del servidor:", res.data); 
-            setTurnos(res.data.data || []);
+            const turnosRecibidos = res.data.data || [];
+            setTurnos(turnosRecibidos);
+
+            if (turnosRecibidos.length === 0) {
+                Swal.fire('Historial vacío', 'No tenés turnos registrados aún.', 'info');
+            };
         } catch (err) {
             console.error("Error obteniendo el historial:", err);
             Swal.fire('Error', 'No se pudo obtener el historial.', 'error');

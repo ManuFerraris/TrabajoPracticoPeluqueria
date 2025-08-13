@@ -14,8 +14,6 @@ import { localidadRouter } from './localidad/localidad.routes.js';
 import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 import { buscadorRouter } from './buscador/buscador.route.js';
-import { historialClienteRouter } from './historialCliente/historialCliente.routes.js';
-import { historialPeluqueroRouter } from './historialPeluquero/historialPeluquero.routes.js';
 import { loginRouter } from './auth/auth.routes.js';
 
 import { pagoRouter } from './pago/pago.routes.js';
@@ -58,11 +56,9 @@ app.use(express.json({
 ///***************///
 app.use('/api/peluqueros', peluqueroRouter) //Decimos que use peluqueroRouter para que use todas las peticiones que llegan a esta ruta (definidas en la aplicacion).
 
-
 ///***CLIENTE***///
 ///*************///
 app.use('/api/clientes', clienteRouter)
-
 
 ///***TURNO***///
 ///***********///
@@ -72,11 +68,9 @@ app.use('/api/turnos', turnoRouter)
 ///**************///
 app.use('/api/servicios', servicioRouter)
 
-
 ///***LOCALIDAD***///
 ///***************///
 app.use('/api/localidades', localidadRouter)
-
 
 ///***TIPO SERVICIO***///
 ///*******************///
@@ -85,14 +79,6 @@ app.use('/api/tiposervicio', tipoServicioRouter);
 ///***BUSCADOR POR CODIGO DE PELUQUERO***///
 ///**************************************///
 app.use('/api/buscador', buscadorRouter);
-
-///***HISTORIAL CLIENTES***///
-///************************///
-app.use('/api/turnos/historial-cliente', historialClienteRouter);
-
-///***HISTORIAL PELUQUEROS***///
-///**************************///
-app.use('/api/turnos/historial-peluquero', historialPeluqueroRouter);
 
 ///***RUTA PARA EL LOGIN***///
 ///************************///
