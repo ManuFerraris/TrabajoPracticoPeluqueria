@@ -28,6 +28,7 @@ export async function validarTurnoDTO(
     if (!peluquero) errores.push("El peluquero no existe.");
     
     const fechaTurno = new Date(dto.fecha_hora);
+    console.log("Fecha turno: ", fechaTurno);
     if (isNaN(fechaTurno.getTime())) {
         errores.push("La fecha y hora no es válida.");
         return errores;
@@ -52,7 +53,7 @@ export async function validarTurnoDTO(
         errores.push('El estado debe ser "Activo" o "Cancelado"');
     };
 
-    const mensajeHorario = validarHorarioLaboral(dateFecha_hora);
+    const mensajeHorario = validarHorarioLaboral(dto.fecha_hora);
     if(mensajeHorario){
         errores.push(mensajeHorario)
     };

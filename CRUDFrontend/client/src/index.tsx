@@ -13,7 +13,7 @@ import ResetPassword from './routes/reset-password.tsx';
 
 //Rutas privadas (CRUDS):
 import PeluqueroList from './pages/peluquero/PeluqueroPage.tsx';
-import ClientesPage from "./pages/cliente/Cliente.page.js";
+import ClientesPage from "./pages/cliente/Cliente.page.tsx";
 import LocalidadesPage from "./pages/localidad/Localidad.page.js";
 import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.js";
 import ServiciosPage from "./pages/servicio/Servicio.page.js";
@@ -23,7 +23,7 @@ import Turnos from './routes/turnos.tsx';
 
 //Rutas privadas (Buscadores):
 import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
-import HistorialClientePage from './pages/HistorialClientePage.tsx';
+import HistorialClientePage from './pages/historialCliente/HistorialClientePage.tsx';
 
 //Rutas privadas (no CRUDS):
 import ProtectedRoute from './routes/protectedRoute.tsx';

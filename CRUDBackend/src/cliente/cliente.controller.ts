@@ -12,6 +12,7 @@ import { TokenService } from '../application/tokenService.js';
 import { BuscarClientePorEmail } from "../application/casos-uso/casosUsoCliente/BuscarClientePorEmail.js";
 import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
 import { HistMisTurnosCliente } from "../application/casos-uso/casosUsoCliente/HistMisTurnosCLiente.js";
+import { MisTurnosActivos } from "../application/casos-uso/casosUsoCliente/MisTurnosActivos.js";
 
 export const findAll = async(req:Request, res:Response):Promise<void> => {
     try{
@@ -148,10 +149,6 @@ export const remove = async (req:Request, res:Response):Promise<void> => {
     };
 };
 
-/*async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, hashedPassword);
-};*/
-
 export const signup = async(req:Request, res:Response):Promise<void> => {
     try{
         const orm = (req.app.locals as { orm:MikroORM }).orm;
@@ -248,3 +245,41 @@ export const obtenerHistorialCliente = async (req:Request, res:Response):Promise
         return;
     };
 };
+
+export const misTurnosActivos = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor: codCli, error: codError} = validarCodigo(req.params.codigo_cliente, 'codigo de cliente');
+        if(codError || codCli === undefined){
+            res.status(400).json({ error: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ClienteRepositoryORM(em);
+        const casouso = new MisTurnosActivos(repo);
+
+        const resultado = await casouso.ejecutar(codCli);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado});
+            return;
+        };
+        if(resultado.length === 0){
+            res.status(200).json({ message: 'El cliente no tiene turnos activos.', data: [] });
+            return;
+        };
+
+        res.status(200).json({ message: 'Turnos activos encontrados', data: resultado});
+        return;
+
+    }catch( error:any ){
+        console.error('Error al traer los turnos del cliente.', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+        return;
+    };
+};
+
+/*async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+};*/

@@ -1,6 +1,7 @@
 import { Cliente } from "../../cliente/clientes.entity.js";
 import { ClienteRepository } from "../../application/interfaces/ClienteRepository.js";
 import { EntityManager } from "@mikro-orm/core";
+import { Turno } from "../../turno/turno.entity.js";
 
 export class ClienteRepositoryORM implements ClienteRepository {
     constructor(private readonly em:EntityManager){};
@@ -25,5 +26,14 @@ export class ClienteRepositoryORM implements ClienteRepository {
 
     async findByEmail(email: string): Promise<Cliente | null> {
         return await this.em.findOne(Cliente, { email });
+    };
+
+    async misTurnosActivos(cliente: Cliente): Promise<Turno[]> {
+        return await this.em.find(Turno,
+            {
+                estado: 'Activo',
+                cliente
+            },
+        );
     };
 };
