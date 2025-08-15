@@ -14,7 +14,7 @@ import ResetPassword from './routes/reset-password.tsx';
 //Rutas privadas (CRUDS):
 import PeluqueroList from './pages/peluquero/PeluqueroPage.tsx';
 import ClientesPage from "./pages/cliente/Cliente.page.tsx";
-import LocalidadesPage from "./pages/localidad/Localidad.page.js";
+import LocalidadesPage from "./pages/localidad/Localidad.page.tsx";
 import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.js";
 import ServiciosPage from "./pages/servicio/Servicio.page.js";
 import TurnosPage from "./pages/turno/Turno.page.js";

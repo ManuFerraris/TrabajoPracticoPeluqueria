@@ -5,4 +5,5 @@ export interface LocalidadRepository {
     getOne(codigoLocalidad:number):Promise<Localidad | null>;
     guardar(localidad:Localidad):Promise<Localidad>;
     eliminarLocalidad(localidad:Localidad):Promise<void>;
+    obtenerMisClientes(localidad:Localidad):Promise<Localidad>;
 };

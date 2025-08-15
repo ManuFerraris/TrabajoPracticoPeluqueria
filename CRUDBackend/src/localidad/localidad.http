@@ -26,3 +26,6 @@ Content-Type: application/json
 
 ###Eliminar localidad
 DELETE http://localhost:3000/api/localidades/12
+
+###Obtener los clientes de una localidad
+GET http://localhost:3000/api/localidades/misClientes/7

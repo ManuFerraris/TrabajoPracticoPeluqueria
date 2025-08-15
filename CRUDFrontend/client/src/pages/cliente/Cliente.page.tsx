@@ -320,7 +320,7 @@ function ClientesPage(){
         }catch (error: any) {
             console.error('Error al eliminar el cliente:', error);
         
-            const errorMessage =error.response?.data?.message || 'Error al eliminar el peluquero';
+            const errorMessage =error.response?.data?.message || 'Error al eliminar el cliente';
             Swal.fire({
                 icon: 'error',
                 title: 'Error',

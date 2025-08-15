@@ -7,6 +7,7 @@ import { BuscarLocalidad } from "../application/casos-uso/casosUsoLocalidad/Obte
 import { RegistrarLocalidad } from "../application/casos-uso/casosUsoLocalidad/RegistrarLocalidad.js";
 import { ActualizarLocalidad } from "../application/casos-uso/casosUsoLocalidad/ActualizarLocalidad.js";
 import { EliminarLocalidad } from "../application/casos-uso/casosUsoLocalidad/EliminarLocalidad.js";
+import { GetMisClientes } from "../application/casos-uso/casosUsoLocalidad/GetMisClientes.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -145,4 +146,41 @@ export const remove = async(req:Request, res:Response):Promise<void> => {
         console.error('Error al eliminar la localidad', errores);
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
+};
+
+export const getMisClientes = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor: codLoc, error:codError} = validarCodigo(req.params.codigo, 'codigo localidad');
+        if(codError || codLoc === undefined){
+            res.status(400).json({ errores: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new LocalidadRepositoryORM(em);
+        const casouso = new GetMisClientes(repo);
+
+        const resultado = await casouso.ejecutar(codLoc);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado, data: []});
+            return;
+        };
+
+        const clientes = resultado.clientes ?? [];
+
+        if(clientes.length === 0){
+            res.status(200).json({ message: 'La localidad no tiene clientes asignados.', data:clientes });
+            return;
+        };
+
+        res.status(200).json({message: 'Clientes encontrados.', data: clientes});
+        return;
+
+    }catch(erroes:any){
+        console.error('Error al obtener los clientes de la localidad. ', erroes);
+        res.status(500).json({message: 'Error interno del servidor.' })
+        return;
+    };
 };

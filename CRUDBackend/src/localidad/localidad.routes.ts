@@ -3,10 +3,12 @@ import { findAll,
     getOne,
     add,
     update,
-    remove } from "./localidad.controller.js";
+    remove,
+    getMisClientes } from "./localidad.controller.js";
 
 export const localidadRouter = Router();
 
+localidadRouter.get('/misClientes/:codigo', getMisClientes);
 localidadRouter.get('/', findAll);
 localidadRouter.get('/:codigo', getOne);
 localidadRouter.post('/', add);
