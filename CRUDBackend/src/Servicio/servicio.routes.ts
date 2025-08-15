@@ -4,11 +4,13 @@ import { findAll,
     add,
     update,
     remove,
-    ingresosMensuales
+    ingresosMensuales,
+    verMiTurno
     } from "./servicio.controller.js";
 
 export const servicioRouter = Router()
 
+servicioRouter.get('/buscarMiTurno/:codigo', verMiTurno);
 servicioRouter.get('/ingresosMensuales', ingresosMensuales);
 servicioRouter.get('/', findAll);
 servicioRouter.get('/:codigo', getOne);

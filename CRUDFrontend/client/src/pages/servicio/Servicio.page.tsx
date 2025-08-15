@@ -4,64 +4,111 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { API_URL } from '../../auth/constants.ts';
 
-function ServiciosPage(){
-    const [servicios, setServicios] = useState([]);
-    const [monto, setMonto] = useState('');
-    const [estado, setEstado] = useState('');
-    const [/*adicional_adom*/, setAdicional_adom] = useState('');
-    const [ausencia_cliente, setAusencia_cliente] = useState('');
-    const [medio_pago, setMedio_pago] = useState('');
-    const [turno_codigo_turno, setTurno] = useState('');
-    const [tipo_servicio_codigo, setCodigo_tipo] = useState('')
-    const [/*total*/, setTotal] = useState('');
-    const [tipoServicio, setTipoServicio] = useState([]);
+type Servicio = {
+    codigo: number;
+    monto: number;
+    estado: 'Pendiente' | 'Pago';
+    adicional_adom?: string;
+    ausencia_cliente: 'Se presento' | 'Esta ausente';
+    medio_pago: 'Efectivo' | 'Mercado Pago';
+    turno_codigo_turno: string;
+    tipo_servicio_codigo: string;
+    total?: number;
+    turno?: {
+        codigo_turno:string;
+    };
+};
 
-    const [error, setError] = useState('');
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [servicioSeleccionado, setServicioSeleccionado] = useState(false);
-    const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState('');
-    const [servicioMostrado, setServicioMostrado] = useState(null);
+type TipoServicio = {
+    codigo_tipo: string;
+    nombre: string;
+};
+
+type FormErrors = {
+    monto?: string;
+    estado?: string;
+    ausencia_cliente?: string;
+    medio_pago?: string;
+    turno_codigo_turno?: string;
+    tipo_servicio_codigo?: string;
+};
+
+type Alerta = {
+    tipo: string;
+    mensaje: string;
+};
+
+function ServiciosPage(){
+    const [servicios, setServicios] = useState<Servicio[]>([]);
+    const [tipoServicio, setTipoServicio] = useState<TipoServicio[]>([]);
+
+    const [monto, setMonto] = useState<string>('');
+    const [estado, setEstado] = useState<'Pendiente' | 'Pago' | ''>('');
+    const [/*adicional_adom*/, setAdicional_adom] = useState<string>('');
+    const [ausencia_cliente, setAusencia_cliente] = useState<'Se presento' | 'Esta ausente' | ''>('');
+    const [medio_pago, setMedio_pago] = useState<'Efectivo' | 'Mercado Pago' | ''>('');
+    const [turno_codigo_turno, setTurno] = useState<string>('');
+    const [tipo_servicio_codigo, setCodigo_tipo] = useState<string>('')
+    const [/*total*/, setTotal] = useState<number>();
+
+    const [error, setError] = useState<string>('');
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | false>(false);
+    const [editar, setEditar] = useState<boolean>(false);
+    const [alerta, setAlerta] = useState<Alerta>({ tipo: '', mensaje: ''} );
+    const [servicioMostrado, setServicioMostrado] = useState<number | null>(null);
+
+    const accessToken = localStorage.getItem('accessToken')
 
     useEffect(() => {
         const fetchServicios = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${API_URL}/servicios`);
-                setServicios(response.data.data || []);
-            } catch (error) {
+                const response = await axios.get(`${API_URL}/servicios`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                });
+                const servicios = response.data.data || [];
+                setServicios(servicios);
+            } catch (error: any) {
                 setError(error.response?.data?.message || error.message);
                 console.error('Error al cargar los servicios:', error);
             } finally {
                 setLoading(false);
-            }
+            };
         };
 
         const fetchTipoServicio = async () => {
             try {
-                const response = await axios.get(`${API_URL}/tipoServicio`);
-                const data = response.data;
-                setTipoServicio(data.data || []);
-                console.log("Tipos de Servicio cargados:", data.data);
-            } catch (error) {
+                const response = await axios.get(`${API_URL}/tipoServicio`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                });
+                const tipoServicio = response.data.data || [];
+                setTipoServicio(tipoServicio);
+            } catch ( error:any ) {
                 setError(error.response?.data?.message || error.message);
                 console.error("Error al cargar tipos de servicio:", error);
             };
         };
         fetchServicios();
         fetchTipoServicio();
-    }, []);
+    }, [accessToken]);
 
     useEffect(() => {
         if (servicioSeleccionado) {
-            setMonto(servicioSeleccionado.monto || '');
+            setMonto(String(servicioSeleccionado.monto) || '');
             setEstado(servicioSeleccionado.estado || '');
             setAdicional_adom(servicioSeleccionado.adicional_adom || '');
             setAusencia_cliente(servicioSeleccionado.ausencia_cliente || '');
             setMedio_pago(servicioSeleccionado.medio_pago || '');
-            setTurno(servicioSeleccionado.turno || '');
-            setTotal(servicioSeleccionado.total || '');
+            setTurno(servicioSeleccionado.turno?.codigo_turno || '');
+            setTotal(servicioSeleccionado.total || 0);
             setCodigo_tipo(servicioSeleccionado.tipo_servicio_codigo || '');
             console.log("Servicio seleccionado:", servicioSeleccionado);
         }
@@ -69,12 +116,17 @@ function ServiciosPage(){
 
     const getServicios = async () => {
         try {
-            const response = await axios.get(`${API_URL}/servicios`);
+            const response = await axios.get(`${API_URL}/servicios`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                });
             const servicios = response.data.data;
             if (Array.isArray(servicios)) {
                 setServicios(servicios);
             };
-        } catch (error) {
+        } catch (error:any) {
             setError(error.response?.data?.message || error.mensaje)
             console.error('Error al obtener los Servicios:', error);
             setServicios([]);
@@ -82,7 +134,7 @@ function ServiciosPage(){
     };
 
     const validateForm = () => {
-        const errors = {};
+        const errors: FormErrors = {};
 
         if (!monto) {
             errors.monto = "El monto es obligatorio.";
@@ -117,33 +169,28 @@ function ServiciosPage(){
         return errors;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
-        }
-
+        };
+        const payload = {
+            monto: Number(monto),
+            estado,
+            ausencia_cliente,
+            medio_pago,
+            turno_codigo_turno,
+            tipo_servicio_codigo,
+        };
         try {
-            if (editar) {
-
-                console.log("Datos enviados en PUT:", {
-                    monto: Number(monto),
-                    estado: estado,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    turno_codigo_turno: turno_codigo_turno,
-                    tipo_servicio_codigo: tipo_servicio_codigo,
-                });
-
-                await axios.put(`${API_URL}/servicios/${servicioSeleccionado.codigo}`, {
-                    monto: Number(monto),
-                    estado: estado,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    turno_codigo_turno: turno_codigo_turno,
-                    tipo_servicio_codigo:tipo_servicio_codigo,
+            if (editar && servicioSeleccionado) {
+                await axios.put(`${API_URL}/servicios/${servicioSeleccionado.codigo}`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
                 });
                 Swal.fire({
                     position: 'center',
@@ -153,23 +200,11 @@ function ServiciosPage(){
                     timer: 1500
                 });
             } else {
-
-                console.log("Datos enviados en POST:", {
-                    monto: monto,
-                    estado: estado,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    turno_codigo_turno: turno_codigo_turno,
-                    tipo_servicio_codigo: tipo_servicio_codigo,
-                });
-    
-                await axios.post(`${API_URL}/servicios`, {
-                    monto: Number(monto),
-                    estado: estado,
-                    ausencia_cliente: ausencia_cliente,
-                    medio_pago: medio_pago,
-                    turno_codigo_turno: turno_codigo_turno,
-                    tipo_servicio_codigo: tipo_servicio_codigo,
+                await axios.post(`${API_URL}/servicios`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
                 });
                 Swal.fire({
                     position: 'center',
@@ -190,85 +225,80 @@ function ServiciosPage(){
                 confirmButtonText: 'Aceptar',
                 position: 'center'
             });
-        }
-    }
-
-    const resetForm = () => {
-        setMonto("");
-            setEstado("");
-            setAdicional_adom("");
-            setAusencia_cliente("");
-            setMedio_pago("");
-            setTurno("");
-            setCodigo_tipo("")
-            setErrors({});
-            setEditar(false);
-            setServicioSeleccionado(false);
+        };
     };
 
-    const eliminarServicio = (codigo) => {
-        axios.get(`${API_URL}/turnos?codigo=${codigo}`)
-            .then(response => {
-                const turnosAsignados = response.data;
-    
-                if (turnosAsignados.length > 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'No se puede eliminar',
-                        text: `No se puede eliminar el Servicio con código ${codigo} porque tiene turno/s asignado/s.`,
-                        confirmButtonText: 'Aceptar'
-                    });
-                } else {
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'No podrás revertir esta acción',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, eliminarlo'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            axios.delete(`${API_URL}/servicios/${codigo}`)
-                                .then(() => {
-                                    getServicios();
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Eliminado',
-                                        text: 'El servicio ha sido eliminado con éxito.',
-                                        confirmButtonText: 'Aceptar'
-                                    });
-                                })
-                                .catch(error => {
-                                    console.error('Error al eliminar el servicio:', error);
-                                    if (error.response && error.response.data && error.response.data.message) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: error.response.data.message,
-                                            confirmButtonText: 'Aceptar'
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: 'Error al eliminar el servicio',
-                                            confirmButtonText: 'Aceptar'
-                                        });
-                                    }
-                                });
-                        }
-                    });
-                }
-            })
-            .catch(error => {
+    const resetForm = () => {
+        setMonto('');
+        setEstado('');
+        setAdicional_adom('');
+        setAusencia_cliente('');
+        setMedio_pago('');
+        setTurno('');
+        setCodigo_tipo('')
+        setErrors({});
+        setEditar(false);
+        setServicioSeleccionado(false);
+    };
+
+    const eliminarServicio = async (codigo:string) => {
+        try{
+            const response = await axios.get(`${API_URL}/servicios/buscarMiTurno/${codigo}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            }
+        }); 
+        if (response.status === 404) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No se puede eliminar',
+                text: response.data.message,
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        };
+        if(Array.isArray(response.data) && response.data.length > 0){
+            Swal.fire({
+                icon: 'error',
+                title: 'No se puede eliminar',
+                text: 'El servicio tiene un turno asignado',
+                confirmButtonText: 'Aceptar'
+            });
+        return;
+        };
+        const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'No podrás revertir esta acción',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo'
+            });
+
+            if (result.isConfirmed) {
+                await axios.delete(`${API_URL}/servicios/${codigo}`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                getServicios();
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al verificar los turnos del servicio',
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'El servicio ha sido eliminado con éxito.',
                     confirmButtonText: 'Aceptar'
                 });
+            };
+        }catch(error:any){
+            console.error('Error al eliminar el servico:', error);
+            const errorMessage =error.response?.data?.message || 'Error al eliminar el servicio';
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                confirmButtonText: 'Aceptar'
             });
+        };
     };
 
     if (loading) return <div>Loading...</div>;
@@ -302,7 +332,7 @@ function ServiciosPage(){
                                     <label className="form-label">Estado:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setEstado(event.target.value)}
+                                        onChange={(event) => setEstado(event.target.value as "" | "Pendiente" | "Pago")}
                                         value={estado || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
@@ -316,7 +346,7 @@ function ServiciosPage(){
                                     <label className="form-label">Ausencia Cliente:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setAusencia_cliente(event.target.value)}
+                                        onChange={(event) => setAusencia_cliente(event.target.value as "" | "Se presento" | "Esta ausente")}
                                         value={ausencia_cliente || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
@@ -330,7 +360,7 @@ function ServiciosPage(){
                                     <label className="form-label">Medio de Pago:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setMedio_pago(event.target.value)}
+                                        onChange={(event) => setMedio_pago(event.target.value as "" | "Efectivo" | "Mercado Pago")}
                                         value={medio_pago || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
@@ -361,7 +391,7 @@ function ServiciosPage(){
                                     <label className="form-label">Codigo de Turno:</label>
                                     <input
                                         type="number"
-                                        onChange={(event) => setTurno(Number(event.target.value))}
+                                        onChange={(event) => setTurno(event.target.value)}
                                         className="form-control"
                                         value={turno_codigo_turno || ''}
                                         placeholder="Codigo de turno"
@@ -419,7 +449,7 @@ function ServiciosPage(){
                                                 )}
 
                                                     <button className="btn btn-primary btn-sm" onClick={() => { setServicioSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarServicio(val.codigo)}>Eliminar</button>
+                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarServicio(String(val.codigo))}>Eliminar</button>
                                                     </div>
                                                 </td>
                                             </tr>

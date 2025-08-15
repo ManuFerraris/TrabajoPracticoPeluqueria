@@ -9,6 +9,8 @@ import { ListarServicios } from "../application/casos-uso/casosUsoServicio/getAl
 import { RegistrarServicio } from "../application/casos-uso/casosUsoServicio/RegistarServicio.js";
 import { RegistrarServicioDTO, validarServicioDTO } from "../application/dtos/RegistrarServicioDTO.js";
 import { ActualizarServicio } from "../application/casos-uso/casosUsoServicio/ActualizarServicio.js";
+import { validarCodigo } from "../application/validarCodigo.js";
+import { VerMiTurno } from "../application/casos-uso/casosUsoServicio/VerMiTurno.js";
 
 /*function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) {
     req.body.sanitizedInput = {
@@ -160,15 +162,9 @@ export const update = async (req:Request, res:Response):Promise<void> => {
 
 export const remove = async (req: Request, res: Response):Promise<void> => {
     try {
-        const {codigo} = req.params;
-        if(!codigo){
-            res.status(400).json({ message: 'Código de servicio inválido.' });
-            return;
-        };
-
-        const codigoNumber = Number(codigo)
-        if (isNaN(codigoNumber)) {
-            res.status(400).json({ message: 'El codigo de servicio debe ser un numero.' });
+        const {valor: codSer, error:codError} = validarCodigo(req.params.codigo, 'codigo servicio');
+        if(codError || codSer === undefined){
+            res.status(404).json({ errores: codError });
             return;
         };
 
@@ -177,7 +173,7 @@ export const remove = async (req: Request, res: Response):Promise<void> => {
         const repo = new ServicioRepositoryORM(em);
         const casouso = new EliminarServicio(repo);
 
-        const errores = await casouso.ejecutar(codigoNumber);
+        const errores = await casouso.ejecutar(codSer);
 
         if(errores.length > 0){
             const status = errores[0] === 'Servicio no encontrado.' ? 404 : 409; // 409 = Conflicto
@@ -228,4 +224,39 @@ export const ingresosMensuales = async (req:Request, res:Response):Promise<void>
         res.status(500).json({ error: 'Error interno del servidor.' });
         return;
     }
+};
+
+export const verMiTurno = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor:codSer, error:codError} = validarCodigo(req.params.codigo, 'codigo servicio');
+        if(codError || codSer === undefined){
+            res.status(404).json({ erroes: codError});
+            return;
+        };
+
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ServicioRepositoryORM(em);
+        const casouso = new VerMiTurno(repo);
+
+        const resultado = await casouso.ejecutar(codSer)
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado, data: []});
+            return;
+        };
+
+        const turno = resultado.turno;
+        if(!turno){
+            res.status(200).json({ message: 'El servicio no tiene un turno asignado.', data: turno });
+            return;
+        };
+
+        res.status(200).json({ message: 'Turno del servicio encontrado.', data:turno});
+        return;
+
+    }catch(errores:any){
+        console.error('Error al buscar el turno asociado al servicio.', errores);
+        res.status(500).json({ message: 'Error interno del servidor.', errores });
+        return;
+    };
 };

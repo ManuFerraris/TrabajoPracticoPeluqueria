@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import { Servicio } from "../../Servicio/servicio.entity.js";
 import { ServicioRepository } from "../../application/interfaces/ServicioRepository.js";
 import { EntityManager } from "@mikro-orm/mysql";
@@ -45,5 +46,9 @@ export class ServicioRepositoryORM implements ServicioRepository {
                 }
             }
         );
+    };
+
+    async buscarMiTurno(servicio: Servicio): Promise<Servicio> {
+        return await this.em.findOneOrFail(Servicio, servicio, {populate: ['turno']});
     };
 };

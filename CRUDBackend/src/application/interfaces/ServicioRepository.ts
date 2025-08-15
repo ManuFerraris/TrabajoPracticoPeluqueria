@@ -6,4 +6,5 @@ export interface ServicioRepository {
     eliminarServicio(servico: Servicio):Promise<void>;
     obtenerMontoTotalMensual(desde:Date, hasta:Date):Promise<Servicio[]>;
     getAllServicios():Promise<Servicio[]>;
+    buscarMiTurno(servicio:Servicio):Promise<Servicio>;
 };
