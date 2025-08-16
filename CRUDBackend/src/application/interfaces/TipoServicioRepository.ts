@@ -5,4 +5,5 @@ export interface TipoServicioRepository {
     obtenerTipoServicio(codVal:number):Promise<TipoServicio | null>;
     eliminarTipoServicio(tipoServicio:TipoServicio):Promise<void>;
     guardar(tipoServicioAActualizar:TipoServicio):Promise<TipoServicio | null>;
+    buscarMisServicios(tipoServico: TipoServicio):Promise<TipoServicio>; 
 };

@@ -28,4 +28,8 @@ export class TipoServicioRepositoryORM implements TipoServicioRepository {
     async eliminarTipoServicio(tipoServicio:TipoServicio): Promise<void> {
         await this.em.removeAndFlush(tipoServicio);
     };
+
+    async buscarMisServicios(tipoServico: TipoServicio): Promise<TipoServicio> {
+        return await this.em.findOneOrFail(TipoServicio, tipoServico, {populate: ['servicio']} );
+    };
 };

@@ -77,12 +77,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const login = (accessToken:string, refreshToken:string, userData: UserData ) => {
         
         if (!accessToken || !userData) {
-            console.error("❌ Error: El backend envió un accessToken o userData vacío.");
+            console.error("Error: El backend envió un accessToken o userData vacío.");
             return;
         };
         
-        console.log("🔑 Guardando accessToken en localStorage:", accessToken);
-        console.log("📂 Guardando userData en localStorage:", JSON.stringify(userData));
+        console.log("Guardando accessToken en localStorage:", accessToken);
+        console.log("Guardando userData en localStorage:", JSON.stringify(userData));
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(userData);
         setIsAuthenticated(true);
 
-        console.log("✅ `accessToken` guardado correctamente en localStorage.");
+        console.log("`accessToken` guardado correctamente en localStorage.");
     };
 
     // Función para cerrar sesión
@@ -120,7 +120,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Función para refrescar el token de acceso
     const refreshAuth = async (): Promise<boolean> => {
         if (!refreshToken) return false;
-        console.log("Intentando refrescar token con:", refreshToken);
         try {
             const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken});
             

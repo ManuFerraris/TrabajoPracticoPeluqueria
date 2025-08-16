@@ -4,10 +4,12 @@ import {
     getOne,
     add,
     update,
-    remove,  } from "./TipoServicio.controller.js";
+    remove,
+    obtnerMisServicios } from "./TipoServicio.controller.js";
 
 export const tipoServicioRouter = Router();
 
+tipoServicioRouter.get('/obtenerMisServicios/:codigo_tipo', obtnerMisServicios);
 tipoServicioRouter.get("/", findAll);
 tipoServicioRouter.get("/:codigo_tipo", getOne);
 tipoServicioRouter.post("/", add);

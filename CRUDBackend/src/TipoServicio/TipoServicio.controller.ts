@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { orm } from "../shared/db/orm.js";
 import { MikroORM } from "@mikro-orm/mysql";
 import { TipoServicioRepositoryORM } from "../shared/db/TipoServicioRepositoryORM.js";
 import { TraerTiposServicios } from "../application/casos-uso/casosUsoTipoServicio/GetAllTiposServicios.js";
@@ -8,6 +7,7 @@ import { TraerTipoServicio } from "../application/casos-uso/casosUsoTipoServicio
 import { EliminarTipoServicio } from "../application/casos-uso/casosUsoTipoServicio/EliminarTipoServicio.js";
 import { RegistrarTipoServicio } from "../application/casos-uso/casosUsoTipoServicio/RegistrarTipoServicio.js";
 import { ActualizarTipoServicio } from "../application/casos-uso/casosUsoTipoServicio/ActualizarTipoServicio.js";
+import { ObtenerMisServicios } from "../application/casos-uso/casosUsoTipoServicio/ObtenerMisServicios.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -167,5 +167,39 @@ export const remove = async (req:Request, res:Response):Promise<void> => {
         console.error( 'Error al eliminar el tipo de servicio.', errores );
         res.status(500).json({ message:'Error interno del servidor.' });
         return;
+    };
+};
+
+export const obtnerMisServicios = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {valor:codTS, error:codError} = validarCodigo(req.params.codigo_tipo, 'codigo tipo servicio');
+        if(codError || codTS === undefined){
+            res.status(404).json({ errores: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new TipoServicioRepositoryORM(em);
+        const casouso = new ObtenerMisServicios(repo);
+
+        const resultado = await casouso.ejecutar(codTS);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado, data:[] });
+            return;
+        };
+
+        const servicios = resultado.servicio;
+        if(servicios.length === 0){
+            res.status(200).json({ message: 'El tipo de servicio no tiene servicos asociados.', data:servicios });
+            return;
+        };
+
+        res.status(200).json({ message: 'Servicios encontrados para el tipo de servicio.', data:servicios });
+        return;
+
+    }catch(errores:any){
+        console.error('',errores)
     };
 };

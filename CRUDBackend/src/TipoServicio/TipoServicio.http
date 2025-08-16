@@ -25,3 +25,6 @@ Content-Type: application/json
 
 ###Borrar un tipo de servicio
 DELETE http://localhost:3000/api/tiposervicio/10
+
+### obtener todos los tipos de servicio
+GET http://localhost:3000/api/tiposervicio/obtenerMisServicios/3
