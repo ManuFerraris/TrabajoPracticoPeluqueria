@@ -17,7 +17,7 @@ import ClientesPage from "./pages/cliente/Cliente.page.tsx";
 import LocalidadesPage from "./pages/localidad/Localidad.page.tsx";
 import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.tsx";
 import ServiciosPage from "./pages/servicio/Servicio.page.tsx";
-import TurnosPage from "./pages/turno/Turno.page.js";
+import TurnosPage from "./pages/turno/Turno.page.tsx";
 import MenuPage from './pages/MenuPage.js';
 import Turnos from './routes/turnos.tsx';
 

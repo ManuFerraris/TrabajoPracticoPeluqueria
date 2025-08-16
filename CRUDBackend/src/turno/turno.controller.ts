@@ -15,6 +15,7 @@ import { ActualizarTurno } from "../application/casos-uso/casosUsoTurno/Actualiz
 import { validarEstadoTurno } from "../application/validarEstadoTurno.js";
 import { FiltroTurnoPorPeluqueroYEstado } from "../application/casos-uso/casosUsoTurno/filtrosPorTurno.js";
 import { validarCodigo } from "../application/validarCodigo.js";
+import { CambiarEstado } from "../application/casos-uso/casosUsoTurno/CambiarEstado.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => { //FUNCIONAL
     try{
@@ -30,7 +31,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => { //FU
             return;
         };
 
-        res.status(200).json(turnos);
+        res.status(200).json({ message:'Turnos encontrados.', data: turnos });
         return;
 
     }catch(error:any){
@@ -273,4 +274,42 @@ export const filtrosPorTurno = async (req:Request, res:Response):Promise<void> =
         res.status(500).json({ message: 'Error interno del servidor', errores});
         return;
     }
+};
+
+export const cambiarEstado = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {codigo_turno} = req.params;
+        const { valor: codTur, error: errorCodigo } = validarCodigo(codigo_turno, 'codigo de turno');
+        if(errorCodigo || codTur === undefined){
+            res.status(400).json({ message: errorCodigo ?? 'Codigo invalido' });
+            return;
+        };
+
+        const orm = (req.app.locals as {orm:MikroORM}).orm;
+        const em = orm.em.fork();
+        const turnoRepo = new TurnoRepositoryORM(em);
+        const casouso = new CambiarEstado(turnoRepo);
+    
+        const { estado } = req.body;
+        const resultado = await casouso.ejecutar(codTur, estado);
+
+        if(typeof resultado === 'string'){
+            res.status(404).json({ message: resultado });
+            return;
+        };
+
+        res.status(200).json({
+            message: 'Estado cambiado con exito!',
+            data: {
+                codigo_turno: resultado.codigo_turno,
+                estado: resultado.estado
+            }
+        });
+        return;
+    
+    }catch(errores:any){
+        console.error('Error al cambiar el estado al turno.', errores);
+        res.status(500).json({ message:'Error interno del servidor.',errores });
+        return;
+    };
 };

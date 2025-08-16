@@ -4,40 +4,73 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { API_URL } from '../../auth/constants.ts';
 
+type Turno = {
+    codigo_turno: number;
+    fecha_hora: string;
+    tipo_turno: 'Sucursal' | 'A Domicilio';
+    estado: 'Activo' | 'Cancelado' | 'Sancionado';
+    porcentaje?: string;
+    cliente?: { codigo_cliente: number };
+    peluquero?: { codigo_peluquero: number };
+    servicio?: { codigo: number };
+};
+
+type FormErrors = {
+    fecha_hora?: string;
+    tipo_turno?: string;
+    estado?: string;
+    codigo_cliente?: string;
+    codigo_peluquero?: string;
+};
+
+type Alerta = {
+    tipo: string;
+    mensaje: string;
+};
+
 function TurnosPage(){
-    const [turnos, setTurnos] = useState([]);
-    const [fecha_hora, setFecha_hora] = useState('');
-    const [tipo_turno, setTipo_turno] = useState('');
-    const [/*porcentaje*/, setPorcentaje] = useState('');
-    const [estado, setEstado] = useState('');
-    const [codigo_cliente, setCodigo_cliente] = useState('');
-    const [codigo_peluquero, setCodigo_peluquero] = useState('');
-    const [turnoMostrado, setTurnoMostrado] = useState(null);
+    const [turnos, setTurnos] = useState<Turno[]>([]);
+    const [fecha_hora, setFecha_hora] = useState<string>('');
+    const [tipo_turno, setTipo_turno] = useState<'Sucursal' | 'A Domicilio' | ''>('');
+    const [/*porcentaje*/, setPorcentaje] = useState<string>('');
+    const [estado, setEstado] = useState<'Activo' | 'Cancelado' | 'Sancionado'|''>('');
+    const [codigo_cliente, setCodigo_cliente] = useState<string>('');
+    const [codigo_peluquero, setCodigo_peluquero] = useState<string>('');
+    const [turnoMostrado, setTurnoMostrado] = useState<number | null>(null);
 
-    const [error, setError] = useState('');
-    const [errors, setErrors] = useState('');
-    const [loading, setLoading] = useState('');
-    const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
-    const [editar, setEditar] = useState(false);
-    const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+    const [error, setError] = useState<string>('');
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    const [turnoSeleccionado, setTurnoSeleccionado] = useState<Turno | null>(null);
+    const [editar, setEditar] = useState<boolean>(false);
+    const [alerta, setAlerta] = useState<Alerta>({ tipo: '', mensaje: '' });
 
+    const estados = ['Cancelado', 'Activo', 'Sancionado'];
+    const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
         const fetchTurnos = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${API_URL}/turnos`);
-                setTurnos(response.data.data || []);
-            } catch (error) {
+                const response = await axios.get(`${API_URL}/turnos`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                });
+                const turnos = response.data.data || []
+                console.log('Turnos traidos del backend:',response, turnos);
+                setTurnos(turnos);
+            }catch(error:any){
                 setError(error.response?.data?.message || error.message);
-            } finally {
+            }finally{
                 setLoading(false);
             };
         };
         fetchTurnos();
-    }, []);
+    }, [accessToken]);
 
-    const formatFechaParaInput = (fechaISO) => {
+    const formatFechaParaInput = (fechaISO:string) => {
         const fecha = new Date(fechaISO);
         const anio = fecha.getFullYear();
         const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexed
@@ -47,25 +80,40 @@ function TurnosPage(){
         return `${anio}-${mes}-${dia}T${horas}:${minutos}`; // Retorna en formato aaaa-mm-dd T hh:mm
     };
 
+    const estadoColor = (estado: string): string => {
+        switch (estado) {
+            case 'Cancelado': return 'warning';
+            case 'Activo': return 'primary';
+            case 'Sancionado': return 'danger';
+            case 'Finalizado': return 'success';
+            default: return 'secondary';
+        };
+    };
+
     useEffect(() => {
         if (turnoSeleccionado) {
             setFecha_hora(turnoSeleccionado.fecha_hora ? formatFechaParaInput(turnoSeleccionado.fecha_hora): '');
             setTipo_turno(turnoSeleccionado.tipo_turno || '');
             setPorcentaje(turnoSeleccionado.porcentaje || '');
             setEstado(turnoSeleccionado.estado || '');
-            setCodigo_cliente(turnoSeleccionado.cliente?.codigo_cliente || '');
-            setCodigo_peluquero(turnoSeleccionado.peluquero?.codigo_peluquero || '');
+            setCodigo_cliente(String(turnoSeleccionado.cliente?.codigo_cliente) || '');
+            setCodigo_peluquero(String(turnoSeleccionado.peluquero?.codigo_peluquero) || '');
         };
     }, [turnoSeleccionado]);
 
     const getTurnos = async () => {
         try {
-            const response = await axios.get(`${API_URL}/turnos`);
+            const response = await axios.get(`${API_URL}/turnos`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
             const turnos = response.data.data;
             if (Array.isArray(turnos)) {
                 setTurnos(turnos);
             };
-        } catch (error) {
+        }catch(error:any){
             console.error('Error al obtener los turnos:', error);
             setError(error.response?.data?.data|| error.mensaje);
             setTurnos([]);
@@ -73,7 +121,8 @@ function TurnosPage(){
     };
 
     const validateForm = () => {
-        const errors = {};
+        const errors:FormErrors = {};
+
         const today = new Date().toISOString().split('T')[0];
 
         if (!fecha_hora) {
@@ -104,22 +153,28 @@ function TurnosPage(){
         return errors;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         };
+        const formattedDate = new Date(fecha_hora).toISOString();
+        const payload = {
+            fecha_hora: formattedDate,
+            tipo_turno: tipo_turno,
+            estado: estado,
+            codigo_cliente: Number(codigo_cliente),
+            codigo_peluquero: Number(codigo_peluquero)
+        };
         try {
-            const formattedDate = new Date(fecha_hora).toISOString();
-            if (editar) {
-                await axios.put(`${API_URL}/turnos/${turnoSeleccionado.codigo_turno}`, {
-                    fecha_hora: formattedDate,
-                    tipo_turno: tipo_turno,
-                    estado: estado,
-                    codigo_cliente: Number(codigo_cliente),
-                    codigo_peluquero: Number(codigo_peluquero)
+            if (editar && turnoSeleccionado) {
+                await axios.put(`${API_URL}/turnos/${turnoSeleccionado.codigo_turno}`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
                 });
                 Swal.fire({
                     position: 'center',
@@ -129,12 +184,11 @@ function TurnosPage(){
                     timer: 1500
                 });
             } else {
-                await axios.post(`${API_URL}/turnos`, {
-                    fecha_hora: formattedDate,
-                    tipo_turno: tipo_turno,
-                    estado: estado,
-                    codigo_cliente: Number(codigo_cliente), 
-                    codigo_peluquero: Number(codigo_peluquero),
+                await axios.post(`${API_URL}/turnos`, payload, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
                 });
                 Swal.fire({
                     position: 'center',
@@ -146,9 +200,8 @@ function TurnosPage(){
             };
             await getTurnos();
             resetForm();
-        } catch (error) {
+        }catch(error:any){
             console.error('Error al guardar el turno:', error);
-            
             if (error.response && error.response.data && error.response.data.message) {
                 Swal.fire({
                     icon: 'error',
@@ -181,48 +234,32 @@ function TurnosPage(){
         setTurnoSeleccionado(null);
     };
 
-    const eliminarTurno = (codigo_turno) => {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: 'No podrás revertir esta acción',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminarlo'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios.delete(`${API_URL}/turnos/${codigo_turno}`)
-                    .then(() => {
-                        getTurnos();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Eliminado',
-                            text: 'El turno ha sido eliminado con éxito.',
-                            confirmButtonText: 'Aceptar'
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error al eliminar el turno:', error);
-                        if (error.response && error.response.data && error.response.data.message) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: error.response.data.message,
-                                confirmButtonText: 'Aceptar'
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Error al eliminar el turno',
-                                confirmButtonText: 'Aceptar'
-                            });
-                        };
-                    });
-            };
-        });
-    };
+    const cambiarEstadoTurno = async (codigo_turno: number, nuevoEstado: string) => {
+        try {
+            const response = await axios.put(`${API_URL}/turnos/${codigo_turno}/estado`, {
+                estado: nuevoEstado
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                }
+            );
+            const { data } = response.data;
+            // Actualizar el estado local
+            setTurnos(prev =>
+                prev.map(t =>
+                    t.codigo_turno === data.codigo_turno
+                    ? { ...t, estado: data.estado }
+                    : t
+                )
+            );
+            console.log('Estado actualizado: ', data.estado);
+        } catch (error: any) {
+            console.error('Error al cambiar estado:', error.message);
+        };
+    }
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -255,7 +292,7 @@ function TurnosPage(){
                                     <label className="form-label">Tipo de Turno:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setTipo_turno(event.target.value)}
+                                        onChange={(event) => setTipo_turno(event.target.value as "" | "Sucursal" | "A Domicilio")}
                                         value={tipo_turno || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
@@ -264,25 +301,12 @@ function TurnosPage(){
                                     </select>
                                     {errors.tipo_turno && <div className="text-danger">{errors.tipo_turno}</div>}
                                 </div>
-
-                                {/* 
-                                <div className="col-md-6">
-                                    <label className="form-label">Porcentaje:</label>
-                                    <input
-                                        type="text"
-                                        onChange={(event) => setPorcentaje(event.target.value)}
-                                        className="form-control"
-                                        value={porcentaje || ''}
-                                        placeholder="Ingrese el monto (opcional)"
-                                    />
-                                </div>
-                                */}
                                 
                                 <div className="col-md-6">
                                     <label className="form-label">Estado:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setEstado(event.target.value)}
+                                        onChange={(event) => setEstado(event.target.value as "" | 'Activo' | 'Cancelado' | 'Sancionado')}
                                         value={estado || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
@@ -297,7 +321,7 @@ function TurnosPage(){
                                     <label className="form-label">Codigo de Cliente:</label>
                                     <input
                                         type="number"
-                                        onChange={(event) => setCodigo_cliente(Number(event.target.value))}
+                                        onChange={(event) => setCodigo_cliente(event.target.value)}
                                         className="form-control"
                                         value={codigo_cliente || ''}
                                         placeholder="Codigo de cliente"
@@ -316,19 +340,6 @@ function TurnosPage(){
                                     />
                                     {errors.codigo_peluquero && <div className="text-danger">{errors.codigo_peluquero}</div>}
                                 </div>
-
-                                {/*<div className="col-md-6">
-                                    <label className="form-label">Codigo de Servicio:</label>
-                                    <input
-                                        type="number"
-                                        onChange={(event) => setCodigo_servicio(Number(event.target.value))}
-                                        className="form-control"
-                                        value={codigo_servicio || ''}
-                                        placeholder="Codigo de servicio"
-                                    />
-                                    {errors.codigo_servicio && <div className="text-danger">{errors.codigo_servicio}</div>}
-                                </div>*/}
-
                             </div>
 
                             <div className="text-center">
@@ -377,7 +388,24 @@ function TurnosPage(){
                                                         <button className="btn btn-primary btn-sm" onClick={() => setTurnoMostrado(val.codigo_turno)}>Mostrar Más</button>
                                                     )}
                                                     <button className="btn btn-primary btn-sm" onClick={() => { setTurnoSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                    <button className="btn btn-danger btn-sm" onClick={() => eliminarTurno(val.codigo_turno)}>Eliminar</button>
+                                                </div>
+                                                <div className="mt-2">
+                                                    <span className={`badge bg-${estadoColor(val.estado)}`}>
+                                                        Estado actual: {val.estado}
+                                                    </span>
+                                                    <div className="d-flex flex-wrap gap-2 mt-2">
+                                                        {estados
+                                                            .filter((estado) => estado !== val.estado)
+                                                            .map((estado) => (
+                                                                <button
+                                                                    key={estado}
+                                                                    className={`btn btn-sm btn-outline-${estadoColor(estado)}`}
+                                                                    onClick={() => cambiarEstadoTurno(val.codigo_turno, estado)}
+                                                                >
+                                                                    Marcar como {estado}
+                                                                </button>
+                                                            ))}
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
