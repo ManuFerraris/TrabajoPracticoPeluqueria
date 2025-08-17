@@ -1,20 +1,19 @@
-import React from 'react';
 import { useNavigate, Navigate  } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export default function HomePeluquero() {
     const navigate = useNavigate();
     const auth = useAuth();
-    // Se utilizará auth.user para consistencia, ya que viene del estado del contexto.
     const user = auth.user; 
     
     useEffect(() => {
         const checkAuth = async () => {
-            if(!auth.isAuthenticated) return; //Si no esta autenticado no intenta renovar sesion.
+            if(!auth.isAuthenticated) return; 
         
-            const refreshed = await auth.refreshAuth(); //Intenta renovar el token;
+            const refreshed = await auth.refreshAuth();
             if(!refreshed) {
                 console.warn("Sesion expirada, cerrando sesión...");
                 auth.logout();
@@ -36,7 +35,7 @@ export default function HomePeluquero() {
         localStorage.removeItem("user");
         sessionStorage.removeItem("accessToken");
         try{
-            auth.logout(); //Espera respuesta antes de redirigir
+            auth.logout();
             navigate('/login', { replace: true });
         } catch(error){
             console.error("Error en el logout:", error);
@@ -92,11 +91,11 @@ export default function HomePeluquero() {
                                     Ver mis Turnos
                                 </button>
 
-                                <button onClick={() => navigate("/historial-peluquero")} className="btn btn-outline-primary btn-lg py-3">
+                                <button onClick={() => navigate("/peluqueros/historial-peluquero")} className="btn btn-outline-primary btn-lg py-3">
                                     Historial de Peluquero
                                 </button>
 
-                                <button onClick={() => navigate("/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
+                                <button onClick={() => navigate("/peluqueros/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
                                     Historial de Cliente
                                 </button>
 
@@ -110,11 +109,11 @@ export default function HomePeluquero() {
                                             Información de Peluqueros
                                         </button>
                                         
-                                        <button onClick={() => navigate("/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">
+                                        <button onClick={() => navigate("/peluqueros/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">
                                             Top 3 Peluqueros con Más Clientes
                                         </button>
 
-                                        <button onClick={() => navigate("/panel-admin-cruds")} className="btn btn-outline-dark btn-lg py-3">
+                                        <button onClick={() => navigate("/peluqueros/panel-admin-cruds")} className="btn btn-outline-dark btn-lg py-3">
                                             Panel de CRUDs
                                         </button>
                                     </>

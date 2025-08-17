@@ -8,7 +8,7 @@ import './Login.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-
+import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
 
 export default function Login() {
 
@@ -43,7 +43,7 @@ export default function Login() {
                 },
             );
 
-            const destino = data.user.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+            const destino = getRutaInicioPorRol(data.user.rol);
             navigate(destino, { replace: true });
 
         } catch (error) {
@@ -55,7 +55,7 @@ export default function Login() {
     };
 
     if (auth.isAuthenticated) {
-        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+        const destino = getRutaInicioPorRol(auth.user?.rol || '');
         return <Navigate to={destino} replace />;
     };
 

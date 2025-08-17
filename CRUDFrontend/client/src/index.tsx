@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider.tsx';
 import "./index.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import reportWebVitals from './reportWebVitals.js';
-
+import PeluqueroLayout from './layout/PeluqueroLayout.tsx';
 //Paginas publicas:
 import Login from './routes/Login.tsx';
 import Signup from './routes/signup.tsx';
@@ -38,10 +39,6 @@ const router = createBrowserRouter([
       path: "/login",
       element: <Login />,
     },
-  {
-    path: "/login",
-    element: <Login />,
-  },
     {
       path: "/signup",
       element: <Signup />,
@@ -55,14 +52,23 @@ const router = createBrowserRouter([
       element: <ResetPassword /> 
     },
     {
+      path:"peluqueros",
+      element: <PeluqueroLayout />,
+      children: [
+        { path: "", element: <HomePeluquero /> },
+        { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
+        { path: "top-peluqueros", element: <TopTresPeluquerosPage/>},
+        { path: "listado-turnos", element: <ListadoTurnosPage/>},
+        { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
+        { path: "historial-cliente", element: <HistorialClientePage /> },
+      ]
+    },
+    {
       path: "/",
       element: <ProtectedRoute />,
       children: [
-        
-        { path: "turno", element: <Turnos /> },
         { path: "homeCliente", element: <HomeCliente /> },
-        { path: "homePeluquero", element: <HomePeluquero /> },
-        //Rutas migradas de App.jsx:
+        { path: "turno", element: <Turnos /> },
         { path: "peluqueroList", element: <PeluqueroList /> },
         { path: "localidades", element: <LocalidadesPage /> },
         { path: "tipoServicios", element: <TipoServicioPage /> },
@@ -70,10 +76,8 @@ const router = createBrowserRouter([
         { path: "turnos", element: <TurnosPage /> },
         { path: "clientes", element: <ClientesPage /> },
         { path: "menu", element: <MenuPage /> },
-        { path: "historial-cliente", element: <HistorialClientePage /> },
-        { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
-        { path: "top-peluqueros", element: <TopTresPeluquerosPage/>},
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
+        { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>}
       ],
     },

@@ -3,21 +3,21 @@
     line-height: 1.5;
     font-weight: 400;
 }
-    
+
 body {
     padding: 0;
     margin: 0;
 }
-    
+
 label {
     display: block;
 }
-    
+
 .form {
     width: 400px;
     margin: 0 auto;
 }
-    
+
 input[type="text"],
 input[type="password"] {
     display: block;
@@ -26,42 +26,106 @@ input[type="password"] {
     width: 100%;
     margin: 5px 0 10px 0;
 }
-    
-    input[type="button"],
-    button {
-        background-color: rgb(39, 131, 212);
-        padding: 10px;
-        border: 0;
-        min-width: 100px;
-        border-radius: 5px;
-        color: white;
-    }
-    
-    nav {
-        background-color: #eee;
-    }
-    
-    nav ul {
-        margin: 0;
-    }
-    
-    nav ul li {
-        display: inline-block;
-        padding: 10px;
-    }
-    
-    a {
-        color: rgb(97, 28, 161);
-        text-decoration: none;
-    }
-    
-    .dashboard {
-        width: 500px;
-        margin: auto;
-    }
-    
-    .errorMessage {
-        background-color: #f2dede;
-        color: #a94442;
-        padding: 10px;
-    }
+
+input[type="button"],
+button {
+    background-color: rgb(39, 131, 212);
+    padding: 10px;
+    border: 0;
+    min-width: 100px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+nav {
+    background-color: #eee;
+    padding: 1rem;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav ul li {
+    display: inline-block;
+    padding: 10px;
+}
+
+a {
+    color: rgb(97, 28, 161);
+    text-decoration: none;
+}
+
+.dashboard {
+    width: 500px;
+    margin: auto;
+}
+
+.errorMessage {
+    background-color: #f2dede;
+    color: #a94442;
+    padding: 10px;
+}
+
+/* Peluquero Layout */
+.peluquero-layout {
+    padding: 1rem;
+}
+
+/* Menú hamburguesa */
+.menu-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.hamburger-btn {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    color: rgb(39, 131, 212);
+    cursor: pointer;
+}
+
+/* Menú desplegable */
+.menu-list {
+    margin-top: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 0.5rem;
+}
+
+.menu-list li {
+    display: block;
+    padding: 0.5rem 1rem;
+}
+
+.menu-list li a {
+    color: rgb(39, 131, 212);
+    font-weight: bold;
+}
+
+/* Botón volver */
+.back-btn {
+    margin-bottom: 1rem;
+    background-color: #eee;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.peluquero-layout header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-container {
+    border: 2px dashed red;
+}
+
