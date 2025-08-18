@@ -10,7 +10,7 @@ export interface RegistrarTurnoDTO {
     fecha_hora: Date;
     tipo_turno: "Sucursal" | "A Domicilio";
     porcentaje: number;
-    estado: "Activo" | "Cancelado" | "Sancionado";
+    estado: "Activo" | "Cancelado" | "Sancionado" | "Atendido";
     codigo_cliente: number;
     codigo_peluquero: number;
 };
@@ -49,8 +49,8 @@ export async function validarTurnoDTO(
         errores.push('El porcentaje debe estar entre 0 y 100');
     };
 
-    if(dto.estado != 'Activo' && dto.estado != 'Cancelado' && dto.estado != 'Sancionado'){
-        errores.push('El estado debe ser "Activo" o "Cancelado"');
+    if(dto.estado !== 'Activo' && dto.estado !== 'Cancelado' && dto.estado !== 'Sancionado' && dto.estado !== 'Atendido'){
+        errores.push('El estado debe ser "Activo", "Cancelado", "Sancionado" o "Atendido".');
     };
 
     const mensajeHorario = validarHorarioLaboral(dto.fecha_hora);

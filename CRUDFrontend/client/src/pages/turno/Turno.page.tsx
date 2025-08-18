@@ -8,7 +8,7 @@ type Turno = {
     codigo_turno: number;
     fecha_hora: string;
     tipo_turno: 'Sucursal' | 'A Domicilio';
-    estado: 'Activo' | 'Cancelado' | 'Sancionado';
+    estado: 'Activo' | 'Cancelado' | 'Sancionado' | 'Atendido';
     porcentaje?: string;
     cliente?: { codigo_cliente: number };
     peluquero?: { codigo_peluquero: number };
@@ -33,7 +33,7 @@ function TurnosPage(){
     const [fecha_hora, setFecha_hora] = useState<string>('');
     const [tipo_turno, setTipo_turno] = useState<'Sucursal' | 'A Domicilio' | ''>('');
     const [/*porcentaje*/, setPorcentaje] = useState<string>('');
-    const [estado, setEstado] = useState<'Activo' | 'Cancelado' | 'Sancionado'|''>('');
+    const [estado, setEstado] = useState<'Activo' | 'Cancelado' | 'Sancionado'|'Atendido' | ''>('');
     const [codigo_cliente, setCodigo_cliente] = useState<string>('');
     const [codigo_peluquero, setCodigo_peluquero] = useState<string>('');
     const [turnoMostrado, setTurnoMostrado] = useState<number | null>(null);
@@ -45,7 +45,7 @@ function TurnosPage(){
     const [editar, setEditar] = useState<boolean>(false);
     const [alerta, setAlerta] = useState<Alerta>({ tipo: '', mensaje: '' });
 
-    const estados = ['Cancelado', 'Activo', 'Sancionado'];
+    const estados = ['Cancelado', 'Activo', 'Sancionado', 'Atendido'];
     const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
@@ -85,7 +85,7 @@ function TurnosPage(){
             case 'Cancelado': return 'warning';
             case 'Activo': return 'primary';
             case 'Sancionado': return 'danger';
-            case 'Finalizado': return 'success';
+            case 'Atendido': return 'success';
             default: return 'secondary';
         };
     };
@@ -236,6 +236,7 @@ function TurnosPage(){
 
     const cambiarEstadoTurno = async (codigo_turno: number, nuevoEstado: string) => {
         try {
+            console.log("Estado que se manda al backend: ", nuevoEstado)
             const response = await axios.put(`${API_URL}/turnos/${codigo_turno}/estado`, {
                 estado: nuevoEstado
                 },
@@ -306,11 +307,12 @@ function TurnosPage(){
                                     <label className="form-label">Estado:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setEstado(event.target.value as "" | 'Activo' | 'Cancelado' | 'Sancionado')}
+                                        onChange={(event) => setEstado(event.target.value as "" | 'Activo' | 'Cancelado' | 'Sancionado' | 'Atendido')}
                                         value={estado || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
                                         <option value="Activo">Activo</option>
+                                        <option value="Atendido">Atendido</option>
                                         <option value="Cancelado">Cancelado</option>
                                         <option value="Sancionado">Sancionado</option>
                                     </select>

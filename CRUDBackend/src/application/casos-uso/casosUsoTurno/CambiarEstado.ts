@@ -10,7 +10,7 @@ export class CambiarEstado{
         if(!turno){
             return `No existe el turno con codigo ${codTur}`;
         };
-        const ESTADOS_VALIDOS = ["Activo", "Cancelado", "Sancionado"];
+        const ESTADOS_VALIDOS = ["Activo", "Cancelado", "Sancionado", "Atendido"];
         if (!ESTADOS_VALIDOS.includes(estado)) {
             return `El estado ingresado: "${estado}" es inválido. Debe ser ${ESTADOS_VALIDOS.join(', ')}.`;
         };
