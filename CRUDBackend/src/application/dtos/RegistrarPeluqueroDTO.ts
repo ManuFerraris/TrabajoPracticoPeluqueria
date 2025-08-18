@@ -6,7 +6,7 @@ export interface RegistrarPeluqueroDTO {
     fecha_Ingreso:string;
     tipo: "Sucursal" | "Domicilio";
     email: string;
-    password:string;
+    password?:string;
     rol: "admin" | "peluquero";
 };
 

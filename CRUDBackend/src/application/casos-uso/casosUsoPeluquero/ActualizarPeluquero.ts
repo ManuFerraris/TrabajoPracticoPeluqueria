@@ -11,6 +11,10 @@ export class ActualizarPeluquero{
         
         const peluqueroAActualizar = await this.repo.buscarPeluquero(codigo_peluquero);
         if(!peluqueroAActualizar) return {errores: ['No se encontro el peluquero']};
+
+        if (typeof dto.password === "string" && dto.password.trim() === "") {
+            delete dto.password;
+        };
         
         const errores = await validarPeluqueroDTO(dto, em, actualizacion, codigo_peluquero);
         if(errores.length>0) return {errores};

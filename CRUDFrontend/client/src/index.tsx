@@ -6,6 +6,7 @@ import "./index.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import reportWebVitals from './reportWebVitals.js';
 import PeluqueroLayout from './layout/PeluqueroLayout.tsx';
+
 //Paginas publicas:
 import Login from './routes/Login.tsx';
 import Signup from './routes/signup.tsx';
@@ -19,8 +20,9 @@ import LocalidadesPage from "./pages/localidad/Localidad.page.tsx";
 import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.tsx";
 import ServiciosPage from "./pages/servicio/Servicio.page.tsx";
 import TurnosPage from "./pages/turno/Turno.page.tsx";
-import MenuPage from './pages/MenuPage.js';
+import MenuPage from './legacy/MenuPage.js';
 import Turnos from './routes/turnos.tsx';
+import EditarPerfil from './routes/EditarPerfil.tsx';
 
 //Rutas privadas (Buscadores):
 import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
@@ -61,6 +63,7 @@ const router = createBrowserRouter([
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
+        { path: "editar-perfil", element: <EditarPerfil /> }
       ]
     },
     {
@@ -78,7 +81,9 @@ const router = createBrowserRouter([
         { path: "menu", element: <MenuPage /> },
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
-        { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>}
+        { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
+        { path: "editar-perfil", element: <EditarPerfil /> }
+
       ],
     },
   ]);

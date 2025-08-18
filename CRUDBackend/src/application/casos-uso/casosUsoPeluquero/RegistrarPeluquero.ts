@@ -10,6 +10,10 @@ export class RegistrarPeluquero{
     async ejecutar(dto:RegistrarPeluqueroDTO, em:EntityManager):Promise<string[] | Peluquero>{
         const errores = await validarPeluqueroDTO(dto, em);
         if(errores.length > 0) return errores;
+        
+        if(!dto.password){
+            return ['La contraseña es obligatoria al crear un peluquero.'];
+        };
 
         const peluquero = new Peluquero();
         peluquero.nombre = dto.nombre;

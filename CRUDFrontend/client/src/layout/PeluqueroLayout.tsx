@@ -22,7 +22,13 @@ function PeluqueroLayout(){
             {/* Navbar fija arriba */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
                 <div className="container-fluid">
-                <span className="navbar-brand">Peluquería App</span>
+                
+                <button
+                    onClick={() => navigate("/peluqueros")}
+                    className="navbar-brand btn btn-link text-white text-decoration-none"
+                >
+                    Peluquería App
+                </button>
 
                 <button
                     className="navbar-toggler"
@@ -62,13 +68,13 @@ function PeluqueroLayout(){
                         </li>
                         <li className="nav-item">
                             <button onClick={() => navigate("/peluqueros/panel-admin-cruds")} className="btn btn-link nav-link text-white">
-                                <i className="bi bi-star me-1"></i> Gestiones Generales
+                                <i className="bi bi-grid-3x3-gap-fill me-1"></i> Mis Entidades
                             </button>
                         </li>
                         
                         {/* Acciones siempre visibles */}
                         <li className="nav-item">
-                            <button onClick={() => navigate("/editar-perfil")} className="btn btn-link nav-link text-white">
+                            <button onClick={() => navigate("/peluqueros/editar-perfil")} className="btn btn-link nav-link text-white">
                                 <i className="bi bi-person-circle me-1"></i> {user?.nombre || "Perfil"}
                             </button>
                         </li>

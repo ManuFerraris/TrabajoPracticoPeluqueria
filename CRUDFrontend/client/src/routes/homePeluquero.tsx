@@ -99,7 +99,7 @@ export default function HomePeluquero() {
                                     Historial de Cliente
                                 </button>
 
-                                <button onClick={() => navigate("/editar-perfil")} className="btn btn-outline-secondary btn-lg py-3">
+                                <button onClick={() => navigate("/peluqueros/editar-perfil")} className="btn btn-outline-secondary btn-lg py-3">
                                     Editar Perfil
                                 </button>
 

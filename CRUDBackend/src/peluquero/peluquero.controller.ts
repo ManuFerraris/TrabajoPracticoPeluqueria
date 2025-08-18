@@ -114,11 +114,11 @@ export const update = async (req:Request, res:Response):Promise<void> => {
         const peluqueroActualizado = await casouso.ejecutar(codigoPel, dto, em, actualizacion);
 
         if(Array.isArray(peluqueroActualizado)){
-            res.status(400).json({ message: peluqueroActualizado[0] })
+            res.status(404).json({ message: peluqueroActualizado[0] })
             return;
         };
 
-        res.status(201).json({
+        res.status(200).json({
             message: 'Peluquero actualizado', 
             data: {
                 ...peluqueroActualizado,
