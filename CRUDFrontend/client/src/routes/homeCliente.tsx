@@ -13,19 +13,19 @@ export default function HomeCliente() {
     try {
         user = rawUser ? JSON.parse(rawUser) : null;
     } catch (error) {
-        console.error("❌ Error al parsear userData:", error);
-        localStorage.removeItem("user"); // ✅ Evita datos corruptos en localStorage
+        console.error("Error al parsear userData:", error);
+        localStorage.removeItem("user");
     };
 
     useEffect(() => {
         if (!auth.isAuthenticated || !auth.user) {
-            console.warn("🔄 Redirigiendo a login...");
+            console.warn("Redirigiendo a login...");
             navigate("/login", { replace: true });
         }
     }, [auth.isAuthenticated, auth.user, navigate]);
 
     const handleLogout = () => {
-        console.log("🚪 Cerrando sesión...");
+        console.log("Cerrando sesión...");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         sessionStorage.removeItem("accessToken");
@@ -50,20 +50,20 @@ export default function HomeCliente() {
 
                             <div className="d-grid gap-3">
                                 <button 
-                                    onClick={() => navigate("/sacar-turno")} 
+                                    onClick={() => navigate("/clientes/sacar-turno")} 
                                     className="btn btn-primary btn-lg py-3"
                                 >
                                     <i className="bi bi-calendar-plus me-2"></i>
                                     Sacar Turno
                                 </button>
                                 
-                                <button onClick={() => navigate("/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
+                                <button onClick={() => navigate("/clientes/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
                                     <i className="bi bi-list-check me-2"></i>
                                     Historial de Cliente
                                 </button>
                                 
                                 <button 
-                                    onClick={() => navigate("/editar-perfil")} 
+                                    onClick={() => navigate("/clientes/editar-perfil-cliente")} 
                                     className="btn btn-outline-secondary btn-lg py-3"
                                 >
                                     <i className="bi bi-person-gear me-2"></i>
@@ -71,7 +71,7 @@ export default function HomeCliente() {
                                 </button>
                                 
                                 <button 
-                                    onClick={() => navigate("/baja-turno")} 
+                                    onClick={() => navigate("/clientes/baja-turno")} 
                                     className="btn btn-outline-warning btn-lg py-3"
                                 >
                                     <i className="bi bi-calendar-x me-2"></i>

@@ -4,7 +4,7 @@ export function getRutaInicioPorRol(rol:string):string {
         case "peluquero":
             return "/peluqueros";
         case "cliente":
-            return "/homeCliente";
+            return "/clientes";
         default:
             return "/login";
     };

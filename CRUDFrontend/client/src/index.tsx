@@ -22,7 +22,8 @@ import ServiciosPage from "./pages/servicio/Servicio.page.tsx";
 import TurnosPage from "./pages/turno/Turno.page.tsx";
 import MenuPage from './legacy/MenuPage.js';
 import Turnos from './routes/turnos.tsx';
-import EditarPerfil from './routes/EditarPerfil.tsx';
+import EditarPerfil from './routes/EditarPerfilPeluquero.tsx';
+import EditarPerfilCliente from './routes/EditarPerfilCliente.tsx';
 
 //Rutas privadas (Buscadores):
 import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
@@ -35,6 +36,7 @@ import HomePeluquero from './routes/homePeluquero.tsx';
 import TopTresPeluquerosPage from './routes/topTresPeluquerosPage.tsx';
 import ListadoTurnosPage from './routes/ListadoTurnosPage.tsx';
 import PanelAdministracionCruds from './routes/PanelAdminCRUDs.tsx';
+import ClienteLayout from './layout/ClienteLayout.tsx';
 
 const router = createBrowserRouter([
     {
@@ -64,6 +66,17 @@ const router = createBrowserRouter([
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "editar-perfil", element: <EditarPerfil /> }
+      ]
+    },
+    {
+      path:"clientes",
+      element: <ClienteLayout />,
+      children: [
+        { path: "", element: <HomeCliente /> },
+        { path: "historial-cliente", element: <HistorialClientePage /> },
+        { path: "editar-perfil-cliente", element: <EditarPerfilCliente /> }
+
+        
       ]
     },
     {
