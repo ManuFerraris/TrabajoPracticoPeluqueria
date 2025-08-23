@@ -2,7 +2,6 @@ import { Entity, Property, ManyToOne, Rel, PrimaryKey, OneToOne } from "@mikro-o
 import { Cliente } from "../cliente/clientes.entity.js";
 import { Peluquero } from "../peluquero/peluqueros.entity.js";
 import { Servicio } from "../Servicio/servicio.entity.js";
-// Mantenemos 'import type' para la definición de tipo de Pago.
 import type { Pago } from "../pago/pago.entity.js";
 
 @Entity()
@@ -33,13 +32,8 @@ export class Turno {
     @OneToOne(() => Servicio, servicio => servicio.turno, { nullable: true, orphanRemoval: true })
     servicio!: Rel<Servicio>;
     
-    // --- CAMBIO FINAL AQUÍ ---
-    // Hacemos lo mismo: pasamos el nombre 'Pago' como string.
-    // 'mappedBy' apunta a la propiedad 'turno' en la entidad Pago.
-    @OneToOne({
-      entity: 'Pago',
-      mappedBy: 'turno', // La propiedad en la entidad Pago que nos mapea
-      nullable: true
-    })
+    // Hacemos lo mismo: pasamos el nombre 'Pago' como string. 'mappedBy' apunta a la propiedad 'turno' en la entidad Pago.
+    @OneToOne({ entity: 'Pago', mappedBy: 'turno', nullable: true })
     pago?: Pago;
-}
+
+};

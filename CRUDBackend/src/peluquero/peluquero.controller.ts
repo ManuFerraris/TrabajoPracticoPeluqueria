@@ -12,6 +12,8 @@ import { GetMisTurnos } from "../application/casos-uso/casosUsoPeluquero/MisTurn
 import { BuscarPeluqueroPorEmail } from "../application/casos-uso/casosUsoPeluquero/BuscarPeluqueroPorEmail.js";
 import { HistMisTurnosPeluquero } from "../application/casos-uso/casosUsoPeluquero/HistMisTurnosPeluquero.js";
 import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
+import { TipoServicioRepositoryORM } from "../shared/db/TipoServicioRepositoryORM.js";
+import { HorariosDisponibles } from "../AltaTurno/HorariosDisponibles.js"; 
 
 export const findAll = async (req:Request, res:Response):Promise<void> => {
     try{
@@ -288,6 +290,51 @@ export const buscarPeluqueroPorEmail = async(req:Request, res:Response):Promise<
     }catch (error: any) {
         console.error('Error al buscar peluquero por email:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
+        return;
+    };
+};
+
+export const horariosDisponibles = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const fecha = req.query.fechaHora as string;
+        const {valor: codPeluquero, error:codPelError} = validarCodigo(req.params.codigo_peluquero, 'codigo peluquero');
+        if(codPelError || codPeluquero === undefined){
+            res.status(404).json({ errores: codPelError});
+            return;
+        };
+
+        const {valor: codTipoSer, error: codTSError} = validarCodigo(req.params.codigo_tipo, 'codigo Tipo Servicio');
+        if(codTSError || codTipoSer === undefined){
+            res.status(404).json({ errores: codTSError});
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const turnoRepo = new TurnoRepositoryORM(em);
+        const tipoSerRepo = new TipoServicioRepositoryORM(em);
+        const pelRepo = new PeluqueroRepositoryORM(em);
+
+        const casouso = new HorariosDisponibles(pelRepo, turnoRepo, tipoSerRepo);
+
+        const resultado = await casouso.ejecutar(codPeluquero, codTipoSer, fecha, em);
+
+        if(resultado.errores){
+            res.status(404).json({ message: resultado.errores });
+            return;
+        };
+
+        if (!resultado.horarios || resultado.horarios.length === 0) {
+            res.status(200).json({ message: 'No hay horarios disponibles para ese peluquero en dicho día.', data: [] });
+            return;
+        };
+
+        res.status(200).json({ message: 'Horarios disponibles encontrados.', data: resultado.horarios });
+        return;
+
+    }catch(errores:any){
+        console.error('Error al cargar los horarios disponibles.', errores);
+        res.status(500).json({ message: 'Error interno del servidor', errores });
         return;
     };
 };

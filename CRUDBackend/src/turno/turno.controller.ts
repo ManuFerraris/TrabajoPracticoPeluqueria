@@ -16,6 +16,7 @@ import { validarEstadoTurno } from "../application/validarEstadoTurno.js";
 import { FiltroTurnoPorPeluqueroYEstado } from "../application/casos-uso/casosUsoTurno/filtrosPorTurno.js";
 import { validarCodigo } from "../application/validarCodigo.js";
 import { CambiarEstado } from "../application/casos-uso/casosUsoTurno/CambiarEstado.js";
+import { AltaTurno } from "../AltaTurno/AltaTurno.js";
 
 export const findAll = async (req:Request, res:Response):Promise<void> => { //FUNCIONAL
     try{
@@ -310,6 +311,48 @@ export const cambiarEstado = async (req:Request, res:Response):Promise<void> => 
     }catch(errores:any){
         console.error('Error al cambiar el estado al turno.', errores);
         res.status(500).json({ message:'Error interno del servidor.',errores });
+        return;
+    };
+};
+
+export const altaTurno = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const {turno, servicio} = req.body;
+
+        const orm = (req.app.locals as { orm: MikroORM }).orm;
+        const em = orm.em.fork();
+        const turnoRepo = new TurnoRepositoryORM(em);
+        const servicioRepo = new ServicioRepositoryORM(em);
+        const casouso = new AltaTurno(turnoRepo, servicioRepo);
+
+        const resultado = await casouso.ejecutar(turno, servicio, em);
+        if(Array.isArray(resultado)){
+            res.status(400).json({ message:'Ha ocurrido un error a la hora de crear un turno:', data:resultado});
+            return;
+        };
+        // Probamos serializar porque se guarda pero aun asi responde con un 500.
+        const TurnoConServicioDTO = {
+            turno: {
+                codigo_turno: turno.codigo_turno,
+                fecha_hora: turno.fecha_hora,
+                tipo_turno: turno.tipo_turno,
+            },
+            servicio: {
+                monto: servicio.monto,
+                medio_pago: servicio.medio_pago,
+                tipo_servicio_codigo: servicio.tipo_servicio_codigo,
+            }
+        };
+
+        console.log("Resultado listo para enviar:", resultado);
+        console.log("Resultado serializado: ", TurnoConServicioDTO);
+
+        res.status(201).json({data: TurnoConServicioDTO});
+        return;
+
+    }catch(error:any){
+        console.error('Error al registrar el alta del turno', error);
+        res.status(500).json({ message: 'Error interno del servidor', error });
         return;
     };
 };

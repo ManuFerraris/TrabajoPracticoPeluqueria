@@ -3,7 +3,6 @@ import { orm } from "../shared/db/orm.js";
 import { Pago } from "./pago.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 import Stripe from 'stripe';
-import { Servicio } from "../Servicio/servicio.entity.js";
 
 const em = orm.em; 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -42,19 +41,19 @@ function validaMetodo(metodo: string) {
 
 // Obtener todos los pagos y con su turno asociado
 async function findAll(req: Request, res: Response) {
-  try {
-    // Trae todos los pagos junto con su turno asociado
-    const pagos = await em.find(Pago, {}, { populate: ['turno'] });
+    try {
+        // Trae todos los pagos junto con su turno asociado
+        const pagos = await em.find(Pago, {}, { populate: ['turno'] });
 
-    // Responde con el array de pagos y un mensaje
-    return res.status(200).json({
-      message: 'Todos los pagos encontrados',
-      data: pagos
-    });
-  } catch (error: any) {
-    // En caso de error, responde con status 500 y el mensaje del error
-    return res.status(500).json({ message: error.message });
-  }
+        // Responde con el array de pagos y un mensaje
+        return res.status(200).json({
+        message: 'Todos los pagos encontrados',
+        data: pagos
+        });
+    } catch (error: any) {
+        // En caso de error, responde con status 500 y el mensaje del error
+        return res.status(500).json({ message: error.message });
+    }
 }
 
 // Obtener un pago por ID
@@ -79,7 +78,7 @@ async function getOne(req: Request, res: Response) {
 // Crear un nuevo pago
 async function add(req: Request, res: Response) {
     try {
-        const { monto, estado, metodo, fecha, turno_codigo_turno } = req.body.sanitizedInput;
+        const { monto, estado, metodo, fecha_hora, turno_codigo_turno } = req.body.sanitizedInput;
 
         if (!turno_codigo_turno) {
             return res.status(400).json({ message: 'Código de turno no proporcionado.' });
@@ -118,7 +117,7 @@ async function add(req: Request, res: Response) {
         pago.monto = monto;
         pago.estado = estado;
         pago.metodo = metodo;  // corregido
-        pago.fecha = fecha ? new Date(fecha) : new Date();
+        pago.fecha_hora = fecha_hora ? new Date(fecha_hora) : new Date();
         pago.turno = turno;
 
         await em.persistAndFlush(pago);
@@ -225,7 +224,7 @@ async function crearPago(req: Request, res: Response) {
                 return res.status(400).json({ message: 'Monto o Estado no válidos para pago en efectivo.' });
             }
             
-            const pago = em.create(Pago, { monto, estado, metodo: 'Efectivo', fecha: new Date(), turno });
+            const pago = em.create(Pago, { monto, estado, metodo: 'Efectivo', fecha_hora: new Date(), turno });
             await em.persistAndFlush(pago);
             return res.status(201).json({ message: 'Pago en Efectivo creado exitosamente', data: pago });
         } 
@@ -236,7 +235,7 @@ async function crearPago(req: Request, res: Response) {
                 monto: montoDesdeDB,
                 estado: 'Pendiente',
                 metodo: 'Stripe',
-                fecha: new Date(),
+                fecha_hora: new Date(),
                 turno
             });
             await em.persistAndFlush(nuevoPago);

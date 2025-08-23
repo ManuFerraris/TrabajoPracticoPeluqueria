@@ -18,7 +18,7 @@ export class Pago {
   estado!: string;
 
   @Property({ type: 'date' })
-  fecha: Date = new Date();
+  fecha_hora: Date = new Date();
 
   // --- CAMBIO FINAL AQUÍ ---
   // Le pasamos el nombre de la entidad como un string 'Turno'.

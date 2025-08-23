@@ -13,8 +13,8 @@ export class TipoServicio {
     @Property({type:'string', nullable: true })
     descripcion?: string;
 
-    @Property({type:'number', nullable: true })
-    duracion_estimada?: number;
+    @Property({type:'number', nullable: false })
+    duracion_estimada!: number;
 
     @Property({type:'number', nullable: true })
     precio_base?: number;

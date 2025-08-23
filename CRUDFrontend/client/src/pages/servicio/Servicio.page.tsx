@@ -45,7 +45,7 @@ function ServiciosPage(){
     const [monto, setMonto] = useState<string>('');
     const [estado, setEstado] = useState<'Pendiente' | 'Pago' | ''>('');
     const [/*adicional_adom*/, setAdicional_adom] = useState<string>('');
-    const [ausencia_cliente, setAusencia_cliente] = useState<'Se presento' | 'Esta ausente' | ''>('');
+    const [ausencia_cliente, setAusencia_cliente] = useState<'Se presento' | 'Esta ausente' | 'Esperando atencion' | ''>('');
     const [medio_pago, setMedio_pago] = useState<'Efectivo' | 'Mercado Pago' | ''>('');
     const [turno_codigo_turno, setTurno] = useState<string>('');
     const [tipo_servicio_codigo, setCodigo_tipo] = useState<string>('')
@@ -154,7 +154,7 @@ function ServiciosPage(){
 
         if (!ausencia_cliente) {
             errors.ausencia_cliente = "Seleccione una opcion.";
-        } else if(ausencia_cliente !== "Se presento" && ausencia_cliente !== "Esta ausente"){
+        } else if(ausencia_cliente !== "Se presento" && ausencia_cliente !== "Esta ausente" && ausencia_cliente !== "Esperando atencion"){
             errors.ausencia_cliente = "Seleccione una opcion.";
         };
 
@@ -352,6 +352,7 @@ function ServiciosPage(){
                                         <option value="">Seleccione una opcion</option>
                                         <option value="Se presento">Se presento</option>
                                         <option value="Esta ausente">Esta ausente</option>
+                                        <option value="Esperando atencion">Esperando atencion</option>
                                     </select>
                                     {errors.ausencia_cliente && <div className="text-danger">{errors.ausencia_cliente}</div>}
                                 </div>

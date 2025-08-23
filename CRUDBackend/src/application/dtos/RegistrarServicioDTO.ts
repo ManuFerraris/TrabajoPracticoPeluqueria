@@ -5,7 +5,7 @@ import { Turno } from "../../turno/turno.entity.js";
 export interface RegistrarServicioDTO {
     monto: number;
     estado: "Pendiente" | "Pago";
-    ausencia_cliente: "Se presento" | "Esta ausente";
+    ausencia_cliente: "Se presento" | "Esta ausente" | "Esperando atencion";
     medio_pago: "Mercado Pago" | "Efectivo";
     turno_codigo_turno: number;
     tipo_servicio_codigo: number;
@@ -33,11 +33,11 @@ export async function validarServicioDTO(
         errores.push("El estado solo puede ser 'Pendiente' o 'Pago'.");
     };
 
-    if(dto.ausencia_cliente != 'Se presento' && dto.ausencia_cliente != 'Esta ausente'){
-        errores.push("Solo es valido 'Se presento' o 'Esta ausente'.");
+    if(dto.ausencia_cliente !== 'Se presento' && dto.ausencia_cliente !== 'Esta ausente' && dto.ausencia_cliente !== "Esperando atencion"){
+        errores.push("Solo es valido 'Se presento', 'Esta ausente' o 'Esperando atencion'.");
     };
 
-    if(dto.medio_pago != 'Mercado Pago' && dto.medio_pago != 'Efectivo'){
+    if(dto.medio_pago !== 'Mercado Pago' && dto.medio_pago !== 'Efectivo'){
         errores.push("El medio de pago solo puede ser 'Mercado Pago' o 'Efectivo'.");
     };
 

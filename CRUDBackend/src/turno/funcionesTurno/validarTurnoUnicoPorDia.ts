@@ -1,4 +1,4 @@
-import { EntityManager } from "@mikro-orm/mysql";
+import { EntityManager } from "@mikro-orm/core";
 import { Cliente } from "../../cliente/clientes.entity.js";
 import { Turno } from "../turno.entity.js";
 

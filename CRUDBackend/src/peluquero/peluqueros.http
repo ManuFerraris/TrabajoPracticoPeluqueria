@@ -36,3 +36,6 @@ GET http://localhost:3000/api/peluqueros/topTresPeluqueros
 
 ### Obtener mis turnos
 GET http://localhost:3000/api/peluqueros/misTurnosPeluquero/49
+
+### Obtener horarios disponibles del peluquero
+GET http://localhost:3000/api/peluqueros/horariosDisponibles/17/3?fechaHora=2025-08-21
