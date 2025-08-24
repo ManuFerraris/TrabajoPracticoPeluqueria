@@ -38,6 +38,7 @@ import ListadoTurnosPage from './routes/ListadoTurnosPage.tsx';
 import PanelAdministracionCruds from './routes/PanelAdminCRUDs.tsx';
 import ClienteLayout from './layout/ClienteLayout.tsx';
 import AltaTurnoPage from './pages/AltaTurnos.tsx';
+import CancelarTurno from './pages/CancelarTurno.tsx';
 
 const router = createBrowserRouter([
     {
@@ -76,8 +77,8 @@ const router = createBrowserRouter([
         { path: "", element: <HomeCliente /> },
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "editar-perfil-cliente", element: <EditarPerfilCliente /> },
-        { path: "sacar-turno", element: <AltaTurnoPage /> }
-
+        { path: "sacar-turno", element: <AltaTurnoPage /> },
+        { path: "baja-turno", element: <CancelarTurno /> }
       ]
     },
     {

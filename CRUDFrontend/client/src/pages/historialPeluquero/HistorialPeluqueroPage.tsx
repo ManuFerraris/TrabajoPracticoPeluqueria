@@ -91,8 +91,8 @@ function HistorialPeluqueroPage() {
     };
 
     return (
-        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
-            <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
+        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-200">
+            <div className="card shadow-lg w-100" style={{ maxWidth: '1400px' }}>
                 <div className="card-header bg-primary text-white text-center">
                     <h3>{userData?.rol === 'admin' ? 'Historial de Turnos por Peluquero' : 'Mi Historial de Atenciones'}</h3>
                 </div>
@@ -110,7 +110,7 @@ function HistorialPeluqueroPage() {
                                 </select>
                             </div>
                             <div className="col-md-6 d-flex align-items-end">
-                                <button className="btn btn-success w-100" onClick={() => obtenerHistorial(peluqueroSeleccionado)}>Ver Historial</button>
+                                <button className="btn btn-success w-40" onClick={() => obtenerHistorial(peluqueroSeleccionado)}>Ver Historial</button>
                             </div>
                         </div>
                     )}

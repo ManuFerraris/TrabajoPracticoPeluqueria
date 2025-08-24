@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 interface Turno {
     codigo_turno: number;
     fecha_hora: string;
+    estado:string;
     peluquero?: {
         nombre: string;
     };
@@ -94,8 +95,8 @@ function HistorialClientePage() {
     }
 
     return (
-        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
-            <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
+        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-200">
+            <div className="card shadow-lg w-100" style={{ maxWidth: '1400px' }}>
                 <div className="card-header bg-primary text-white text-center">
                     <h3>{userData?.rol === 'admin' ? 'Historial de Turnos por Cliente' : 'Mi Historial de Turnos'}</h3>
                 </div>
@@ -113,7 +114,7 @@ function HistorialClientePage() {
                                 </select>
                             </div>
                             <div className="col-md-6 d-flex align-items-end">
-                                <button className="btn btn-success w-100" onClick={() => obtenerHistorial(clienteSeleccionado)}>Ver Historial</button>
+                                <button className="btn btn-success w-40" onClick={() => obtenerHistorial(clienteSeleccionado)}>Ver Historial</button>
                             </div>
                         </div>
                     )}
@@ -123,8 +124,9 @@ function HistorialClientePage() {
                             <thead className="table-primary sticky-top">
                                 <tr>
                                     <th>Código de Turno</th>
+                                    <th>Estado Turno</th>
                                     <th>Fecha y Hora</th>
-                                    <th>Atendido por</th>
+                                    <th>Peluquero</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,6 +134,7 @@ function HistorialClientePage() {
                                     turnos.map(turno => (
                                         <tr key={turno.codigo_turno}>
                                             <td>{turno.codigo_turno}</td>
+                                            <td>{turno.estado}</td>
                                             <td>{formatFechaHora(turno.fecha_hora)}</td>
                                             <td>{turno.peluquero?.nombre || 'No disponible'}</td>
                                         </tr>

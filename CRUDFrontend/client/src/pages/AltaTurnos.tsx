@@ -342,51 +342,49 @@ function AltaTurnoPage(){
                     {errors.medio_pago && <div className="text-danger">{errors.medio_pago}</div>}
                 </div>
                 
-                    {/* Botón de confirmación */}
-                    <button
-                        type="submit"
-                        className='btn btn-success'
-                        onClick={
-                            () => {
-                            console.log("Datos que se enviaran al backend: ",{ codigo_peluquero, tipo_servicio_codigo, fecha_hora, codigo_cliente, tipo_turno, medio_pago, horarioSeleccionado });
-                        }}
-                    >
-                    Reservar turno
-                    </button>
-
-
-            </form>
-            
-            {/* Tabla de horarios */}
-            <h5>Horarios disponibles</h5>
-            <table className="table table-bordered">
-                <thead>
-                    <tr>
-                    <th>Horario</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {horariosDisponibles.length > 0 ? (
-                    horariosDisponibles.map((hora: string, index: number) => (
-                        <tr key={index}>
-                            <td>
-                                <button
-                                    type="button"
-                                    className={`btn btn-outline-primary ${horarioSeleccionado === hora ? "active" : ""}`}
-                                    onClick={() => setHorarioSeleccionado(hora)}
-                                ></button>
-                                {hora}
-                            </td>
+                {/* Tabla de horarios */}
+                <h5>Horarios disponibles</h5>
+                <table className="table table-bordered">
+                    <thead>
+                        <tr>
+                        <th>Horario</th>
                         </tr>
-                    ))
-                    ) : (
-                    <tr>
-                        <td>No hay horarios disponibles</td>
-                    </tr>
-                    )}
-                </tbody>
-            </table>
-    
+                    </thead>
+                    <tbody>
+                        {horariosDisponibles.length > 0 ? (
+                        horariosDisponibles.map((hora: string, index: number) => (
+                            <tr key={index}>
+                                <td>
+                                    <button
+                                        type="button"
+                                        className={`btn btn-outline-primary ${horarioSeleccionado === hora ? "active" : ""}`}
+                                        onClick={() => setHorarioSeleccionado(hora)}
+                                    ></button>
+                                    {hora}
+                                </td>
+                            </tr>
+                        ))
+                        ) : (
+                        <tr>
+                            <td>No hay horarios disponibles</td>
+                        </tr>
+                        )}
+                    </tbody>
+                </table>
+
+                {/* Botón de confirmación */}
+                <button
+                    type="submit"
+                    className='btn btn-success'
+                    onClick={
+                        () => {
+                        console.log("Datos que se enviaran al backend: ",{ codigo_peluquero, tipo_servicio_codigo, fecha_hora, codigo_cliente, tipo_turno, medio_pago, horarioSeleccionado });
+                    }}
+                >
+                Reservar turno
+                </button>
+            </form>
+
             {/* Debug visual */}
             <div className="alert alert-secondary">
                 <strong>Debug:</strong><br />
