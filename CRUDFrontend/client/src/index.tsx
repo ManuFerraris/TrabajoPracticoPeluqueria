@@ -59,7 +59,11 @@ const router = createBrowserRouter([
     },
     {
       path:"peluqueros",
-      element: <PeluqueroLayout />,
+      element: (
+        <ProtectedRoute>
+          <PeluqueroLayout />
+        </ProtectedRoute>
+      ),
       children: [
         { path: "", element: <HomePeluquero /> },
         { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
@@ -67,12 +71,17 @@ const router = createBrowserRouter([
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
-        { path: "editar-perfil", element: <EditarPerfil /> }
+        { path: "editar-perfil", element: <EditarPerfil /> },
+        { path: "baja-turno", element: <CancelarTurno /> }
       ]
     },
     {
       path:"clientes",
-      element: <ClienteLayout />,
+      element: (
+        <ProtectedRoute>
+          <ClienteLayout />
+        </ProtectedRoute>
+      ),
       children: [
         { path: "", element: <HomeCliente /> },
         { path: "historial-cliente", element: <HistorialClientePage /> },
@@ -92,7 +101,7 @@ const router = createBrowserRouter([
         { path: "tipoServicios", element: <TipoServicioPage /> },
         { path: "servicios", element: <ServiciosPage /> },
         { path: "turnos", element: <TurnosPage /> },
-        { path: "clientes", element: <ClientesPage /> },
+        { path: "clientesCrud", element: <ClientesPage /> },
         { path: "menu", element: <MenuPage /> },
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },

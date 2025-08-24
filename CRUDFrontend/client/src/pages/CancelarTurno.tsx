@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { API_URL } from "../auth/constants.ts";
 import { useAuth } from "../auth/AuthProvider.tsx";
+import { useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 type Turno = {
@@ -19,29 +20,59 @@ function CancelarTurno() {
     const [turnos, setTurnos] = useState<Turno[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const codCli = user?.codigo;
+    const codUser = user?.codigo;
+    const userLoguedo = user?.rol;
+    console.log("Usuario y codigo extraido del useAuth: ",userLoguedo, codUser)
 
-    useEffect(()=> {
-        const fetchTurnos = async () => {
-            setLoading(true);
-            try{
-                const response = axios.get(`${API_URL}/clientes/misTurnosActivos/${codCli}`,{
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                });
-                const turnos = (await response).data.data || [];
-                setTurnos(turnos);
-            }catch(error:any){
-                if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
-                    console.error(error.response.data.errores);
-                } else {
-                    console.error("Error inesperado:", error);
-                }
-            }finally{
-                setLoading(false);
+    const fetchTurnosCliente = useCallback(async () => {
+        setLoading(true);
+        try{
+            const response = await axios.get(`${API_URL}/clientes/misTurnosActivos/${codUser}`,{
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            const turnos = response.data.data || [];
+            setTurnos(turnos);
+        }catch(error:any){
+            if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
+                console.error(error.response.data.errores);
+            } else {
+                console.error("Error inesperado:", error);
             }
+        }finally{
+            setLoading(false);
+        }
+    },[accessToken, codUser])
+
+    const fetchTurnosPeluquero = useCallback(async () => {
+        setLoading(true);
+        try{
+            const response = await axios.get(`${API_URL}/peluqueros/misTurnosPeluquero/${codUser}`,{
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            const turnos:Turno[] =  response.data.data || [];
+            const turnosActivos = turnos.filter(t => t.estado === "Activo");
+            setTurnos(turnosActivos);
+        }catch(error:any){
+            if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
+                console.error(error.response.data.errores);
+            } else {
+                console.error("Error inesperado:", error);
+            }
+        }finally{
+            setLoading(false);
+        }
+    },[accessToken, codUser])
+
+    
+    useEffect(()=> {
+        if(userLoguedo === 'admin' || userLoguedo === 'peluquero'){
+            fetchTurnosPeluquero()
+        }else {
+            fetchTurnosCliente();
         };
-        fetchTurnos();
-    },[accessToken, codCli]);
+        
+    },[fetchTurnosCliente, fetchTurnosPeluquero, userLoguedo]);
+
 
     //Continuar con la baja logica del turno...
     const confirmarAccion = async (titulo: string, texto: string): Promise<boolean> => {

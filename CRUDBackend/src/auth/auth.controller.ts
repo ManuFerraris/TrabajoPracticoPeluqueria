@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import Redis from 'ioredis';
 import { Request, Response } from 'express';
 import { PeluqueroRepositoryORM } from '../shared/db/PeluqueroRepositoryORM.js';
 import { ClienteRepositoryORM } from '../shared/db/ClienteRepositoryORM.js';
@@ -51,19 +50,13 @@ export const login = async (req: Request, res: Response) => {
 
     const {accessToken, refreshToken, user} = resultado;
     
-    const userData = isCliente(user) ? {
-        codigo_cliente: user.codigo_cliente,
+    const userData = {
+        codigo: isCliente(user) ? user.codigo_cliente : user.codigo_peluquero,
         email: user.email,
         rol: user.rol,
-        nombre: user.NomyApe
-    }
-    :{
-        codigo_peluquero: user.codigo_peluquero,
-        email: user.email,
-        rol: user.rol,
-        nombre: user.nombre
+        nombre: isCliente(user) ? user.NomyApe : user.nombre
     };
-
+    console.log("User data en el login que se manda al frontend: ", userData)
     return res.json({ accessToken, refreshToken, user:userData });
 };
 
@@ -232,4 +225,25 @@ export const validateResetToken = (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ message: 'Token válido', email });
+};
+
+export const validateAccessToken = (req:Request, res:Response):void => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        res.status(401).json({ message: "Token no proporcionado" });
+        return;
+    };
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+        const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
+        res.status(200).json({ valid: true, user: decoded });
+        console.log("El famoso decoded: ", decoded);
+        return
+    } catch (error) {
+        res.status(401).json({ message: "Token inválido o expirado" });
+        return;
+    };
 };

@@ -84,16 +84,25 @@ export class AuthService{
       await this.failedLoginRepo.incrementAttempts(email);
       return { ok: false, status: 401, message: 'Email o contraseña incorrectos' };
     };
-
-    const codigo = isCliente(user) ? user.codigo_cliente : user.codigo_peluquero;
+    const codigo = isCliente(user) ? user.codigo_cliente : user.codigo_peluquero
+    const payload = {
+      codigo,
+      rol: user.rol,
+      email: user.email,
+      nombre: isCliente(user) ? user.NomyApe : user.nombre
+    };
+    console.log("Payload firmado en el authService: ", payload);
     const accessToken = jwt.sign(
-      { codigo, rol: user.rol },
+      payload,
       ACCESS_TOKEN_SECRET,
-      { expiresIn: '1h' });
+      { expiresIn: '1h' }
+    );
+    
     const refreshToken = jwt.sign(
-      { codigo, rol: user.rol },
+      payload,
       REFRESH_TOKEN_SECRET,
-      { expiresIn: '30d' });
+      { expiresIn: '30d' }
+    );
 
     await this.refreshTokenRepo.add(refreshToken, user);
     await this.failedLoginRepo.resetAttempts(email);

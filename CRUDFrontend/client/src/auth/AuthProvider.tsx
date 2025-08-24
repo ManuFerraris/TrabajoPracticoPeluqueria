@@ -11,7 +11,7 @@ interface UserData {
     rol: 'cliente' | 'peluquero'|'admin';
     nombre: string;
     // Agregar otros campos según necesidad
-}
+} 
 
 // Contexto de autenticación
 // Este contexto se va a encargar de almacenar los datos del usuario y los tokens de acceso y refresco
@@ -20,6 +20,7 @@ interface AuthContextType {
     user: UserData | null;
     accessToken: string | null;
     refreshToken: string | null;
+    isLoading: boolean;
     login: (accessToken: string, refreshToken: string, userData: UserData) => void;
     logout: () => void;
     refreshAuth: () => Promise<boolean>;
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     accessToken: null,
     refreshToken: null,
+    isLoading: true,
     login: () => {},
     logout: () => {},
     refreshAuth: async () => false,
@@ -49,25 +51,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<UserData | null>(null);
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // Efecto para cargar la autenticación al iniciar
     useEffect(() => {
-        const loadAuthData = () => {
+        const loadAuthData = async () => {
         try {
             const storedAccessToken = localStorage.getItem('accessToken');
             const storedRefreshToken = localStorage.getItem('refreshToken');
             const storedUser = localStorage.getItem('user');
 
             if (storedAccessToken && storedRefreshToken && storedUser) {
-            setAccessToken(storedAccessToken);
-            setRefreshToken(storedRefreshToken);
-            setUser(JSON.parse(storedUser));
-            setIsAuthenticated(true);
-            }
+                const response = await axios.get(`${API_URL}/api/auth/validate-token`, {
+                    headers: {
+                        Authorization: `Bearer ${storedAccessToken}`
+                    }
+                });
+                //console.log("User recibido desde validate-token:", response.data.user);
+                if (response.status === 200 && response.data.valid) {
+                    setAccessToken(storedAccessToken);
+                    setRefreshToken(storedRefreshToken);
+                    setUser(response.data.user);
+                    setIsAuthenticated(true); 
+                } else {
+                    console.warn("Token inválido. Cerrando sesión.");
+                    logout();
+                }; 
+            }else {
+                logout();
+            };
         } catch (error) {
             console.error("Error al cargar datos de autenticación:", error);
             logout();
-        }
+        }finally {
+            setIsLoading(false);
+        };
     };
 
     loadAuthData();
@@ -140,11 +158,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         user,
         accessToken,
         refreshToken,
+        isLoading,
         login,
         logout,
         refreshAuth,
         setUser: updateUser
     };
+
+    if (isLoading) {
+        return (
+            <div style={{ padding: "2rem", textAlign: "center" }}>
+                <p>Cargando autenticación...</p>
+            </div>
+        );
+    }
+
+    /*console.log("Render AuthProvider:", {
+        isAuthenticated,
+        isLoading,
+        user,
+        accessToken
+    });*/
 
     return (
         <AuthContext.Provider value={contextValue}>

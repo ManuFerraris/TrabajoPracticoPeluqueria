@@ -17,7 +17,7 @@ const PanelAdministracionCruds: React.FC = () => {
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/clientes")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/clientesCrud")} className="btn btn-outline-primary w-100 py-3">
                         Clientes
                     </button>
                 </div>

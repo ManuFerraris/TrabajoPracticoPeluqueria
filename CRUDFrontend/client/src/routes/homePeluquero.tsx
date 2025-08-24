@@ -119,7 +119,7 @@ export default function HomePeluquero() {
                                     </>
                                 )}
 
-                                <button onClick={() => navigate("/baja-turno")} className="btn btn-outline-warning btn-lg py-3">
+                                <button onClick={() => navigate("/peluqueros/baja-turno")} className="btn btn-outline-warning btn-lg py-3">
                                     Cancelar Turno
                                 </button>
 

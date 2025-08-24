@@ -263,11 +263,11 @@ export const filtrosPorTurno = async (req:Request, res:Response):Promise<void> =
 
         const turnos = await casouso.ejecutar(estado, codPel);
         if(turnos.length === 0){
-            res.status(400).json({ movimientos: [], message: `No se encontraron turnos con el estado: ${estado} para dicho peluquero.` });
+            res.status(200).json({ data: [], message: `No se encontraron turnos con el estado: ${estado} para dicho peluquero.` });
             return;
         };
 
-        res.status(200).json(turnos);
+        res.status(200).json({data: turnos});
         return;
         
     }catch(errores:any){

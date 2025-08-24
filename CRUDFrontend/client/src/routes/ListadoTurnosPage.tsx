@@ -27,35 +27,71 @@ function ListadoTurnosPage() {
     const accessToken = localStorage.getItem('accessToken');
     const [estadoFiltro, setEstadoFiltro] = useState<string>('Activo');
     const [turnos, setTurnos] = useState<Turno[]>([]);
+    const estados = ['Activo', 'Cancelado', 'Sancionado'];
 
+    console.log("Estamos en Mis Turnos!")
     useEffect(() => {
-        if (!user?.codigo_peluquero) {
+        if (!user?.codigo) {
+            console.log("Esperando datos de sesión...");
             return;
-        }
-
+        };
         const fetchTurnos = async () => {
             try {
-            const res = await axios.get(`${API_URL}/turnos/filtrosTurnoPorEstadoYPel`, {
-                params: {
-                estado: estadoFiltro,
-                codigo_peluquero: user.codigo_peluquero
-                },
-                headers: {
-                Authorization: `Bearer ${accessToken}`
+                const response = await axios.get(`${API_URL}/turnos/filtrosTurnoPorEstadoYPel`, {
+                    params: {
+                        estado: estadoFiltro,
+                        codigo_peluquero: user.codigo
+                    },
+                        headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                const turnos = response.data.data || [];
+                console.log(response)
+                
+                if(response.status === 200){
+                    setTurnos(turnos);
+                    return;
                 }
-            });
 
-            setTurnos(res.data);
-            } catch (err) {
-            console.error("Error al obtener turnos:", err);
-            Swal.fire('Error', 'No se pudieron cargar los turnos.', 'error');
+                if(response.status === 200 && turnos.length === 0){
+                    Swal.fire({
+                        icon: "info",
+                        title: "Sin turnos",
+                        text: `No hay turnos con estado ${estadoFiltro} para este peluquero.`,
+                        confirmButtonText: "Aceptar"
+                    });
+                    setTurnos([]);
+                    return;
+                };
+            } catch (error:any) {
+                const status = error.response?.status;
+                const mensajeBackend = error.response?.data?.message ?? "Error inesperado al traer el turno.";
+
+                // Caso: backend devuelve 400 PERO es una respuesta controlada
+                if (status === 400 && error.response?.data?.data?.length === 0) {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Sin turnos",
+                        text: mensajeBackend,
+                        confirmButtonText: "Aceptar"
+                    });
+                    setTurnos([]);
+                    return;
+                };
+                // Error real
+                console.error("Error al traer turnos:", mensajeBackend);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error al obtener turnos",
+                    text: mensajeBackend,
+                    confirmButtonText: "Aceptar"
+                });
             };
         };
         fetchTurnos();
-    }, [user,estadoFiltro,accessToken]);
+    }, [user, estadoFiltro, accessToken]);
 
-
-const estados = ['Activo', 'Cancelado', 'Sancionado'];
     return (
         <div className="container mt-5">
         <h2 className="text-center mb-4">Mis Turnos</h2>
