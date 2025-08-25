@@ -1,5 +1,4 @@
 import { useNavigate, Navigate  } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -8,21 +7,6 @@ export default function HomePeluquero() {
     const navigate = useNavigate();
     const auth = useAuth();
     const user = auth.user; 
-    
-    useEffect(() => {
-        const checkAuth = async () => {
-            if(!auth.isAuthenticated) return; 
-        
-            const refreshed = await auth.refreshAuth();
-            if(!refreshed) {
-                console.warn("Sesion expirada, cerrando sesión...");
-                auth.logout();
-                navigate("/login", { replace: true });
-            }
-        };
-        checkAuth();
-    },[auth, navigate]);
-
 
     if (!auth.isAuthenticated || !user) {
         return <Navigate to="/login" replace />;

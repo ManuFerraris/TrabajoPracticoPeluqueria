@@ -56,21 +56,41 @@ export const login = async (req: Request, res: Response) => {
         rol: user.rol,
         nombre: isCliente(user) ? user.NomyApe : user.nombre
     };
-    console.log("User data en el login que se manda al frontend: ", userData)
-    return res.json({ accessToken, refreshToken, user:userData });
+    console.log("User data en la funcion login que se manda al frontend: ", userData)
+    return res.status(200).json({ accessToken, refreshToken, user:userData });
 };
 
 export const refreshToken = async (req: Request, res: Response) => {
     const token = req.body.refreshToken; // Obtenemos el refresh token del cuerpo de la solicitud
-    console.log("Token recibido en refreshToken: ", token);
+    console.log("Token recibido en refresh-token: ", token);
     if (typeof token !== 'string' || token.trim() === '') {
         return res.status(401).json({ message: 'Refresh token no proporcionado o invalido.' });
     };
     
     try {
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const cliRepo = new ClienteRepositoryORM(em);
+        const pelRepo = new PeluqueroRepositoryORM(em);
+
         // Verificamos el refresh token con la clave secreta
         const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as { codigo: number, rol: string };
     
+        let user: Cliente | Peluquero | null;
+        let nombre;
+
+        if(decoded.rol === 'cliente'){
+            user = await cliRepo.getOne(decoded.codigo);
+            nombre = user?.NomyApe;
+        }else {
+            user = await pelRepo.buscarPeluquero(decoded.codigo);
+            nombre = user?.nombre;
+        };
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        };
+
         // Validamos que ese token todavía exista en la base de datos
         const refreshTokenRepo = em.getRepository(RefreshToken);
         const storedToken = await refreshTokenRepo.findOne({ token });
@@ -79,14 +99,22 @@ export const refreshToken = async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'El token ha sido revocado o eliminado.' });
         };
 
-        // Generamos un nuevo access token
+        // Firmamos un nuevo access token
+        const payload = {
+            codigo: decoded.codigo,
+            email:user.email,
+            rol: decoded.rol,
+            nombre: nombre
+        };
         const accessToken = jwt.sign(
-            { codigo: decoded.codigo, rol: decoded.rol },
+            payload,
             ACCESS_TOKEN_SECRET,
             { expiresIn: '3h' }
         );
+        console.log("Nuevo accessToken tras refresh:", accessToken);
+        console.log("Token decodificado:", jwt.decode(accessToken));
     
-        return res.json({ accessToken });
+        return res.status(200).json({ accessToken, user: payload });
 
     }catch (error) {
         if(error instanceof jwt.TokenExpiredError){
@@ -167,7 +195,6 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     };
 };
 
-// POST /auth/reset-password
 export const resetPassword = async (req: Request, res: Response) => {
     const orm = (req.app.locals as { orm:MikroORM }).orm;
     const em = orm.em.fork();
@@ -240,7 +267,7 @@ export const validateAccessToken = (req:Request, res:Response):void => {
     try {
         const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
         res.status(200).json({ valid: true, user: decoded });
-        console.log("El famoso decoded: ", decoded);
+        console.log("El famoso decoded en validate token: ", decoded);
         return
     } catch (error) {
         res.status(401).json({ message: "Token inválido o expirado" });

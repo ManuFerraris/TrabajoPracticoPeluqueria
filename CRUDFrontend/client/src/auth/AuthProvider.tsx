@@ -1,12 +1,11 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
 import axios from "axios";
-
+import { useCallback } from "react";
 const API_URL = 'http://localhost:3000';
 
 // Datos que se van a almaecenar mientras el usuario este autenticado, se almacenaran en el localStorage
 interface UserData {
     codigo: number;
-    codigo_peluquero?: number;
     email: string;
     rol: 'cliente' | 'peluquero'|'admin';
     nombre: string;
@@ -53,6 +52,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    // Función para refrescar el token de acceso
+    const refreshAuth = useCallback(async (): Promise<boolean> => {
+        if (!refreshToken) return false;
+        try {
+            const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken});
+            
+            if(response.status === 200){
+                const { accessToken } = response.data;
+                localStorage.setItem("accessToken", accessToken);
+                return true;
+            };
+        } catch (error: any) {
+            console.error("Error al refrescar token:", error.response?.data || error.message);
+        };
+        logout();
+        return false;
+    }, [refreshToken]);
+
+    useEffect(() => {
+        const refreshLoop = setInterval(async () => {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if(!refreshToken) return;
+
+            try{
+                const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken})
+                if(response.status === 200 && response.data.accessToken && response.data.user){
+                    const newAccessToken = response.data.accessToken;
+                    localStorage.setItem("accessToken", newAccessToken);
+                    setAccessToken(newAccessToken);
+                    console.log("Token refrescado automáticamente");
+                    const refreshUser = response.data.user
+                    localStorage.setItem("user", JSON.stringify(refreshUser));
+                    setUser(refreshUser);
+                    console.log("Usuario tambien refrescado automáticamente");
+                } else {
+                    console.warn("Respuesta inesperada al refrescar token:", response);
+                    logout();
+                };
+            }catch(error:any){
+                const mensaje = error.response?.data?.message ?? error.message;
+                console.error("Error al refrescar token automáticamente:", mensaje);
+                logout();
+            };
+        }, 1000 * 60 * 59); // Cada 59 minutos porque el del backend dura 60 (lo probe cada 1 minuto y andaba bien).
+        return () => clearInterval(refreshLoop);
+    }, []);
+
     // Efecto para cargar la autenticación al iniciar
     useEffect(() => {
         const loadAuthData = async () => {
@@ -60,8 +106,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const storedAccessToken = localStorage.getItem('accessToken');
             const storedRefreshToken = localStorage.getItem('refreshToken');
             const storedUser = localStorage.getItem('user');
+            if (!storedAccessToken || !storedRefreshToken) {
+                logout();
+                return;
+            };
 
-            if (storedAccessToken && storedRefreshToken && storedUser) {
+            if (storedUser) {
                 const response = await axios.get(`${API_URL}/api/auth/validate-token`, {
                     headers: {
                         Authorization: `Bearer ${storedAccessToken}`
@@ -70,9 +120,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 //console.log("User recibido desde validate-token:", response.data.user);
                 if (response.status === 200 && response.data.valid) {
                     setAccessToken(storedAccessToken);
-                    setRefreshToken(storedRefreshToken);
                     setUser(response.data.user);
-                    setIsAuthenticated(true); 
+                    setIsAuthenticated(true);
+                    localStorage.setItem('user', JSON.stringify(response.data.user)); // Para actualizar el local storage.
                 } else {
                     console.warn("Token inválido. Cerrando sesión.");
                     logout();
@@ -80,16 +130,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }else {
                 logout();
             };
-        } catch (error) {
-            console.error("Error al cargar datos de autenticación:", error);
+        }catch (error:any) {
+            const status = error.response?.status;
+
+            if (status === 401) {
+                console.warn("Token expirado. Intentando refrescar...");
+
+                const refreshed = await refreshAuth();
+                if (refreshed) {
+                    // Reintenta validación con nuevo token
+                    return loadAuthData();
+                }
+            };
+
+            console.error("Error al validar token:", error);
             logout();
-        }finally {
+        } finally {
             setIsLoading(false);
         };
     };
 
     loadAuthData();
-    }, []);
+    }, [refreshAuth]);
 
   // Función para iniciar sesión
     const login = (accessToken:string, refreshToken:string, userData: UserData ) => {
@@ -98,7 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.error("Error: El backend envió un accessToken o userData vacío.");
             return;
         };
-        
+        console.log("Datos enviados para guardar en el login: ", accessToken, refreshToken, userData);
         console.log("Guardando accessToken en localStorage:", accessToken);
         console.log("Guardando userData en localStorage:", JSON.stringify(userData));
         localStorage.setItem('accessToken', accessToken);
@@ -135,23 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(updatedUser);
     };
 
-    // Función para refrescar el token de acceso
-    const refreshAuth = async (): Promise<boolean> => {
-        if (!refreshToken) return false;
-        try {
-            const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken});
-            
-            if(response.status === 200){
-                const { accessToken } = response.data;
-                localStorage.setItem("accessToken", accessToken);
-                return true;
-            };
-        } catch (error: any) {
-        console.error("Error al refrescar token:", error.response?.data || error.message);
-        };
-        logout();
-        return false;
-    };
+    
 
     const contextValue: AuthContextType = {
         isAuthenticated,

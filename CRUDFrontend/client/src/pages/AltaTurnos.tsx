@@ -62,7 +62,7 @@ function AltaTurnoPage(){
             setLoading(true);
             try {
                 const response = await axios.get(`${API_URL}/peluqueros`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
+                    headers: { Authorization: `Bearer ${accessToken}` }
                 });
                 const peluqueros = Array.isArray(response.data?.data) ? response.data.data.map((p: any) => ({
                     ...p,
@@ -187,6 +187,7 @@ function AltaTurnoPage(){
             Swal.fire("Error", "La fecha seleccionada no es válida", "error");
             return;
         };
+        console.log("Codigo de cliente que se manda en turnoDTO para altaTurno: ", codigo_cliente)
         const fechaHoraCompleta = `${fecha_hora}T${horarioSeleccionado}:00`;
         const turnoDTO = {
             tipo_turno,

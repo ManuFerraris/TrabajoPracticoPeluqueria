@@ -33,9 +33,11 @@ function ListadoTurnosPage() {
     useEffect(() => {
         if (!user?.codigo) {
             console.log("Esperando datos de sesión...");
+            console.log("Datos del peluquero: ", user);
             return;
         };
         const fetchTurnos = async () => {
+            console.log("Estamos en fetchTurnos!");
             try {
                 const response = await axios.get(`${API_URL}/turnos/filtrosTurnoPorEstadoYPel`, {
                     params: {
@@ -47,7 +49,7 @@ function ListadoTurnosPage() {
                     }
                 });
                 const turnos = response.data.data || [];
-                console.log(response)
+                console.log("Turnos traidos del backend: ", turnos);
                 
                 if(response.status === 200){
                     setTurnos(turnos);
