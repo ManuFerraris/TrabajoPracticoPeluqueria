@@ -13,6 +13,20 @@ interface Peluquero {
 interface TipoServicio {
     codigo_tipo:number;
     nombre:string;
+    precio_base:number;
+};
+
+interface Payload {
+    turno: {
+        tipo_turno: "Sucursal" | "A Domicilio";
+        codigo_cliente: number | undefined;
+        codigo_peluquero: number | null;
+        fecha_hora: string;
+    };
+    servicio: {
+        medio_pago: "Mercado Pago" | "Efectivo";
+        tipo_servicio_codigo: number;
+    };
 };
 
 // Con Partial errors solo tiene los campos que fallan.
@@ -46,6 +60,8 @@ function AltaTurnoPage(){
     const [tipo_servicio_codigo, setTipo_servicio_codigo] = useState<number | null>(null);
 
     //Generales
+    const [mostrarConfirmacion, setMostrarConfirmacion] = useState<boolean>(false);
+    const [payloadConfirmacion, setPayloadConfirmacion] = useState<Payload | null>(null)
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [errors, setErrors] = useState<FormErrors>({});
@@ -97,6 +113,7 @@ function AltaTurnoPage(){
                         ...s,
                         codigo: Number(s.codigo) || 0,
                 })) : [];
+                console.log("Tipos de servicios encontrados: ", tiposServicios);
                 setTiposServicios(tiposServicios);
             } catch (error:any) {
                 setError(error.response?.data?.message || error.mensaje);
@@ -172,11 +189,22 @@ function AltaTurnoPage(){
         return errors;
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement> )=>{
+    const getNombrePeluquero = (codigo:number | null) => 
+        peluqueros.find(pel => pel.codigo_peluquero === codigo)?.nombre ?? "-";
+
+    const getNombreTipoServicio = (codigo:number | null) =>
+        tiposServicios.find(ts => ts.codigo_tipo === codigo)?.nombre ?? "-";
+
+    const getPrecioBase = (codigo: number | null) =>
+        tiposServicios.find(ts => ts.codigo_tipo === codigo)?.precio_base ?? 0;
+
+    const handleSubmit = async (e: React.FormEvent )=>{
         e.preventDefault();
+        console.log("Submit ejecutado")
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            Swal.fire("Error", "Hubo un error de validacion.");
             return;
         };
         if (!horarioSeleccionado) {
@@ -187,7 +215,7 @@ function AltaTurnoPage(){
             Swal.fire("Error", "La fecha seleccionada no es válida", "error");
             return;
         };
-        console.log("Codigo de cliente que se manda en turnoDTO para altaTurno: ", codigo_cliente)
+        console.log("Por armar los DTOS...");
         const fechaHoraCompleta = `${fecha_hora}T${horarioSeleccionado}:00`;
         const turnoDTO = {
             tipo_turno,
@@ -204,13 +232,24 @@ function AltaTurnoPage(){
             turno: turnoDTO,
             servicio: servicioDTO
         };
+        console.log("Payload:", payload);
+        console.log("Mostrar confirmación:", true);
+        setPayloadConfirmacion(payload); // se guarda en estado.
+        setMostrarConfirmacion(true);    // se muestra el modal.
+    };
+
+    const confirmarTurno = async () => {
         if (!accessToken) {
             Swal.fire("Error", "No estás autenticado. Por favor iniciá sesión.", "error");
             return;
         };
-        
+        if (!payloadConfirmacion) {
+            console.log("No hay paylodad de confirmacion", payloadConfirmacion);
+            return;
+        };
+
         try{
-            const response = await axios.post(`${API_URL}/turnos/altaTurno`, payload, {
+            const response = await axios.post(`${API_URL}/turnos/altaTurno`, payloadConfirmacion, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${accessToken}`
@@ -372,33 +411,30 @@ function AltaTurnoPage(){
                         )}
                     </tbody>
                 </table>
-
-                {/* Botón de confirmación */}
-                <button
-                    type="submit"
-                    className='btn btn-success'
-                    onClick={
-                        () => {
-                        console.log("Datos que se enviaran al backend: ",{ codigo_peluquero, tipo_servicio_codigo, fecha_hora, codigo_cliente, tipo_turno, medio_pago, horarioSeleccionado });
-                    }}
-                >
-                Reservar turno
-                </button>
+                <button type="submit">Reservar turno</button>
             </form>
 
-            {/* Debug visual */}
-            <div className="alert alert-secondary">
-                <strong>Debug:</strong><br />
-                Peluquero: {String(codigo_peluquero)}<br />
-                Servicio: {String(tipo_servicio_codigo)}<br />
-                Fecha: {String(fecha_hora)}<br />
-                Codigo cliente: {String(codigo_cliente)}<br />
-                tipo_turno: {tipo_turno}<br />
-                Medio de pago: {medio_pago}<br />
-                Horario seleccionado: {horarioSeleccionado}
-            </div>
-    
-            <hr />
+            {mostrarConfirmacion && payloadConfirmacion && (
+                <div className="alert alert-info mt-4">
+                    <h5>¿Confirmás tu turno?</h5>
+                    <ul>
+                        <li><strong>Peluquero:</strong> {getNombrePeluquero(payloadConfirmacion.turno.codigo_peluquero)}</li>
+                        <li><strong>Fecha:</strong> {payloadConfirmacion.turno.fecha_hora}</li>
+                        <li><strong>Horario:</strong> {horarioSeleccionado}</li>
+                        <li><strong>Servicio:</strong> {getNombreTipoServicio(payloadConfirmacion.servicio.tipo_servicio_codigo)}</li>
+                        <li><strong>Tipo de turno:</strong> {payloadConfirmacion.turno.tipo_turno}</li>
+                        <li><strong>Medio de pago:</strong> {payloadConfirmacion.servicio.medio_pago}</li>
+                        <li><strong>Monto:</strong> {getPrecioBase(payloadConfirmacion.servicio.tipo_servicio_codigo)}</li>
+                    </ul>
+                    {/* Botones */}
+                    <button className="btn btn-primary me-2" onClick={confirmarTurno}>
+                        Confirmar y reservar
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => setMostrarConfirmacion(false)}>
+                        Cancelar
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

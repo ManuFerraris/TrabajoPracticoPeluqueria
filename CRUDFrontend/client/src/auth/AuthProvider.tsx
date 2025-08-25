@@ -79,13 +79,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken})
                 if(response.status === 200 && response.data.accessToken && response.data.user){
                     const newAccessToken = response.data.accessToken;
-                    localStorage.setItem("accessToken", newAccessToken);
-                    setAccessToken(newAccessToken);
-                    console.log("Token refrescado automáticamente");
                     const refreshUser = response.data.user
+                    localStorage.setItem("accessToken", newAccessToken);
                     localStorage.setItem("user", JSON.stringify(refreshUser));
+                    setAccessToken(newAccessToken);
                     setUser(refreshUser);
-                    console.log("Usuario tambien refrescado automáticamente");
                 } else {
                     console.warn("Respuesta inesperada al refrescar token:", response);
                     logout();
@@ -197,8 +195,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(updatedUser);
     };
 
-    
-
     const contextValue: AuthContextType = {
         isAuthenticated,
         user,
@@ -228,7 +224,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider value={contextValue}>
-        {children}
+            {children}
         </AuthContext.Provider>
     );
 }
