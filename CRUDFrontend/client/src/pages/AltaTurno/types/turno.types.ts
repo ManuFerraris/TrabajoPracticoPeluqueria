@@ -17,7 +17,7 @@ export interface Payload {
         fecha_hora: string;
     };
     servicio: {
-        medio_pago: "Mercado Pago" | "Efectivo";
+        medio_pago: "Stripe" | "Efectivo";
         tipo_servicio_codigo: number;
     };
 };

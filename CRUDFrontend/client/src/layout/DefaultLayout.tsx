@@ -1,27 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
-interface DefaultLayoutProps {
-    children: React.ReactNode;
-};
-
-export default function DefaultLayout({children}: DefaultLayoutProps){
+const DefaultLayout = React.memo(() => {
+    console.log("AppLayout montado");
     return(
         <>
             <header>
                 <nav>
                     <ul>
-                        <li>
-                            <Link to="/login">Login</Link>
-                        </li>
-                        <li>
-                            <Link to="/signup">Signup</Link>
-                        </li>
+                        <li><Link to="login">Login</Link></li>
+                        <li><Link to="signup">Signup</Link></li>
                     </ul>
                 </nav>
             </header>
 
-            <main>{children}</main>
+            <main>
+                <Outlet />
+            </main>
         </>
     )
-}
+});
+
+export default DefaultLayout;

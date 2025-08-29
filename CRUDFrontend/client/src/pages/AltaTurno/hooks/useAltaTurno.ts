@@ -19,7 +19,7 @@ export const useAltaTurno = () => {
     const [codigo_peluquero, setCodigoPeluquero] = useState<number | null>(null)
     const [horarioSeleccionado, setHorarioSeleccionado] = useState<string | null>(null)
     const [fecha_hora, setFechaHora] = useState<string>("")
-    const [medio_pago, setMedioPago] = useState<"Mercado Pago" | "Efectivo">("Efectivo")
+    const [medio_pago, setMedioPago] = useState<"Stripe" | "Efectivo">("Efectivo")
     const [tipo_servicio_codigo, setTipo_servicio_codigo] = useState<number | null>(null)
 
     // Estado general
@@ -79,7 +79,7 @@ export const useAltaTurno = () => {
 
         if (!medio_pago) {
             errors.codigo_peluquero = "El medio de pago es obligatorio.";
-        }else if(medio_pago !== "Mercado Pago" && medio_pago !== "Efectivo"){
+        }else if(medio_pago !== "Stripe" && medio_pago !== "Efectivo"){
             errors.tipo_turno = "Seleccione un tipo de turno.";
         };
 

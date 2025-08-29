@@ -3,9 +3,15 @@ import { orm } from "../shared/db/orm.js";
 import { Pago } from "./pago.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 import Stripe from 'stripe';
+import { validarCodigo } from "../application/validarCodigo.js";
 
 const em = orm.em; 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
+if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("Falta STRIPE_SECRET_KEY en las variables de entorno");
+};
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-07-30.basil" });
 
 // Middleware para sanitizar la entrada
 function sanitizePagoInput(req: Request, res: Response, next: NextFunction) {
@@ -200,13 +206,19 @@ async function remove(req: Request, res: Response) {
 
 async function crearPago(req: Request, res: Response) {
     try {
-        const { turno_codigo_turno, metodo } = req.body;
+        console.log("Headers recibidos:", req.headers.authorization);
+        const { metodo } = req.params;
+        const {valor:codTur, error:codError} = validarCodigo(req.params.codigo_turno, 'codigo de turno');
+        if(codError || codTur === undefined){
+            return res.status(404).json({ error: codError });
+        };
+
         // VALIDACIONES, NO USO MAS PARA EL CREATE EL SANITIZE INPUT
-        if (!turno_codigo_turno || !metodo) {
-            return res.status(400).json({ message: 'El código del turno y el método de pago son requeridos.' });
+        if (!metodo) {
+            return res.status(400).json({ message: 'El método de pago es requerido.' });
         }
         
-        const turno = await em.findOne(Turno, { codigo_turno: Number(turno_codigo_turno) }, { populate: ['servicio'] }); // NOTAR EL POPULATE
+        const turno = await em.findOne(Turno, { codigo_turno: Number(codTur) }, { populate: ['servicio'] }); // NOTAR EL POPULATE
         if (!turno) {
             return res.status(404).json({ message: 'Turno no encontrado.' });
         }
@@ -229,7 +241,7 @@ async function crearPago(req: Request, res: Response) {
             return res.status(201).json({ message: 'Pago en Efectivo creado exitosamente', data: pago });
         } 
         else if (metodo === 'Stripe') {
-            const montoDesdeDB = turno.servicio.monto; // ACA ME TRAIGO EL PRECIO DEL SERVICIO QUE HICE EL POPULATE ANTES
+            const montoDesdeDB = turno.servicio.total; // ACA ME TRAIGO EL PRECIO DEL SERVICIO QUE HICE EL POPULATE ANTES
 
             const nuevoPago = em.create(Pago, {
                 monto: montoDesdeDB,
@@ -243,16 +255,18 @@ async function crearPago(req: Request, res: Response) {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items: [{
-                    price_data: { currency: 'ars', product_data: { name: ' Servicio de peluqueria ' }, unit_amount: montoDesdeDB * 100 },
+                    price_data: { currency: 'usd', product_data: { name: ' Servicio de peluqueria ' }, unit_amount: montoDesdeDB * 100 },
                     quantity: 1,
                 }],
                 mode: 'payment',
-                success_url: `http://localhost:3001/pago-exitoso`,
+                success_url: `http://localhost:3001/pago-exitoso?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `http://localhost:3001/pago-cancelado`,
-                metadata: { pago_id: nuevoPago.id },  //Notar que aca paso en la metadata el id del pago
-            });                                       //esto va a servir despues para identificarlo y cambiar el estado a "pagado"
+                metadata: {
+                    pago_id: nuevoPago.id
+                },  //Notar que aca paso en la metadata el id del pago
+            });     //esto va a servir despues para identificarlo y cambiar el estado a "pagado"
 
-            return res.status(200).json({ url: session.url });
+            return res.status(200).json({ sessionId: session.id });
         } 
         else {
             return res.status(400).json({ message: 'Método de pago no válido. Use "Efectivo" o "Stripe".' });
@@ -262,4 +276,16 @@ async function crearPago(req: Request, res: Response) {
         return res.status(500).json({ message: "Error interno del servidor", details: error.message });
     }
 }
+
+export async function getStripeSession(req:Request, res:Response) {
+    try{
+        console.log("req.params.id: ", req.params.id);
+        const session = await stripe.checkout.sessions.retrieve(req.params.id);
+        return res.status(200).json({ payment_status: session.payment_status });
+    }catch(error:any){
+        console.error("Error al consultar sesión de Stripe:", error.message);
+        return res.status(500).json({ message: 'No se pudo validar la sesión de pago' });
+    };
+};
+
 export { sanitizePagoInput, findAll, getOne, update, remove, crearPago };

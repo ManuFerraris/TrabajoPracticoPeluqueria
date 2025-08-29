@@ -6,7 +6,7 @@ export interface RegistrarServicioDTO {
     monto: number;
     estado: "Pendiente" | "Pago";
     ausencia_cliente: "Se presento" | "Esta ausente" | "Esperando atencion";
-    medio_pago: "Mercado Pago" | "Efectivo";
+    medio_pago: "Stripe" | "Efectivo";
     turno_codigo_turno: number;
     tipo_servicio_codigo: number;
 };
@@ -37,8 +37,8 @@ export async function validarServicioDTO(
         errores.push("Solo es valido 'Se presento', 'Esta ausente' o 'Esperando atencion'.");
     };
 
-    if(dto.medio_pago !== 'Mercado Pago' && dto.medio_pago !== 'Efectivo'){
-        errores.push("El medio de pago solo puede ser 'Mercado Pago' o 'Efectivo'.");
+    if(dto.medio_pago !== 'Stripe' && dto.medio_pago !== 'Efectivo'){
+        errores.push("El medio de pago solo puede ser 'Stripe' o 'Efectivo'.");
     };
 
     const tip_tur = turno?.tipo_turno;

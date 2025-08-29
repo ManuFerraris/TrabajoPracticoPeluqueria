@@ -107,12 +107,12 @@ const AltaTurnoPage = () => {
                     <label className="form-label">Medio de Pago:</label>
                     <select
                         className="form-select"
-                        onChange={(event) => setMedioPago(event.target.value as "Efectivo" | "Mercado Pago")}
+                        onChange={(event) => setMedioPago(event.target.value as "Efectivo" | "Stripe")}
                         value={medio_pago || ""}
                     >
                         <option value="">Seleccione una opcion</option>
                         <option value="Efectivo">Efectivo</option>
-                        <option value="Mercado Pago">Mercado Pago</option>
+                        <option value="Stripe">Stripe</option>
                     </select>
                     {errors.medio_pago && <div className="text-danger">{errors.medio_pago}</div>}
                 </div>

@@ -1,5 +1,4 @@
 import React from 'react';
-import DefaultLayout from '../layout/DefaultLayout.tsx';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider.tsx';
@@ -11,6 +10,7 @@ import axios from "axios";
 import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
 
 export default function Login() {
+    console.log("LoginPage montado");
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -59,7 +59,6 @@ export default function Login() {
     };
 
     return (
-        <DefaultLayout>
             <div className="container d-flex justify-content-center align-items-center min-vh-100">
                 <div className="card shadow-lg" style={{ width: '100%', maxWidth: '400px' }}>
                     <div className="card-body p-4">
@@ -132,6 +131,5 @@ export default function Login() {
                     </div>
                 </div>
             </div>
-        </DefaultLayout>
     );
 };

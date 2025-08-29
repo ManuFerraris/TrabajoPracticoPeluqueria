@@ -99,6 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Efecto para cargar la autenticación al iniciar
     useEffect(() => {
+        console.log("AuthProvider effect ejecutado");
         const loadAuthData = async () => {
         try {
             const storedAccessToken = localStorage.getItem('accessToken');
@@ -215,13 +216,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
     }
 
-    /*console.log("Render AuthProvider:", {
-        isAuthenticated,
-        isLoading,
-        user,
-        accessToken
-    });*/
-
+    console.log("AuthProvider montado");
+    if (!children) {
+    console.warn("AuthProvider sin children");
+    }
     return (
         <AuthContext.Provider value={contextValue}>
             {children}

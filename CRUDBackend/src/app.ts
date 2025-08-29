@@ -19,8 +19,6 @@ import { loginRouter } from './auth/auth.routes.js';
 import { pagoRouter } from './pago/pago.routes.js';
 import { handleStripeWebhook } from './stripe/stripe.controller.js';
 
-
-
 const app = express();
 app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
                       //para que cada Controller pueda acceder de manera local.
@@ -39,7 +37,7 @@ app.use((req, res, next) => {
 })
 
 // Usar express.raw solo para este endpoint!
-app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stipe necesito el cuerpo crudo como un Buffer.
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stripe necesito el cuerpo crudo como un Buffer.
 
 app.use(express.json({
   strict:true,

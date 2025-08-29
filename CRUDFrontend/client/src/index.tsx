@@ -1,17 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Navigate } from 'react-router-dom';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider.tsx';
 import "./index.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import reportWebVitals from './reportWebVitals.js';
 import PeluqueroLayout from './layout/PeluqueroLayout.tsx';
+import DefaultLayout from './layout/DefaultLayout.tsx';
 
 //Paginas publicas:
 import Login from './routes/Login.tsx';
 import Signup from './routes/signup.tsx';
 import RecoverPassword from './routes/recoverPassword.tsx';
 import ResetPassword from './routes/reset-password.tsx';
+import PagoExitoso from './pages/Pagos/tiposRespustas/PagoExitoso.tsx';
+import ErrorPage from './pages/Pagos/tiposRespustas/ErrorPage.tsx';
 
 //Rutas privadas (CRUDS):
 import PeluqueroList from './pages/peluquero/PeluqueroPage.tsx';
@@ -24,6 +28,7 @@ import MenuPage from './legacy/MenuPage.js';
 import Turnos from './routes/turnos.tsx';
 import EditarPerfil from './routes/EditarPerfilPeluquero.tsx';
 import EditarPerfilCliente from './routes/EditarPerfilCliente.tsx';
+import PagosPage from './pages/Pagos/Pagos.tsx';
 
 //Rutas privadas (Buscadores):
 import HistorialPeluqueroPage from './pages/historialPeluquero/HistorialPeluqueroPage';
@@ -41,21 +46,18 @@ import AltaTurnoPage from './pages/AltaTurno/AltaTurnos.tsx';
 import CancelarTurno from './pages/CancelarTurno.tsx';
 
 const router = createBrowserRouter([
+
     {
-      path: "/login",
-      element: <Login />,
-    },
-    {
-      path: "/signup",
-      element: <Signup />,
-    },
-    {
-    path: "/recuperar",
-    element: <RecoverPassword />,
-    },
-    { 
-      path: '/reset-password/:token', 
-      element: <ResetPassword /> 
+      path: "/",
+      element: <DefaultLayout />,
+      children: [
+        { path: "", element: <Navigate to="/login" replace /> },
+        { path: "login", element: <Login /> },
+        { path: "signup", element: <Signup /> },
+        { path: "recuperar", element: <RecoverPassword /> },
+        { path: 'reset-password/:token', element: <ResetPassword /> },
+        { path: "pago-exitoso", element: <PagoExitoso />, errorElement:<ErrorPage /> }
+      ]
     },
     {
       path:"peluqueros",
@@ -87,7 +89,8 @@ const router = createBrowserRouter([
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "editar-perfil-cliente", element: <EditarPerfilCliente /> },
         { path: "sacar-turno", element: <AltaTurnoPage /> },
-        { path: "baja-turno", element: <CancelarTurno /> }
+        { path: "baja-turno", element: <CancelarTurno /> },
+        { path: "pagar-turno", element: <PagosPage />}
       ]
     },
     {
@@ -106,8 +109,8 @@ const router = createBrowserRouter([
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
-        { path: "editar-perfil", element: <EditarPerfil /> }
-
+        { path: "editar-perfil", element: <EditarPerfil /> },
+        { path: "pagar-turno", element: <PagosPage />}
       ],
     },
   ]);

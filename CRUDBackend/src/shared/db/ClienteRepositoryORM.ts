@@ -34,6 +34,9 @@ export class ClienteRepositoryORM implements ClienteRepository {
                 estado: 'Activo',
                 cliente
             },
+            {
+                populate: [ "servicio.tipoServicio" ]
+            }
         );
     };
 };

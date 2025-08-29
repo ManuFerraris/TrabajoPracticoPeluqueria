@@ -16,11 +16,11 @@ Content-Type: application/json
 }
 
 ### modificar un tipo de servicio (PUT)
-PUT http://localhost:3000/api/tiposervicio/11
+PUT http://localhost:3000/api/tiposervicio/3
 Content-Type: application/json
 
 {
-    "duracion_estimada": 150
+    "precio_base": 10000
 }
 
 ###Borrar un tipo de servicio

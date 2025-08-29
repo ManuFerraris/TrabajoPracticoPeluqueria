@@ -56,6 +56,14 @@ export default function HomeCliente() {
                                     <i className="bi bi-calendar-plus me-2"></i>
                                     Sacar Turno
                                 </button>
+
+                                <button
+                                    onClick={() => navigate("/clientes/pagar-turno")}
+                                    className="btn btn-primary btn-lg py-3"
+                                >
+                                    <i className="bi bi-currency-dollar me-2"></i>
+                                    Pagar 
+                                </button>
                                 
                                 <button onClick={() => navigate("/clientes/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
                                     <i className="bi bi-list-check me-2"></i>

@@ -10,7 +10,7 @@ type Servicio = {
     estado: 'Pendiente' | 'Pago';
     adicional_adom?: string;
     ausencia_cliente: 'Se presento' | 'Esta ausente';
-    medio_pago: 'Efectivo' | 'Mercado Pago';
+    medio_pago: 'Efectivo' | 'Stripe';
     turno_codigo_turno: string;
     tipo_servicio_codigo: string;
     total?: number;
@@ -46,7 +46,7 @@ function ServiciosPage(){
     const [estado, setEstado] = useState<'Pendiente' | 'Pago' | ''>('');
     const [/*adicional_adom*/, setAdicional_adom] = useState<string>('');
     const [ausencia_cliente, setAusencia_cliente] = useState<'Se presento' | 'Esta ausente' | 'Esperando atencion' | ''>('');
-    const [medio_pago, setMedio_pago] = useState<'Efectivo' | 'Mercado Pago' | ''>('');
+    const [medio_pago, setMedio_pago] = useState<'Efectivo' | 'Stripe' | ''>('');
     const [turno_codigo_turno, setTurno] = useState<string>('');
     const [tipo_servicio_codigo, setCodigo_tipo] = useState<string>('')
     const [/*total*/, setTotal] = useState<number>();
@@ -148,7 +148,7 @@ function ServiciosPage(){
 
         if (!medio_pago) {
             errors.medio_pago = "Seleccione un medio de pago.";
-        } else if(medio_pago !== "Efectivo" && medio_pago !== "Mercado Pago"){
+        } else if(medio_pago !== "Efectivo" && medio_pago !== "Stripe"){
             errors.medio_pago = "Seleccione un medio de pago.";
         };
 
@@ -361,12 +361,12 @@ function ServiciosPage(){
                                     <label className="form-label">Medio de Pago:</label>
                                     <select
                                         className="form-select"
-                                        onChange={(event) => setMedio_pago(event.target.value as "" | "Efectivo" | "Mercado Pago")}
+                                        onChange={(event) => setMedio_pago(event.target.value as "" | "Efectivo" | "Stripe")}
                                         value={medio_pago || ""}
                                     >
                                         <option value="">Seleccione una opcion</option>
                                         <option value="Efectivo">Efectivo</option>
-                                        <option value="Mercado Pago">Mercado Pago</option>
+                                        <option value="Stripe">Stripe</option>
                                     </select>
                                     {errors.medio_pago && <div className="text-danger">{errors.medio_pago}</div>}
                                 </div>

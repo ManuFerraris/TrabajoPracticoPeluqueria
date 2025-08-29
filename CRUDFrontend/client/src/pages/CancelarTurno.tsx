@@ -10,6 +10,12 @@ type Turno = {
     codigo_turno: number;
     estado: string;
     fecha_hora:string;
+    peluquero: number;
+};
+
+type Peluquero = {
+    codigo_peluquero:number;
+    nombre:string;
 };
 
 function CancelarTurno() {
@@ -19,6 +25,7 @@ function CancelarTurno() {
     const [codigo_turno, setCodigo_turno] = useState<number | null>(null);
     const [turnos, setTurnos] = useState<Turno[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [peluqueros, setPeluqueros] = useState<Peluquero[]>([])
 
     const codUser = user?.codigo;
     const userLoguedo = user?.rol;
@@ -32,6 +39,7 @@ function CancelarTurno() {
             });
             const turnos = response.data.data || [];
             setTurnos(turnos);
+            console.log("Turnos: ", turnos);
         }catch(error:any){
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);
@@ -63,16 +71,24 @@ function CancelarTurno() {
         }
     },[accessToken, codUser])
 
+    const fetchPeluqueros = useCallback(async () => {
+        const response = await axios.get(`${API_URL}/peluqueros`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        setPeluqueros(response.data.data || []);
+    },[accessToken])
     
     useEffect(()=> {
+        fetchPeluqueros()
         if(userLoguedo === 'admin' || userLoguedo === 'peluquero'){
             fetchTurnosPeluquero()
         }else {
             fetchTurnosCliente();
         };
-        
-    },[fetchTurnosCliente, fetchTurnosPeluquero, userLoguedo]);
+    },[fetchPeluqueros ,fetchTurnosCliente, fetchTurnosPeluquero, userLoguedo]);
 
+    const getNombrePeluquero = (codigo: number) =>
+        peluqueros.find(p => p.codigo_peluquero === codigo)?.nombre ?? `#${codigo}`;
 
     //Continuar con la baja logica del turno...
     const confirmarAccion = async (titulo: string, texto: string): Promise<boolean> => {
@@ -176,7 +192,7 @@ function CancelarTurno() {
                         <option value="">Seleccionar un turno...</option>
                         {turnos.map((turno) => (
                             <option key={turno.codigo_turno} value={turno.codigo_turno}>
-                                {new Date(turno.fecha_hora).toLocaleString()} - Estado: {turno.estado}
+                                {new Date(turno.fecha_hora).toLocaleString()} - Estado: {turno.estado} - Peluquero: {getNombrePeluquero(turno.peluquero)}
                             </option>
                         ))}
                     </select>

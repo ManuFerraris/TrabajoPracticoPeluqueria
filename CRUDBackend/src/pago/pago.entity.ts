@@ -1,6 +1,5 @@
-import { Entity, PrimaryKey, Property, OneToOne } from "@mikro-orm/core";
-// Mantenemos 'import type' porque solo lo necesitamos para la 'forma' de Turno.
-import type { Turno } from "../turno/turno.entity.js";
+import { Entity, PrimaryKey, Property, OneToOne, Rel } from "@mikro-orm/core";
+import { Turno } from "../turno/turno.entity.js";
 
 @Entity()
 export class Pago {
@@ -20,15 +19,6 @@ export class Pago {
   @Property({ type: 'date' })
   fecha_hora: Date = new Date();
 
-  // --- CAMBIO FINAL AQUÍ ---
-  // Le pasamos el nombre de la entidad como un string 'Turno'.
-  // 'inversedBy' apunta a la propiedad 'pago' en la entidad Turno.
-  @OneToOne({
-    entity: 'Turno',
-    inversedBy: 'pago', // La propiedad en la entidad Turno que nos mapea
-    owner: true,
-    nullable: true,
-    unique: true
-  })
-  turno!: Turno;
+  @OneToOne(() => Turno)
+  turno!: Rel<Turno>;
 }

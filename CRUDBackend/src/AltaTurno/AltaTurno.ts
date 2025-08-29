@@ -19,7 +19,7 @@ export interface AltaServicioDTO{
     monto: number; // calcula el sistema.
     estado: "Pendiente" | "Pago"; // setea el sistema "Pendiente".
     ausencia_cliente: "Se presento" | "Esta ausente" | "Esperando atencion"; // setea el sistema "Esperando atencion".
-    medio_pago: "Mercado Pago" | "Efectivo"; // elige el cliente.
+    medio_pago: "Stripe" | "Efectivo"; // elige el cliente.
     turno_codigo_turno: number; // es el creado por el sistema instantes antes.
     tipo_servicio_codigo: number; // elige el cliente.
 };

@@ -17,8 +17,9 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log(`Webhook recibido: ${event.type}`);
   } catch (err: any) {
-    console.log(`❌ Webhook Error: ${err.message}`);
+    console.log(`Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -30,19 +31,20 @@ export async function handleStripeWebhook(req: Request, res: Response) {
       // --- CAMBIO 2: LEER EL ID DE NUESTRO PAGO ---
       // Recuperamos el 'pago_id' que guardamos en la metadata cuando creamos la sesión.
       const pagoId = session.metadata?.pago_id;
-
+      console.log(`Buscando pago con ID: ${pagoId}`);
+      
       if (pagoId) {
         try {
           // --- CAMBIO 3: BUSCAR Y ACTUALIZAR EL PAGO ---
           // Usamos el 'pagoId' para encontrar el pago correcto en nuestra base de datos.
           const pago = await em.findOne(Pago, { id: Number(pagoId) });
-
+          console.log(`Resultado de la busqueda del pago:`, pago);
           if (pago) {
             // Si lo encontramos, cambiamos su estado a "Pagado".
             pago.estado = 'Pagado';
-            await em.flush(); // Guardamos el cambio en la base de datos.
+            await em.persistAndFlush(pago); // Guardamos el cambio en la base de datos.
             
-            console.log(`✅ ¡Éxito! Pago con ID ${pagoId} actualizado a "Pagado".`);
+            console.log(`¡Éxito! Pago con ID ${pagoId} actualizado a "Pagado".`);
           } else {
             console.error(`Error: El webhook funcionó, pero no se encontró un pago con ID ${pagoId}.`);
           }
@@ -64,4 +66,5 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
   // Respondemos a Stripe para que sepa que todo salió bien.
   res.status(200).send();
+  return;
 }

@@ -72,8 +72,6 @@ function HistorialClientePage() {
         }
     }, [userData, accessToken, obtenerHistorial]);
 
-    
-
     const formatFechaHora = (fechaISO: string | undefined): string => {
         if (!fechaISO) return 'No disponible';
         const date = new Date(fechaISO);

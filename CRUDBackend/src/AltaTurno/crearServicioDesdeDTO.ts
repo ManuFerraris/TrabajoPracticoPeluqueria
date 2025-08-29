@@ -27,9 +27,6 @@ export async function crearServicioDesdeDTO(
     if(errores.length > 0) return errores;
 
     const {total, adicional_adom} = calcularTotal(dto, turno, tipoServicio);
-    console.log("Datos devueltos de calcularTotal: ", total, adicional_adom);
-
-    const precioBase = Number(tipoServicio.precio_base) || 0;
 
     const servicio = new Servicio();
     servicio.monto = Number(tipoServicio.precio_base);
@@ -39,7 +36,7 @@ export async function crearServicioDesdeDTO(
     servicio.medio_pago = dto.medio_pago;
     servicio.turno = turno;
     servicio.tipoServicio = tipoServicio;
-    servicio.total = precioBase;
+    servicio.total = total;
 
     return servicio;
 };
