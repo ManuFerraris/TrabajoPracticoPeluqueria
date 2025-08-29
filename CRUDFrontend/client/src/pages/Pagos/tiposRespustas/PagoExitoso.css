@@ -1,0 +1,37 @@
+.pago-exitoso-container {
+    max-width: 600px;
+    margin: 4rem auto;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.estado {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.estado-exito h2 {
+     color: #2ecc71;
+}
+
+.estado-error h2 {
+    color: #e74c3c;
+}
+
+button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
