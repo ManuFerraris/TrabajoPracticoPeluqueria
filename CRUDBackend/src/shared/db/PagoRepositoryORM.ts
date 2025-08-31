@@ -14,4 +14,13 @@ export class PagoRepositoryORM implements PagoRepository {
         const pago = await this.em.findOne(Pago, {id:codigo});
         return pago;
     };
+
+    async buscarTodosLosPagos(): Promise<Pago[]> {
+        return await this.em.find(Pago, {});
+    };
+
+    async eliminarPago(pago:Pago): Promise<void> {
+        await this.em.removeAndFlush(pago);
+        return;
+    };
 };
