@@ -17,7 +17,7 @@ import { buscadorRouter } from './buscador/buscador.route.js';
 import { loginRouter } from './auth/auth.routes.js';
 
 import { pagoRouter } from './pago/pago.routes.js';
-import { handleStripeWebhook } from './stripe/stripe.controller.js';
+import { handleStripeWebhook } from './stripe/stripeController.js';
 
 const app = express();
 app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
@@ -26,7 +26,6 @@ app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
 // CORS
 dotenv.config();
 const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
-
 
 //app.options('*', cors());
 app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas

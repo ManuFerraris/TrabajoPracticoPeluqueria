@@ -10,4 +10,8 @@ export class PagoRepositoryORM implements PagoRepository {
         return pago;
     };
 
+    async buscarPago(codigo: number): Promise<Pago | null> {
+        const pago = await this.em.findOne(Pago, {id:codigo});
+        return pago;
+    };
 };
