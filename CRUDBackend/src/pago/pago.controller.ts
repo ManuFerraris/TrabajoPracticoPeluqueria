@@ -4,6 +4,9 @@ import { Pago } from "./pago.entity.js";
 import { Turno } from "../turno/turno.entity.js";
 import Stripe from 'stripe';
 import { validarCodigo } from "../application/validarCodigo.js";
+import { MikroORM } from "@mikro-orm/core";
+import { PagoRepositoryORM } from "../shared/db/PagoRepositoryORM.js";
+import { CrearPago } from "../application/casos-uso/casosUsoPago/CrearPago.js";
 
 const em = orm.em; 
 
@@ -204,79 +207,6 @@ async function remove(req: Request, res: Response) {
     }
 }
 
-async function crearPago(req: Request, res: Response) {
-    try {
-        console.log("Headers recibidos:", req.headers.authorization);
-        const { metodo } = req.params;
-        const {valor:codTur, error:codError} = validarCodigo(req.params.codigo_turno, 'codigo de turno');
-        if(codError || codTur === undefined){
-            return res.status(404).json({ error: codError });
-        };
-
-        // VALIDACIONES, NO USO MAS PARA EL CREATE EL SANITIZE INPUT
-        if (!metodo) {
-            return res.status(400).json({ message: 'El método de pago es requerido.' });
-        }
-        
-        const turno = await em.findOne(Turno, { codigo_turno: Number(codTur) }, { populate: ['servicio'] }); // NOTAR EL POPULATE
-        if (!turno) {
-            return res.status(404).json({ message: 'Turno no encontrado.' });
-        }
-
-        const pagoExistente = await em.findOne(Pago, { turno });
-        if (pagoExistente) {
-            return res.status(400).json({ message: 'Ya existe un pago para este turno.' });
-        }
-
-        // ACA DISCRIMINO POR EL METODO
-        if (metodo === 'Efectivo') { 
-            const { monto, estado } = req.body;
-
-            if (!validaMonto(monto) || !validaEstado(estado)) {
-                return res.status(400).json({ message: 'Monto o Estado no válidos para pago en efectivo.' });
-            }
-            
-            const pago = em.create(Pago, { monto, estado, metodo: 'Efectivo', fecha_hora: new Date(), turno });
-            await em.persistAndFlush(pago);
-            return res.status(201).json({ message: 'Pago en Efectivo creado exitosamente', data: pago });
-        } 
-        else if (metodo === 'Stripe') {
-            const montoDesdeDB = turno.servicio.total; // ACA ME TRAIGO EL PRECIO DEL SERVICIO QUE HICE EL POPULATE ANTES
-
-            const nuevoPago = em.create(Pago, {
-                monto: montoDesdeDB,
-                estado: 'Pendiente',
-                metodo: 'Stripe',
-                fecha_hora: new Date(),
-                turno
-            });
-            await em.persistAndFlush(nuevoPago);
-
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [{
-                    price_data: { currency: 'usd', product_data: { name: ' Servicio de peluqueria ' }, unit_amount: montoDesdeDB * 100 },
-                    quantity: 1,
-                }],
-                mode: 'payment',
-                success_url: `http://localhost:3001/pago-exitoso?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `http://localhost:3001/pago-cancelado`,
-                metadata: {
-                    pago_id: nuevoPago.id
-                },  //Notar que aca paso en la metadata el id del pago
-            });     //esto va a servir despues para identificarlo y cambiar el estado a "pagado"
-
-            return res.status(200).json({ sessionId: session.id });
-        } 
-        else {
-            return res.status(400).json({ message: 'Método de pago no válido. Use "Efectivo" o "Stripe".' });
-        }
-
-    } catch (error: any) {
-        return res.status(500).json({ message: "Error interno del servidor", details: error.message });
-    }
-}
-
 export async function getStripeSession(req:Request, res:Response) {
     try{
         console.log("req.params.id: ", req.params.id);
@@ -288,4 +218,34 @@ export async function getStripeSession(req:Request, res:Response) {
     };
 };
 
-export { sanitizePagoInput, findAll, getOne, update, remove, crearPago };
+export const crearPago = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const { metodo } = req.params;
+        const {valor:codTur, error:codError} = validarCodigo(req.params.codigo_turno, 'codigo de turno');
+        if(codError || codTur === undefined){
+            res.status(404).json({ error: codError });
+            return
+        };
+
+        const orm = (req.app.locals as {orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const repo = new PagoRepositoryORM(em);
+        const casouso = new CrearPago(repo);
+
+        const resultado = await casouso.ejecutar(codTur, metodo, em);
+
+        if(Array.isArray(resultado)){
+            res.status(400).json({ errores: resultado });
+            return;
+        };
+        
+        res.status(200).json({ sessionId: resultado.id });
+        return;
+    }catch(error:any){
+        console.error('Error al crear un pago.', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+        return;
+    };
+};
+
+export { sanitizePagoInput, findAll, getOne, update, remove };
