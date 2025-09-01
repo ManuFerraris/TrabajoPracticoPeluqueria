@@ -7,12 +7,14 @@ import {
     remove,
     obtenerHistorialCliente,
     signup,
-    misTurnosActivos
+    misTurnosActivos,
+    misTurnosAPagar
 } from "./cliente.controller.js";
 import { authMiddleware } from "../auth/auth.middleware.js";
 import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const clienteRouter = Router();
+clienteRouter.get('/misTurnosAPagar/:codigo_cliente', misTurnosAPagar);
 clienteRouter.get('/misTurnosActivos/:codigo_cliente', /*authMiddleware, authorizeRole(['peluquero', 'cliente', 'admin']),*/ misTurnosActivos);
 clienteRouter.get('/misTurnosCliente/:codigo_cliente', authMiddleware, authorizeRole(['peluquero', 'cliente', 'admin']), obtenerHistorialCliente);
 clienteRouter.get('/', authMiddleware, authorizeRole(['peluquero', 'cliente']), findAll);

@@ -35,7 +35,7 @@ export class ClienteRepositoryORM implements ClienteRepository {
                 cliente
             },
             {
-                populate: [ "servicio.tipoServicio" ]
+                populate: [ "servicio.tipoServicio", "pago" ]
             }
         );
     };

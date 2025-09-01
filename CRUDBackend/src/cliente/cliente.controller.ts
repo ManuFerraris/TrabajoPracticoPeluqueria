@@ -13,6 +13,7 @@ import { BuscarClientePorEmail } from "../application/casos-uso/casosUsoCliente/
 import { TurnoRepositoryORM } from "../shared/db/TurnoRepositoryORM.js";
 import { HistMisTurnosCliente } from "../application/casos-uso/casosUsoCliente/HistMisTurnosCLiente.js";
 import { MisTurnosActivos } from "../application/casos-uso/casosUsoCliente/MisTurnosActivos.js";
+import { MisTurnosAPagar } from "../application/casos-uso/casosUsoCliente/MisTurnosAPagar.js";
 
 export const findAll = async(req:Request, res:Response):Promise<void> => {
     try{
@@ -283,3 +284,31 @@ export const misTurnosActivos = async (req:Request, res:Response):Promise<void> 
 /*async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
 };*/
+
+export const misTurnosAPagar = async (req:Request, res:Response):Promise<void>=> {
+    try{
+        const {valor: codCli, error: codError} = validarCodigo(req.params.codigo_cliente, 'codigo de cliente');
+        if(codError || codCli === undefined){
+            res.status(400).json({ error: codError });
+            return;
+        };
+
+        const orm = (req.app.locals as { orm:MikroORM }).orm;
+        const em = orm.em.fork();
+        const repo = new ClienteRepositoryORM(em);
+        const casouso = new MisTurnosAPagar(repo);
+
+        const turnos = await casouso.ejecutar(codCli);
+        if(typeof turnos === 'string'){
+            res.status(404).json({ message: turnos });
+            return;
+        };
+
+        res.status(200).json({ message: 'Turnos sin pagos encontrados', data:turnos });
+        return;
+    }catch(error:any){
+        console.error('Error al traer los turnos sin pagos del cliente.', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+        return;
+    }
+};

@@ -56,13 +56,15 @@ const PagosPage = () => {
     const accessToken = localStorage.getItem('accessToken');
     const { pagarTurno: pagarConStripe } = usePagoStripe();
 
+    //Crear metodo en el backend para traer los turnos Activos y NO pagos.
     const fetchTurnosAPagar = useCallback(async (codCliente:number) => {
         try{
-            const response = await axios.get(`${API_URL}/clientes/misTurnosActivos/${codCliente}`, {
+            const response = await axios.get(`${API_URL}/clientes/misTurnosAPagar/${codCliente}`, {
                 headers: { 'Authorization':  accessToken }
             });
             console.log("Respuesta completa recibida del backend: ", response);
             const turnos = response.data.data || [];
+            console.log("Turnos sin pagos: ", turnos);
             if(turnos.length > 0){
                 setTurnos(turnos);
             };
