@@ -228,6 +228,11 @@ export const resetPassword = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Usuario no encontrado con el email asociado al token' });
         };
 
+        const esIgual = await bcrypt.compare(newPassword, user.password);
+        if(esIgual){
+            return res.status(404).json({ message: 'La contraseña no puede ser la misma que la anterior.' });
+        };
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         await em.persistAndFlush(user);
@@ -236,7 +241,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error en resetPassword:", error);
         return res.status(500).json({ message: 'Error del servidor al resetear la contraseña' });
-    }
+    };
 };
 
 export const validateResetToken = (req: Request, res: Response) => {

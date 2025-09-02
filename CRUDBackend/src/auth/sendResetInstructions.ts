@@ -1,5 +1,5 @@
 import { generatePasswordResetToken } from "./authService.js";
-import { sendPasswordResetEmail } from "../shared/emailService.js";
+import { sendPasswordResetEmail } from "../shared/email/emailService.js";
 import redisClient from "../config/redisClient.js";
 
 export async function sendResetInstructions(email:string):Promise<void> {
