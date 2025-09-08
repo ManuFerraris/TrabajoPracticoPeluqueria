@@ -12,32 +12,32 @@ const PanelAdministracionCruds: React.FC = () => {
 
             <div className="row g-4 justify-content-center">
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/peluqueroList")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/peluqueroList")} className="btn btn-outline-primary w-100 py-3">
                         Peluqueros
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/clientesCrud")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/clientesCrud")} className="btn btn-outline-primary w-100 py-3">
                         Clientes
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/turnos")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/turnos")} className="btn btn-outline-primary w-100 py-3">
                         Turnos
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/servicios")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/servicios")} className="btn btn-outline-primary w-100 py-3">
                         Servicios
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/tipoServicios")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/tipoServicios")} className="btn btn-outline-primary w-100 py-3">
                         Tipo de Servicio
                     </button>
                 </div>
                 <div className="col-md-4">
-                    <button onClick={() => navigate("/localidades")} className="btn btn-outline-primary w-100 py-3">
+                    <button onClick={() => navigate("/peluqueros/localidades")} className="btn btn-outline-primary w-100 py-3">
                         Localidad
                     </button>
                 </div>

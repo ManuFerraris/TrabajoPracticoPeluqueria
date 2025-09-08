@@ -15,7 +15,7 @@ import { servicioRouter } from './Servicio/servicio.routes.js';
 import { tipoServicioRouter } from './TipoServicio/TipoServicio.routes.js';
 import { buscadorRouter } from './buscador/buscador.route.js';
 import { loginRouter } from './auth/auth.routes.js';
-
+import { infGerenRouter } from './InformacionGerencial/InformacionGerencial.routes.js';
 import { pagoRouter } from './pago/pago.routes.js';
 import { handleStripeWebhook } from './stripe/stripeController.js';
 
@@ -85,8 +85,9 @@ app.use('/api/auth', loginRouter);
 ///***********************///
 app.use('/api/pagos', pagoRouter);
 
-///***RUTA PARA STRIPE***///
-///**********************///
+///***RUTA PARA LA INFORMACION GERENCIAL***///
+///****************************************///
+app.use('/api/informeGerencial', infGerenRouter);
 
 // Middleware 404
 app.use((req, res) => {

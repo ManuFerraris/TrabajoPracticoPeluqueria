@@ -25,7 +25,6 @@ import TipoServicioPage from "./pages/tipoServicio/Tiposervicio.page.tsx";
 import ServiciosPage from "./pages/servicio/Servicio.page.tsx";
 import TurnosPage from "./pages/turno/Turno.page.tsx";
 import MenuPage from './legacy/MenuPage.js';
-import Turnos from './routes/turnos.tsx';
 import EditarPerfil from './routes/EditarPerfilPeluquero.tsx';
 import EditarPerfilCliente from './routes/EditarPerfilCliente.tsx';
 import PagosPage from './pages/Pagos/Pagos.tsx';
@@ -37,13 +36,14 @@ import HistorialClientePage from './pages/historialCliente/HistorialClientePage.
 //Rutas privadas (no CRUDS):
 import ProtectedRoute from './routes/protectedRoute.tsx';
 import HomeCliente from './routes/homeCliente.tsx';
-import HomePeluquero from './routes/homePeluquero.tsx';
+import HomePeluquero from './routes/homePeluquero/homePeluquero.tsx';
 import TopTresPeluquerosPage from './routes/topTresPeluquerosPage.tsx';
 import ListadoTurnosPage from './routes/ListadoTurnosPage.tsx';
 import PanelAdministracionCruds from './routes/PanelAdminCRUDs.tsx';
 import ClienteLayout from './layout/ClienteLayout.tsx';
 import AltaTurnoPage from './pages/AltaTurno/AltaTurnos.tsx';
 import CancelarTurno from './pages/CancelarTurno.tsx';
+import InformacionGerencialPage from './routes/informacionGerencial/InfGeren.page.tsx';
 
 const router = createBrowserRouter([
 
@@ -74,7 +74,14 @@ const router = createBrowserRouter([
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "editar-perfil", element: <EditarPerfil /> },
-        { path: "baja-turno", element: <CancelarTurno /> }
+        { path: "baja-turno", element: <CancelarTurno /> },
+        { path: "peluqueroList", element: <PeluqueroList /> },
+        { path: "localidades", element: <LocalidadesPage /> },
+        { path: "tipoServicios", element: <TipoServicioPage /> },
+        { path: "servicios", element: <ServiciosPage /> },
+        { path: "turnos", element: <TurnosPage /> },
+        { path: "clientesCrud", element: <ClientesPage /> },
+        { path: "informacion", element: <InformacionGerencialPage /> }
       ]
     },
     {
@@ -98,7 +105,6 @@ const router = createBrowserRouter([
       element: <ProtectedRoute />,
       children: [
         { path: "homeCliente", element: <HomeCliente /> },
-        { path: "turno", element: <Turnos /> },
         { path: "peluqueroList", element: <PeluqueroList /> },
         { path: "localidades", element: <LocalidadesPage /> },
         { path: "tipoServicios", element: <TipoServicioPage /> },

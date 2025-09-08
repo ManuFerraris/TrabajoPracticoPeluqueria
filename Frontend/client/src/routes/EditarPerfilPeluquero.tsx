@@ -27,8 +27,8 @@ function EditarPerfil() {
     useEffect(() => {
         async function fetchPeluquero() {
             try {
-                if(user && user.codigo_peluquero){
-                    const response = await axios.get(`${API_URL}/peluqueros/${user.codigo_peluquero}`, {
+                if(user && user.codigo){
+                    const response = await axios.get(`${API_URL}/peluqueros/${user.codigo}`, {
                         headers: { Authorization: `Bearer ${accessToken}` }
                     });
             
@@ -69,7 +69,7 @@ function EditarPerfil() {
                 delete payload.password;
             }
             if(user){
-                const response = await axios.put(`${API_URL}/peluqueros/${user.codigo_peluquero}`, formData, {
+                const response = await axios.put(`${API_URL}/peluqueros/${user.codigo}`, formData, {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
                 console.log("Respuesta del backend: ", response.data);

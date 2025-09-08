@@ -1,5 +1,6 @@
 import { useNavigate, Navigate  } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider.tsx';
+import { useAuth } from '../../auth/AuthProvider.tsx';
+import { useTurnosHoy } from './useTurnosHoy.ts';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -7,11 +8,11 @@ export default function HomePeluquero() {
     const navigate = useNavigate();
     const auth = useAuth();
     const user = auth.user; 
+    const {cantidadTurnosHoy, cantidadTurnosActivos, tipoPel, isLoading} = useTurnosHoy();
 
     if (!auth.isAuthenticated || !user) {
         return <Navigate to="/login" replace />;
     };
-    
 
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
@@ -26,6 +27,8 @@ export default function HomePeluquero() {
         };
     };
 
+    console.log()
+    
     return (
         <div className="container py-5">
             <div className="text-center mb-5">
@@ -41,24 +44,24 @@ export default function HomePeluquero() {
                 <div className="col-md-4">
                     <div className="card text-white bg-primary mb-3 shadow-sm">
                         <div className="card-body">
-                            <h5 className="card-title">Turnos activos</h5>
-                            <p className="card-text display-6">12</p> 
+                            <h4 className="card-title">Turnos activos:</h4>
+                            {isLoading ? <h5>Cargando...</h5> : <h5>{cantidadTurnosActivos ?? 0} turnos</h5>}
                         </div>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="card text-white bg-success mb-3 shadow-sm">
                         <div className="card-body">
-                            <h5 className="card-title">Turnos hoy</h5>
-                            <p className="card-text display-6">5</p>
+                            <h4 className="card-title">Turnos hoy:</h4>
+                            {isLoading ? <h5>Cargando...</h5> : <h5>{cantidadTurnosHoy ?? 0} turnos</h5>}
                         </div>
                     </div>
                 </div>
                 <div className="col-md-4">
                     <div className="card text-white bg-secondary mb-3 shadow-sm">
                         <div className="card-body">
-                            <h5 className="card-title">Estado</h5>
-                            <p className="card-text fs-5">Operativo</p>
+                            <h4 className="card-title">Tipo:</h4>
+                            {isLoading ? <h5>Cargando...</h5> : <h5>{tipoPel}</h5>}
                         </div>
                     </div>
                 </div>
@@ -71,7 +74,7 @@ export default function HomePeluquero() {
                             <h4 className="text-center mb-4">Acciones Rápidas</h4>
                             <div className="d-grid gap-3">
 
-                                <button onClick={() => navigate("/listado-turnos")} className="btn btn-primary btn-lg py-3">
+                                <button onClick={() => navigate("/peluqueros/listado-turnos")} className="btn btn-primary btn-lg py-3">
                                     Ver mis Turnos
                                 </button>
 
@@ -89,8 +92,8 @@ export default function HomePeluquero() {
 
                                 {user.rol === 'admin' && (
                                     <>
-                                        <button onClick={() => navigate("/peluquero")} className="btn btn-outline-primary btn-lg py-3">
-                                            Información de Peluqueros
+                                        <button onClick={() => navigate("/peluqueros/informacion")} className="btn btn-outline-primary btn-lg py-3">
+                                            Información gerencial
                                         </button>
                                         
                                         <button onClick={() => navigate("/peluqueros/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">

@@ -191,6 +191,11 @@ export const top3Peluqueros = async (req:Request, res:Response):Promise<void> =>
 
 export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
     try{
+        if (!req.user || !req.user.rol) {
+            res.status(401).json({ message: "No autenticado. Token inválido o ausente." });
+            return;
+        };
+
         const { valor: codigo_peluquero, error: error} = validarCodigo(req.params.codigo_peluquero, 'codigo de peluquero');
         if(error || codigo_peluquero === undefined){
             res.status(404).json({ message: error ?? 'codigo invalido'});
@@ -210,21 +215,21 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
         };
 
         const resultado = await casouso.ejecutar(codigo_peluquero);
-
+        console.log("Resultado del metodo: ", resultado);
         if(typeof resultado === 'string'){
             res.status(404).json({ message: resultado });
             return;
         };
-        if(resultado.length === 0){
-            res.status(200).json({ message: 'No posee turnos asignados', data:[] });
+        if(resultado.turnos.length === 0){
+            res.status(200).json({ message: 'No posee turnos asignados', data:[], cantidadTurnos: resultado.cantTurnosHoy });
             return;
         };
 
-        res.status(200).json({ data: resultado });
+        res.status(200).json({ data: resultado, cantidadTurnos:resultado.cantTurnosHoy });
         return;
 
     }catch(errores:any){
-        console.error('Error al eliminar al peluquero ', errores);
+        console.error('Error al traer los turnos del peluquero ', errores);
         res.status(500).json({error: 'Error interno del servidor.'});
         return;
     };

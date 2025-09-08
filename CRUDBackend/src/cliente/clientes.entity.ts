@@ -27,6 +27,9 @@ export class Cliente{
     @Property({type: 'string', default: "Activo"})
     estado!: string;
 
+    @Property({type: 'string', columnType: 'varchar(10)', nullable: false })
+    fecha_Ingreso!: string;
+
     @Property({type: 'string', nullable: false, length: 100})
     password!: string;
 

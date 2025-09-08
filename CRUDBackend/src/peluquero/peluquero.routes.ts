@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { AppError } from '../shared/errors/AppError.js'; //menejo de errores
 import { findAll,
     getOne, 
     add,
@@ -15,6 +14,7 @@ import { authorizeRole } from "../auth/authorizeRole.js";
 
 export const peluqueroRouter = Router()
 
+peluqueroRouter.get('/misTurnos/:codigo_peluquero', authMiddleware, getMisTurnos);
 peluqueroRouter.get('/horariosDisponibles/:codigo_peluquero/:codigo_tipo', horariosDisponibles);
 peluqueroRouter.get('/topTresPeluqueros',authMiddleware, authorizeRole(['peluquero', 'admin']), top3Peluqueros);
 peluqueroRouter.get('/misTurnosPeluquero/:codigo_peluquero', authMiddleware, authorizeRole(['peluquero', 'admin']), obtenerHistorialPeluquero);

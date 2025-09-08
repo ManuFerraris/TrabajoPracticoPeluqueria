@@ -311,15 +311,15 @@ function PeluqueroList() {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100 bg-light">
+        <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
             <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
-                <div className="card-header text-center bg-primary text-white py-3">
-                    <h3 className="mb-0">Gestión de Peluqueros</h3>
+                <div className="card-header text-center bg-primary text-white py-2">
+                    <h3>Gestión de Peluqueros</h3>
                 </div>
 
-                <div className="card-body d-flex flex-column p-0">
+                <div className="card-body d-flex flex-column" style={{ maxHeight: 'calc(100vh - 50px)', overflow: 'hidden' }}>
                     {/* Formulario */}
-                    <div className="p-4 border-bottom">
+                    <div className="form-container" style={{ padding: '20px', boxSizing: 'border-box' }}>
                         <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e)}>
                             <div className="row g-3">
                                 {/* Nombre */}

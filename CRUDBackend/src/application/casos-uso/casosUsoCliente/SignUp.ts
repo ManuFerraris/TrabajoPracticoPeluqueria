@@ -13,6 +13,9 @@ export class SignUp{
             return errores;
         };
         
+        const hoy = new Date();
+        const fechaIngreso = hoy.toISOString().slice(0, 10);
+
         const cliente = new Cliente();
         cliente.NomyApe = dto.NomyApe;
         cliente.direccion = dto.direccion;
@@ -21,6 +24,7 @@ export class SignUp{
         cliente.localidad = localidadExistente;
         cliente.telefono = dto.telefono;
         cliente.estado = "Activo";
+        cliente.fecha_Ingreso = fechaIngreso;
         cliente.password = await hashearPassword(dto.password);
         cliente.rol = "cliente";
         

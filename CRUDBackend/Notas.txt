@@ -51,3 +51,5 @@ async function safeCompare(a: string, b: string): Promise<boolean> {
         return false;
     };
 };*/
+
+stripe listen --forward-to localhost:3000/stripe-webhook

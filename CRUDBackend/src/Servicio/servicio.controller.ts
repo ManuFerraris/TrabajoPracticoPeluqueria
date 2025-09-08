@@ -12,28 +12,6 @@ import { ActualizarServicio } from "../application/casos-uso/casosUsoServicio/Ac
 import { validarCodigo } from "../application/validarCodigo.js";
 import { VerMiTurno } from "../application/casos-uso/casosUsoServicio/VerMiTurno.js";
 
-/*function sanitizeServicioInput(req: Request, res: Response, next: NextFunction) {
-    req.body.sanitizedInput = {
-        codigo: req.body.codigo,
-        monto: req.body.monto,
-        estado: req.body.estado,
-        adicional_adom: req.body.adicional_adom,
-        ausencia_cliente: req.body.ausencia_cliente,
-        medio_pago: req.body.medio_pago,
-        turno_codigo_turno: req.body.turno_codigo_turno,
-        tipo_servicio_codigo: req.body.tipo_servicio_codigo,
-        total: req.body.total,
-    };
-
-    Object.keys(req.body.sanitizedInput).forEach(key => {
-        if (req.body.sanitizedInput[key] === undefined) {
-            delete req.body.sanitizedInput[key];
-        }
-    });
-    next();
-}
-*/
-
 export const findAll = async (req: Request, res: Response):Promise<void> => {
     try{
         const orm = (req.app.locals as { orm: MikroORM }).orm;

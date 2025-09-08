@@ -1,7 +1,0 @@
-node_modules/*.tsbuildinfo
-/package.json
-/package-lock.json
-/node_modules/
-
-#Variables de entorno
-.env
