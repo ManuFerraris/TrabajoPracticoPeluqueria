@@ -7,16 +7,6 @@ export default function HomeCliente() {
     const navigate = useNavigate();
     const auth = useAuth();
 
-    const rawUser = localStorage.getItem("user");
-    let user = null;
-
-    try {
-        user = rawUser ? JSON.parse(rawUser) : null;
-    } catch (error) {
-        console.error("Error al parsear userData:", error);
-        localStorage.removeItem("user");
-    };
-
     useEffect(() => {
         if (!auth.isAuthenticated || !auth.user) {
             console.warn("Redirigiendo a login...");
@@ -44,7 +34,7 @@ export default function HomeCliente() {
                     <div className="card shadow-sm border-0">
                         <div className="card-body p-4">
                             <div className="text-center mb-4">
-                                <h1 className="h3 fw-bold text-primary">Bienvenido, {user.nombre}</h1>
+                                <h1 className="h3 fw-bold text-primary">Bienvenido, {auth.user?.nombre ?? "Usuario"}</h1>
                                 <p className="text-muted">¿Qué te gustaría hacer hoy?</p>
                             </div>
 

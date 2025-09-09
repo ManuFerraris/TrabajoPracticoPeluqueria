@@ -24,13 +24,15 @@ export async function validarTurnoUnicoPorDia(
     const turnosDelCliente = await em.find(Turno,
         {
             cliente: cliente,
-            fecha_hora: { $gte: inicioDelDia, $lte: finDelDia }
+            fecha_hora: { $gte: inicioDelDia, $lte: finDelDia },
+            estado: { $ne: 'Cancelado' } // Excluye turnos cancelados
         });
 
     if (actualizacion && turnosDelCliente.length === 1) {
         // Permitimos actualizar si ya tiene un turno ese día
         return null;
-    }
+    };
+
     return turnosDelCliente.length > 0 
         ? "El cliente ya tiene un turno registrado en ese día." : null;
 };

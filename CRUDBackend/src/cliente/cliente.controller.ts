@@ -221,6 +221,9 @@ export const obtenerHistorialCliente = async (req:Request, res:Response):Promise
         const loggedInUserId = req.user.codigo;
         const userRole = req.user.rol;
 
+        console.log("Comparando codCli:", codCli, "con loggedInUserId:", loggedInUserId);
+        console.log("Tipos:", typeof codCli, typeof loggedInUserId);
+
         if (userRole === 'cliente' && codCli !== loggedInUserId) {
             res.status(403).json({ message: "No autorizado para ver este historial." });
             return;

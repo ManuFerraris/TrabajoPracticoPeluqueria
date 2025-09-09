@@ -29,13 +29,17 @@ function HistorialClientePage() {
     const [turnos, setTurnos] = useState<Turno[]>([]);
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [clienteSeleccionado, setClienteSeleccionado] = useState<string>('');
-    const { user: userData } = useAuth() as { user: UserData }; 
+    const { user } = useAuth() as { user: UserData }; 
     const accessToken = localStorage.getItem('accessToken');
 
     const obtenerHistorial = useCallback(async (codigoCliente: string) => {
         if (!codigoCliente) return;
         try {
-            const res = await axios.get<{data:Turno[]; message?: string}>(`${API_URL}/clientes/misTurnosCliente/${codigoCliente}`, {
+            console.log("Codigo para ver el historial:", codigoCliente);
+            console.log("Token usado para ver el historial:", accessToken);
+            console.log("Data del user:", user);
+            const codigo_cliente = codigoCliente
+            const res = await axios.get<{data:Turno[]; message?: string}>(`${API_URL}/clientes/misTurnosCliente/${codigo_cliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             
@@ -50,10 +54,10 @@ function HistorialClientePage() {
             console.error("Error obteniendo el historial:", err);
             Swal.fire('Error', 'No se pudo obtener el historial.', 'error');
         }
-    }, [accessToken])
+    }, [accessToken, user]);
     
     useEffect(() => {
-        if (userData?.rol === 'admin') {
+        if (user?.rol === 'admin') {
             const fetchClientes = async () => {
                 try {
                     const res = await axios.get(`${API_URL}/clientes`, { headers: { Authorization: `Bearer ${accessToken}` }});
@@ -67,10 +71,12 @@ function HistorialClientePage() {
                 };
             };
             fetchClientes();
-        } else if (userData?.rol === 'cliente') {
-            obtenerHistorial(String(userData.codigo));
+        } else if (user?.rol === 'cliente') {
+            console.log("Codigo del cliente:", user.codigo);
+            console.log("Token usado para historial:", accessToken);
+            obtenerHistorial(String(user.codigo));
         }
-    }, [userData, accessToken, obtenerHistorial]);
+    }, [user, accessToken, obtenerHistorial]);
 
     const formatFechaHora = (fechaISO: string | undefined): string => {
         if (!fechaISO) return 'No disponible';
@@ -81,7 +87,7 @@ function HistorialClientePage() {
         });
     };
 
-    if (userData?.rol === 'peluquero') {
+    if (user?.rol === 'peluquero') {
         return (
             <div className="container mt-5">
                 <div className="alert alert-danger text-center" role="alert">
@@ -96,11 +102,11 @@ function HistorialClientePage() {
         <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-200">
             <div className="card shadow-lg w-100" style={{ maxWidth: '1400px' }}>
                 <div className="card-header bg-primary text-white text-center">
-                    <h3>{userData?.rol === 'admin' ? 'Historial de Turnos por Cliente' : 'Mi Historial de Turnos'}</h3>
+                    <h3>{user?.rol === 'admin' ? 'Historial de Turnos por Cliente' : 'Mi Historial de Turnos'}</h3>
                 </div>
                 <div className="card-body">
                     {/* Mostrar selector solo para el admin */}
-                    {userData?.rol === 'admin' && (
+                    {user?.rol === 'admin' && (
                         <div className="row mb-3">
                             <div className="col-md-6">
                                 <label className="form-label">Seleccionar Cliente:</label>

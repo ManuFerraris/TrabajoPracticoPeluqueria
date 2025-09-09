@@ -46,7 +46,7 @@ interface AuthProviderProps {
 
 // Mantiene el estado de autenticación y proporciona funciones para iniciar/cerrar sesión y refrescar el token
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<UserData | null>(null);
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Efecto para cargar la autenticación al iniciar
     useEffect(() => {
-        console.log("AuthProvider effect ejecutado");
+        console.log("AuthProvider effect ejecutado, loadAuthData iniciado.");
         const loadAuthData = async () => {
         try {
             const storedAccessToken = localStorage.getItem('accessToken');
@@ -111,6 +111,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
             };
 
             if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                console.log("User cargado desde localStorage:", parsedUser);
+                const userNormalizado = {
+                    ...parsedUser,
+                    codigo: parsedUser.codigo_cliente ?? parsedUser.codigo,
+                };
                 const response = await axios.get(`${API_URL}/api/auth/validate-token`, {
                     headers: {
                         Authorization: `Bearer ${storedAccessToken}`
@@ -119,9 +125,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 //console.log("User recibido desde validate-token:", response.data.user);
                 if (response.status === 200 && response.data.valid) {
                     setAccessToken(storedAccessToken);
-                    setUser(response.data.user);
+                    setUser(userNormalizado);
                     setIsAuthenticated(true);
-                    localStorage.setItem('user', JSON.stringify(response.data.user)); // Para actualizar el local storage.
+                    localStorage.setItem('user', JSON.stringify(userNormalizado)); // Para actualizar el local storage.
                 } else {
                     console.warn("Token inválido. Cerrando sesión.");
                     logout();
@@ -141,7 +147,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     return loadAuthData();
                 }
             };
-
             console.error("Error al validar token:", error);
             logout();
         } finally {

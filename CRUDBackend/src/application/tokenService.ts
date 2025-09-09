@@ -10,7 +10,7 @@ export class TokenService{
     static generarTokens(cliente:Cliente):{accessToken:string, refreshToken:string} {
         const accessToken = jwt.sign(
             {
-                codiigo: cliente.codigo_cliente,
+                codigo: cliente.codigo_cliente,
                 email: cliente.email,
                 rol:cliente.rol
             },

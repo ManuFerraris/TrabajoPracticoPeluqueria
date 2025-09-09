@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.tsx';
 import { API_URL } from '../auth/constants.ts';
@@ -7,6 +7,7 @@ import "./signup.css";
 import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
 
 export default function Signup() {
 
@@ -101,14 +102,20 @@ export default function Signup() {
                 if (!accessToken || !userData) {
                     console.error("Error: El backend envió un accessToken o userData vacío.");
                     return;
-                }
+                };
 
-                auth.login(accessToken, refreshToken, userData);
+                const userDataNormalizado = {
+                    ...userData,
+                    nombre: userData.NomyApe, // ← normalización del nombre
+                    codigo: userData.codigo_cliente // ← esto es clave
+                };
+
+                auth.login(accessToken, refreshToken, userDataNormalizado);
 
                 // Redirigir al login o hacer login automático
                 if (auth.isAuthenticated) {
-                    console.log("🔍 Estado de autenticación después del signup:", auth.isAuthenticated);
-                    const destino = auth.user?.rol === "cliente" ? "/homeCliente" : "/homePeluquero";
+                    console.log("Estado de autenticación después del signup:", auth.isAuthenticated);
+                    const destino = getRutaInicioPorRol(auth.user?.rol || '');
                     navigate(destino, {replace: true});
                 };
             }else{
@@ -138,10 +145,12 @@ export default function Signup() {
 
     const auth = useAuth();
     
-    if (auth.isAuthenticated) {
-        const destino = auth.user?.rol === 'cliente' ? '/homeCliente' : '/homePeluquero';
+    useEffect(() => {
+        if (auth.isAuthenticated) {
+        const destino = getRutaInicioPorRol(auth.user?.rol || '');
         navigate(destino, {replace: true});
     };
+    },[auth.isAuthenticated, auth.user, navigate]);
 
     return (
             <div className="container d-flex justify-content-center align-items-center min-vh-100">

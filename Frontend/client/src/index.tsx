@@ -67,7 +67,7 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       ),
       children: [
-        { path: "", element: <HomePeluquero /> },
+        { path: "homePeluquero", element: <HomePeluquero /> },
         { path: "historial-peluquero", element: <HistorialPeluqueroPage /> },
         { path: "top-peluqueros", element: <TopTresPeluquerosPage/>},
         { path: "listado-turnos", element: <ListadoTurnosPage/>},
@@ -92,7 +92,7 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       ),
       children: [
-        { path: "", element: <HomeCliente /> },
+        { path: "homeCliente", element: <HomeCliente /> },
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "editar-perfil-cliente", element: <EditarPerfilCliente /> },
         { path: "sacar-turno", element: <AltaTurnoPage /> },
