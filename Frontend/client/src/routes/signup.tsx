@@ -9,6 +9,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
 
+interface Localidad {
+    codigo: number;
+    nombre: string;
+}
+
 export default function Signup() {
 
     const navigate = useNavigate(); //Hook para la redireccion
@@ -24,6 +29,25 @@ export default function Signup() {
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [localidades, setLocalidades] = useState<Localidad[]>([]);
+
+    useEffect(() => {
+        const fetchLocalidades = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/localidades`);
+                setLocalidades(response.data.data || []);
+            } catch (error) {
+                console.error("Error al cargar las localidades:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Carga',
+                    text: 'No se pudieron cargar las localidades.',
+                });
+            }
+        };
+    
+        fetchLocalidades();
+    }, []); 
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -58,14 +82,14 @@ export default function Signup() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
     };
-
+    
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
@@ -237,17 +261,23 @@ export default function Signup() {
 
                                 <div className="col-md-6 mb-3">
                                     <label htmlFor="codigo_localidad" className="form-label">Localidad *</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         className={`form-control ${errors.codigo_localidad ? 'is-invalid' : ''}`}
                                         id="codigo_localidad"
                                         name="codigo_localidad"
                                         value={formData.codigo_localidad}
                                         onChange={handleChange}
-                                        placeholder="Ej: Buenos Aires"
-                                    />
+                                    >
+                                        <option value="">Seleccione una localidad...</option>
+                                        {localidades.map((localidad) => (
+                                            <option key={localidad.codigo} value={localidad.codigo}>
+                                                {localidad.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {errors.codigo_localidad && <div className="invalid-feedback">{errors.codigo_localidad}</div>}
                                 </div>
+
                             </div>
 
                             <div className="mb-4">
