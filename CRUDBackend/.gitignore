@@ -31,4 +31,5 @@ dist/**/*
 ## Ignore .http files
 *.http
 
+# Archivos generados por TypeScript
 tsconfig.tsbuildinfo
