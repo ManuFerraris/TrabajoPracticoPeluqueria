@@ -1,25 +1,23 @@
 import React, {useState, useEffect} from "react";
-import { useAuth } from "../auth/AuthProvider.tsx";
+import { useAuth } from "../../auth/AuthProvider.tsx";
 import axios from "axios";
-import { API_URL } from "../auth/constants.ts";
+import { API_URL } from "../../auth/constants.ts";
 
 type FormData = {
-    dni: string;
-    NomyApe: string;
+    nombre: string;
+    fecha_ingreso: string;
+    tipo: string;
     email: string;
-    direccion: string;
-    telefono: string;
     password?: string;
 };
 
-function EditarPerfilCliente() {
+function EditarPerfil() {
     const { user } = useAuth();
     const [formData, setFormData] = useState({
-        NomyApe:"",
-        dni: "",
-        direccion:"Sucursal",
+        nombre:"",
+        fecha_ingreso: "",
+        tipo:"Sucursal",
         email: "",
-        telefono:"",
         password:"",
     });
     const [mensaje, setMensaje] = useState<string>("");
@@ -27,26 +25,25 @@ function EditarPerfilCliente() {
     const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
-        async function fetchCliente() {
+        async function fetchPeluquero() {
             try {
                 if(user && user.codigo){
-                    const response = await axios.get(`${API_URL}/clientes/${user.codigo}`, {
+                    const response = await axios.get(`${API_URL}/peluqueros/${user.codigo}`, {
                         headers: { Authorization: `Bearer ${accessToken}` }
                     });
             
-                    const cliente = response.data.data;
-                    console.log("Cliente traido del backend: ", cliente);
+                    const peluquero = response.data.data;
+                    console.log("Peluquero traido del backend: ", peluquero);
                     setFormData({
-                        NomyApe: cliente.NomyApe || "",
-                        dni: cliente.dni || "",
-                        direccion: cliente.direccion || "",
-                        email: cliente.email || "",
-                        telefono: cliente.telefono || "",
+                        nombre: peluquero.nombre || "",
+                        fecha_ingreso: peluquero.fecha_Ingreso?.slice(0, 10) || "",
+                        tipo: peluquero.tipo || "Sucursal",
+                        email: peluquero.email || "",
                         password: "",
                     });
                 };
             } catch (error:any) {
-                console.error("Error al cargar datos del cliente:", error);
+                console.error("Error al cargar datos del peluquero:", error);
                 if (error.response?.data?.data?.errores) {
                     const errores = error.response.data.data.errores;
                     setMensaje(errores.join(", "));
@@ -55,7 +52,7 @@ function EditarPerfilCliente() {
                 };
             };
         };
-        fetchCliente();
+        fetchPeluquero();
     }, [user, accessToken]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -72,7 +69,7 @@ function EditarPerfilCliente() {
                 delete payload.password;
             }
             if(user){
-                const response = await axios.put(`${API_URL}/clientes/${user.codigo}`, formData, {
+                const response = await axios.put(`${API_URL}/peluqueros/${user.codigo}`, formData, {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
                 console.log("Respuesta del backend: ", response.data);
@@ -94,13 +91,12 @@ function EditarPerfilCliente() {
         <div className="container py-5">
             <h2 className="mb-4">Editar Perfil</h2>
             <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
-
                 <div className="mb-3">
-                    <label className="form-label">Nombre y Apellido</label>
+                    <label className="form-label">Nombre</label>
                     <input
                         type="text"
                         name="nombre"
-                        value={formData.NomyApe}
+                        value={formData.nombre}
                         onChange={handleChange}
                         className="form-control"
                         required
@@ -108,11 +104,11 @@ function EditarPerfilCliente() {
                 </div>
 
                 <div className="mb-3">
-                    <label className="form-label">DNI</label>
+                    <label className="form-label">Fecha de Ingreso</label>
                     <input
-                        type="text"
-                        name="dni"
-                        value={formData.dni}
+                        type="date"
+                        name="fecha_ingreso"
+                        value={formData.fecha_ingreso}
                         onChange={handleChange}
                         className="form-control"
                         required
@@ -120,15 +116,17 @@ function EditarPerfilCliente() {
                 </div>
 
                 <div className="mb-3">
-                    <label className="form-label">Direccion</label>
-                    <input
-                        type="text"
-                        name="direccion"
-                        value={formData.direccion}
+                    <label className="form-label">Tipo</label>
+                    <select
+                        name="tipo"
+                        value={formData.tipo}
                         onChange={handleChange}
-                        className="form-control"
+                        className="form-select"
                         required
-                    />
+                    >
+                        <option value="Sucursal">Sucursal</option>
+                        <option value="Domicilio">Domicilio</option>
+                    </select>
                 </div>
 
                 <div className="mb-3">
@@ -137,18 +135,6 @@ function EditarPerfilCliente() {
                         type="email"
                         name="email"
                         value={formData.email}
-                        onChange={handleChange}
-                        className="form-control"
-                        required
-                    />
-                </div>
-
-                <div className="mb-3">
-                    <label className="form-label">Telefono</label>
-                    <input
-                        type="text"
-                        name="telefono"
-                        value={formData.telefono}
                         onChange={handleChange}
                         className="form-control"
                         required
@@ -177,4 +163,4 @@ function EditarPerfilCliente() {
     );
 };
 
-export default EditarPerfilCliente;
+export default EditarPerfil;

@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider.tsx';
-import { API_URL } from '../auth/constants.ts';
+import { useAuth } from '../../auth/AuthProvider.tsx';
+import { API_URL } from '../../auth/constants.ts';
 import "./signup.css";
 import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
+import { getRutaInicioPorRol } from '../../components/GetRutaInicioPorRol.tsx';
 
 interface Localidad {
     codigo: number;
@@ -94,7 +94,7 @@ export default function Signup() {
         e.preventDefault();
 
         if(!validateForm()) {
-            console.log("Errores de validación:", errors);
+            console.error("Errores de validación:", errors);
             return;
         };
 
@@ -130,20 +130,20 @@ export default function Signup() {
 
                 const userDataNormalizado = {
                     ...userData,
-                    nombre: userData.NomyApe, // ← normalización del nombre
-                    codigo: userData.codigo_cliente // ← esto es clave
+                    nombre: userData.NomyApe,
+                    codigo: userData.codigo_cliente
                 };
 
                 auth.login(accessToken, refreshToken, userDataNormalizado);
 
                 // Redirigir al login o hacer login automático
                 if (auth.isAuthenticated) {
-                    console.log("Estado de autenticación después del signup:", auth.isAuthenticated);
+                    //console.log("Estado de autenticación después del signup:", auth.isAuthenticated);
                     const destino = getRutaInicioPorRol(auth.user?.rol || '');
                     navigate(destino, {replace: true});
                 };
             }else{
-                console.log("Error al crear el usuario", response.data);
+                //console.log("Error al crear el usuario", response.data);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -277,7 +277,6 @@ export default function Signup() {
                                     </select>
                                     {errors.codigo_localidad && <div className="invalid-feedback">{errors.codigo_localidad}</div>}
                                 </div>
-
                             </div>
 
                             <div className="mb-4">

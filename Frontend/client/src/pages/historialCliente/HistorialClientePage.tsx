@@ -35,15 +35,15 @@ function HistorialClientePage() {
     const obtenerHistorial = useCallback(async (codigoCliente: string) => {
         if (!codigoCliente) return;
         try {
-            console.log("Codigo para ver el historial:", codigoCliente);
-            console.log("Token usado para ver el historial:", accessToken);
-            console.log("Data del user:", user);
+            //console.log("Codigo para ver el historial:", codigoCliente);
+            //console.log("Token usado para ver el historial:", accessToken);
+            //console.log("Data del user:", user);
             const codigo_cliente = codigoCliente
             const res = await axios.get<{data:Turno[]; message?: string}>(`${API_URL}/clientes/misTurnosCliente/${codigo_cliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             
-            console.log("Respuesta del servidor:", res.data); 
+            //console.log("Respuesta del servidor:", res.data); 
             const turnosRecibidos = res.data.data || [];
             setTurnos(turnosRecibidos);
 
@@ -54,17 +54,15 @@ function HistorialClientePage() {
             console.error("Error obteniendo el historial:", err);
             Swal.fire('Error', 'No se pudo obtener el historial.', 'error');
         }
-    }, [accessToken, user]);
+    }, [accessToken]);
     
     useEffect(() => {
         if (user?.rol === 'admin') {
             const fetchClientes = async () => {
                 try {
                     const res = await axios.get(`${API_URL}/clientes`, { headers: { Authorization: `Bearer ${accessToken}` }});
-                    
                     const clientes = res.data.data || [];
                     setClientes(clientes);
-
                 } catch (err) {
                     console.error("Error cargando clientes para admin:", err);
                     Swal.fire('Error', 'No se pudieron cargar los clientes.', 'error');
@@ -72,8 +70,8 @@ function HistorialClientePage() {
             };
             fetchClientes();
         } else if (user?.rol === 'cliente') {
-            console.log("Codigo del cliente:", user.codigo);
-            console.log("Token usado para historial:", accessToken);
+            //console.log("Codigo del cliente:", user.codigo);
+            //console.log("Token usado para historial:", accessToken);
             obtenerHistorial(String(user.codigo));
         }
     }, [user, accessToken, obtenerHistorial]);

@@ -8,6 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function handleStripeWebhook(req:Request, res:Response):Promise<void> {
     try{
+        console.log("✅ Webhook recibido");
         const orm = (req.app.locals as {orm: MikroORM}).orm
         const em = orm.em.fork();
         const repo = new PagoRepositoryORM(em);

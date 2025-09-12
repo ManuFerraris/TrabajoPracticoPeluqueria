@@ -44,7 +44,7 @@ function HistorialPeluqueroPage() {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
 
-            console.log("Respuesta del servidor para historial peluquero:", res.data);
+            //console.log("Respuesta del servidor para historial peluquero:", res.data);
             const turnosRecibidos = res.data.data || []
             setTurnos(turnosRecibidos);
 
@@ -59,14 +59,11 @@ function HistorialPeluqueroPage() {
 
     useEffect(() => {
         if (userData?.rol === 'admin') {
-            // Si es admin, carga la lista de todos los peluqueros para el selector
             const fetchPeluqueros = async () => {
                 try {
                     const res = await axios.get(`${API_URL}/peluqueros`, { headers: { Authorization: `Bearer ${accessToken}` }});
-                    
-                    const peluqueros = res.data.data || []
-                    console.log("Peluqueros traidos: ", peluqueros);
-
+                    const peluqueros = res.data.data || [];
+                    //console.log("Peluqueros traidos: ", peluqueros);
                     setPeluqueros(peluqueros);
                 } catch (err) {
                     console.error("Error cargando peluqueros para admin:", err);
@@ -75,7 +72,6 @@ function HistorialPeluqueroPage() {
             };
             fetchPeluqueros();
         } else if (userData?.rol === 'peluquero') {
-            // Si es peluquero, carga su propio historial automáticamente
             obtenerHistorial(String(userData.codigo));
         };
     }, [userData, accessToken, obtenerHistorial]);
@@ -152,6 +148,6 @@ function HistorialPeluqueroPage() {
             </div>
         </div>
     );
-}
+};
 
 export default HistorialPeluqueroPage;

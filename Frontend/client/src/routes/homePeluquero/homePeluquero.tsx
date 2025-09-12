@@ -26,8 +26,6 @@ export default function HomePeluquero() {
             console.error("Error en el logout:", error);
         };
     };
-
-    console.log()
     
     return (
         <div className="container py-5">
@@ -94,6 +92,10 @@ export default function HomePeluquero() {
                                     <>
                                         <button onClick={() => navigate("/peluqueros/informacion")} className="btn btn-outline-primary btn-lg py-3">
                                             Información gerencial
+                                        </button>
+
+                                        <button onClick={() => navigate("/peluqueros/pagar-efectivo")} className="btn btn-outline-primary btn-lg py-3">
+                                            Registrar Pago en Efectivo
                                         </button>
                                         
                                         <button onClick={() => navigate("/peluqueros/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">

@@ -8,14 +8,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { getNombrePeluquero } from "../AltaTurno/utils/formUtils.ts";
 import { usePagoStripe } from "./hooks/usePagoStripe.tsx";
 
-/*type Pago = {
-    id:number;
-    metodo: '';
-    monto: number;
-    estado: '';
-    fecha_hora: string;
-};*/
-
 type Turno = {
     codigo_turno:number;
     fecha_hora:string;
@@ -56,7 +48,6 @@ const PagosPage = () => {
     const accessToken = localStorage.getItem('accessToken');
     const { pagarTurno: pagarConStripe } = usePagoStripe();
 
-    //Crear metodo en el backend para traer los turnos Activos y NO pagos.
     const fetchTurnosAPagar = useCallback(async (codCliente:number) => {
         try{
             const response = await axios.get(`${API_URL}/clientes/misTurnosAPagar/${codCliente}`, {
@@ -238,31 +229,31 @@ const PagosPage = () => {
                     )}
                     <div className="text-center mt-3">
                         <button
-                        className="btn btn-primary fw-semibold"
-                        style={{
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            fontSize: "15px",
-                            whiteSpace: "nowrap"
-                        }}
-                        onClick={ async () => {
-                            if (!codigo_turno) {
-                                Swal.fire("Error", "Seleccioná un turno válido para pagar", "error");
-                                return;
-                            };
-                            const confirmado = await confirmarAccion(
-                                "¿Confirmas el pago?"
-                            );
-                            if (confirmado) {
-                                pagarTurno(codigo_turno, "Stripe", accessToken);
-                                setCodigo_turno(null);
-                            };
-                        }}
-                        title="Seleccioná un turno primero"
-                        disabled={!codigo_turno}
-                    >
-                        Pagar Turno
-                    </button>
+                            className="btn btn-primary fw-semibold"
+                            style={{
+                                padding: "8px 16px",
+                                borderRadius: "6px",
+                                fontSize: "15px",
+                                whiteSpace: "nowrap"
+                            }}
+                            onClick={ async () => {
+                                if (!codigo_turno) {
+                                    Swal.fire("Error", "Seleccioná un turno válido para pagar", "error");
+                                    return;
+                                };
+                                const confirmado = await confirmarAccion(
+                                    "¿Confirmas el pago?"
+                                );
+                                if (confirmado) {
+                                    pagarTurno(codigo_turno, "Stripe", accessToken);
+                                    setCodigo_turno(null);
+                                };
+                            }}
+                            title="Seleccioná un turno primero"
+                            disabled={!codigo_turno}
+                        >
+                            Pagar Turno
+                        </button>
                     </div>
                     
                 </div>

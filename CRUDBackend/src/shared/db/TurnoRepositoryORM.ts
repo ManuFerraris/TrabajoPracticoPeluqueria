@@ -47,7 +47,7 @@ export class TurnoRepositoryORM implements TurnoRepository {
                 codigo_turno
             },
             {
-                populate: ['cliente', 'peluquero', 'servicio']
+                populate: ['cliente', 'peluquero', 'servicio', 'servicio.tipoServicio']
             },
         );
         if(turno) return turno;

@@ -1,17 +1,15 @@
 import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useAuth } from '../auth/AuthProvider.tsx';
-import { API_URL } from '../auth/constants.ts';
+import { useAuth } from '../../auth/AuthProvider.tsx';
+import { API_URL } from '../../auth/constants.ts';
 import './Login.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import { getRutaInicioPorRol } from '../components/GetRutaInicioPorRol.tsx';
+import { getRutaInicioPorRol } from '../../components/GetRutaInicioPorRol.tsx';
 
 export default function Login() {
-    console.log("LoginPage montado");
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -28,17 +26,17 @@ export default function Login() {
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { email, password });
             const data = response.data
-            console.log('Datos de respuesta con axios:', data);
+            //console.log('Datos de respuesta con axios:', data);
 
             // Guardar tokens y autenticar usuario
             auth.login(
                 data.accessToken,
                 data.refreshToken,
                 {
-                codigo: data.user.codigo,
-                email: data.user.email,
-                rol: data.user.rol,
-                nombre: data.user.NomyApe || data.user.nombre,
+                    codigo: data.user.codigo,
+                    email: data.user.email,
+                    rol: data.user.rol,
+                    nombre: data.user.NomyApe || data.user.nombre,
                 },
             );
 

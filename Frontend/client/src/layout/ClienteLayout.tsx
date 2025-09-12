@@ -10,7 +10,7 @@ function ClienteLayout(){
     const location = useLocation();
     const auth = useAuth();
     const user = auth.user;
-    const isHome = location.pathname === "/clientes";
+    const isHome = location.pathname === "/clientes/homeCliente";
 
     const handleLogout = () => {
         auth.logout();
@@ -24,7 +24,7 @@ function ClienteLayout(){
                 <div className="container-fluid">
                 
                 <button
-                    onClick={() => navigate("/clientes")}
+                    onClick={() => navigate("/clientes/homeCliente")}
                     className="navbar-brand btn btn-link text-white text-decoration-none"
                 >
                     Peluquería App
@@ -89,7 +89,6 @@ function ClienteLayout(){
             </div>
         </div>
     );
-
 };
 
 export default ClienteLayout;

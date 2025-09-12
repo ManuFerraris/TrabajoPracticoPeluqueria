@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import { useNavigate  } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider.tsx';
+import { useAuth } from '../../auth/AuthProvider.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function HomeCliente() {

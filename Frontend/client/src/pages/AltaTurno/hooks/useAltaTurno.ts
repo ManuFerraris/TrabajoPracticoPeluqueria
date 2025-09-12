@@ -143,8 +143,15 @@ export const useAltaTurno = () => {
 
         try {
             const respuesta = await turnoService.confirmarTurno(payloadConfirmacion, accessToken);
-            console.log("Turno confirmado:", respuesta);
-            Swal.fire("Turno reservado", "Tu turno fue confirmado correctamente", "success");
+            //console.log("Turno confirmado:", respuesta);
+            if (respuesta === null) {
+                Swal.fire("Error", "No se pudo confirmar el turno", "error");
+                return;
+            };
+            Swal.fire(
+                "Turno reservado",
+                "Tu turno fue confirmado correctamente",
+                "success");
             setMostrarConfirmacion(false);
         } catch (error: any) {
             console.error("Error generico al guardar el turno:", error);
@@ -176,5 +183,5 @@ export const useAltaTurno = () => {
         setMostrarConfirmacion,
         handleSubmit,
         confirmarTurno
-    } ;
+    };
 };

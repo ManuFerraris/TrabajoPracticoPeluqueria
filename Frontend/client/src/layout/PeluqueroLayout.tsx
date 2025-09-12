@@ -10,7 +10,7 @@ function PeluqueroLayout(){
     const location = useLocation();
     const auth = useAuth();
     const user = auth.user;
-    const isHome = location.pathname === "/peluqueros";
+    const isHome = location.pathname === "/peluqueros/homePeluquero";
 
     const handleLogout = () => {
         auth.logout();
@@ -24,7 +24,7 @@ function PeluqueroLayout(){
                 <div className="container-fluid">
                 
                 <button
-                    onClick={() => navigate("/peluqueros")}
+                    onClick={() => navigate("/peluqueros/homePeluquero")}
                     className="navbar-brand btn btn-link text-white text-decoration-none"
                 >
                     Peluquería App

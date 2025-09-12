@@ -9,6 +9,7 @@ import { BuscarTodosLosPagos } from "../application/casos-uso/casosUsoPago/Busca
 import { EliminarPago } from "../application/casos-uso/casosUsoPago/EliminarPago.js";
 import { RegistrarPago } from "../application/casos-uso/casosUsoPago/RegistrarPago.js";
 import { ActualizarPago } from "../application/casos-uso/casosUsoPago/ActualizarPago.js";
+import { Pago } from "./pago.entity.js";
 
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Falta STRIPE_SECRET_KEY en las variables de entorno");
@@ -169,6 +170,7 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
     try{
         const { metodo } = req.params;
         const {valor:codTur, error:codError} = validarCodigo(req.params.codigo_turno, 'codigo de turno');
+        console.log("Parametros recibidos en el controller crearPago - codTur:", codTur, "metodo:", metodo);
         if(codError || codTur === undefined){
             res.status(404).json({ error: codError });
             return
@@ -180,13 +182,19 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
         const casouso = new CrearPago(repo);
 
         const resultado = await casouso.ejecutar(codTur, metodo, em);
-
+        console.log("Resultado del caso de uso CrearPago:", resultado);
         if(Array.isArray(resultado)){
-            res.status(400).json({ errores: resultado });
+            res.status(400).json({ tipo: "Error", errores: resultado });
             return;
         };
-        
-        res.status(200).json({ sessionId: resultado.id });
+
+        if (resultado instanceof Pago){
+            // Es un Pago
+            res.status(200).json({ tipo: "Pago", pago: resultado });
+            return;
+        };
+
+        res.status(200).json({ tipo: "Stripe", sessionId: resultado.id });
         return;
     }catch(error:any){
         console.error('Error al crear un pago.', error);

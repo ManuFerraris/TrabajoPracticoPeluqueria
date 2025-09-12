@@ -21,7 +21,7 @@ export function useTurnosHoy() {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
                 setCantidadTurnosHoy(response.data.cantidadTurnos);
-                console.log("Response: ", response);
+                //console.log("Response: ", response);
                 const cantTurnosAct = Array.isArray(response.data.data?.turnos) ? response.data.data.turnos.length : 0;
                 setCantidadTurnosActivos(cantTurnosAct);
             } catch (error: any) {
@@ -40,7 +40,7 @@ export function useTurnosHoy() {
                 const response = await axios.get(`${API_URL}/peluqueros/${codigo_peluquero}`, {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                console.log("Response de peluquero: ", response);
+                //console.log("Response de peluquero: ", response);
                 const tipPel = response.data?.data ? response.data.data.tipo : 'Tipo no encontrado'
                 setTipoPel(tipPel);
             } catch (error: any) {

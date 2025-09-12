@@ -9,8 +9,7 @@ interface UserData {
     email: string;
     rol: 'cliente' | 'peluquero'|'admin';
     nombre: string;
-    // Agregar otros campos según necesidad
-} 
+};
 
 // Contexto de autenticación
 // Este contexto se va a encargar de almacenar los datos del usuario y los tokens de acceso y refresco
@@ -77,7 +76,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             try{
                 const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken})
+                console.log("Respuesta al refrescar token automáticamente:", response);
                 if(response.status === 200 && response.data.accessToken && response.data.user){
+                    console.log("Token refrescado automáticamente.");
                     const newAccessToken = response.data.accessToken;
                     const refreshUser = response.data.user
                     localStorage.setItem("accessToken", newAccessToken);
@@ -85,15 +86,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     setAccessToken(newAccessToken);
                     setUser(refreshUser);
                 } else {
+                    console.log("Respuesta inesperada al refrescar token automáticamente:", response);
                     console.warn("Respuesta inesperada al refrescar token:", response);
                     logout();
                 };
             }catch(error:any){
                 const mensaje = error.response?.data?.message ?? error.message;
+                console.log("Error al refrescar token automáticamente:", mensaje);
                 console.error("Error al refrescar token automáticamente:", mensaje);
                 logout();
             };
-        }, 1000 * 60 * 59); // Cada 59 minutos porque el del backend dura 60 (lo probe cada 1 minuto y andaba bien).
+        }, 1000 * 60 * 50); // Cada 50 minutos porque el del backend dura 60 (lo probe cada 1 minuto y andaba bien).
         return () => clearInterval(refreshLoop);
     }, []);
 
@@ -140,7 +143,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             if (status === 401) {
                 console.warn("Token expirado. Intentando refrescar...");
-
                 const refreshed = await refreshAuth();
                 if (refreshed) {
                     // Reintenta validación con nuevo token
@@ -157,7 +159,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loadAuthData();
     }, [refreshAuth]);
 
-  // Función para iniciar sesión
+    // Función para iniciar sesión
     const login = (accessToken:string, refreshToken:string, userData: UserData ) => {
         
         if (!accessToken || !userData) {
@@ -184,12 +186,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        
         setAccessToken(null);
         setRefreshToken(null);
         setUser(null);
         setIsAuthenticated(false);
-        
     };
 
     // Función para actualizar datos del usuario
@@ -221,7 +221,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
     }
 
-    console.log("AuthProvider montado");
+    //console.log("AuthProvider montado");
     if (!children) {
     console.warn("AuthProvider sin children");
     }
@@ -230,6 +230,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
 export const useAuth = () => useContext(AuthContext);

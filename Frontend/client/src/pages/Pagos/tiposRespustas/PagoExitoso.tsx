@@ -35,7 +35,7 @@ export default function PagoExitoso() {
         validarPago();
     }, [sessionId]);
 
-    const volver = () => navigate('/clientes');
+    const volver = () => navigate('/clientes/homeCliente');
 
     return (
         <div className="pago-exitoso-container">

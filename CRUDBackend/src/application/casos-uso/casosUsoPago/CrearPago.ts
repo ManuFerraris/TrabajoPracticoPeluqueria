@@ -2,7 +2,7 @@ import { EntityManager } from "@mikro-orm/core";
 import { PagoRepository } from "../../interfaces/PagoRepository.js";
 import { Turno } from "../../../turno/turno.entity.js";
 import { Pago } from "../../../pago/pago.entity.js";
-import { crearInstanciaPago, crearSessionSripe } from "./PagoEfectivo-Stripe.js";
+import { crearInstanciaPago, crearSessionStripe } from "./PagoEfectivo-Stripe.js";
 import Stripe from "stripe";
 
 export class CrearPago {
@@ -34,7 +34,7 @@ export class CrearPago {
         if(pago.metodo === 'Efectivo'){
             return pago;
         } else {
-            const session = await crearSessionSripe(pago);
+            const session = await crearSessionStripe(pago);
             return session;
         };
     };

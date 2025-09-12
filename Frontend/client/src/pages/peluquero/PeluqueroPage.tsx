@@ -69,7 +69,7 @@ function PeluqueroList() {
     const formatFechaPlano = (fecha: string): string => {
     // Asume que fecha ya está en formato YYYY-MM-DD
         const [yyyy, mm, dd] = fecha.split('-');
-        return `${dd}/${mm}/${yyyy}`; // o como prefieras mostrarla
+        return `${dd}/${mm}/${yyyy}`;
     };
 
     useEffect(() => {
@@ -235,7 +235,7 @@ function PeluqueroList() {
                 confirmButtonText: 'Aceptar',
                 position: 'center'
             });
-        }
+        };
     };
 
     const eliminarPeluquero = async (codigo_peluquero: number) => {
@@ -466,7 +466,7 @@ function PeluqueroList() {
                                             setEditar(true);
                                             }}
                                         >
-                                            <i className="bi bi-pencil"></i>Editar
+                                            <i className="bi bi-pencil"></i> Editar
                                         </button>
                                         <button
                                             className="btn btn-sm btn-outline-danger"

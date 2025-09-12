@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 const DefaultLayout = React.memo(() => {
-    console.log("AppDefaultLayout montado");
+    //console.log("AppDefaultLayout montado");
     return(
         <>
             <header>
