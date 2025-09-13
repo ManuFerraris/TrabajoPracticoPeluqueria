@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function handleStripeWebhook(req:Request, res:Response):Promise<void> {
     try{
-        console.log("✅ Webhook recibido");
+        console.log("Webhook recibido");
         const orm = (req.app.locals as {orm: MikroORM}).orm
         const em = orm.em.fork();
         const repo = new PagoRepositoryORM(em);
@@ -22,7 +22,8 @@ export async function handleStripeWebhook(req:Request, res:Response):Promise<voi
 
         const resultado = await casouso.ejecutar(event);
         if(Array.isArray(resultado)){
-            res.status(404).json({ message: resultado });
+            console.warn("Errores al procesar evento:", resultado);
+            res.status(200).send(); // Siempre respondo 200 a Stripe para que no reintente.
             return;
         };
 

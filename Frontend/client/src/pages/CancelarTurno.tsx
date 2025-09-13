@@ -11,6 +11,9 @@ type Turno = {
     estado: string;
     fecha_hora:string;
     peluquero: number;
+    pago:{
+        id:number;
+    };
 };
 
 type Peluquero = {
@@ -29,17 +32,21 @@ function CancelarTurno() {
 
     const codUser = user?.codigo;
     const userLoguedo = user?.rol;
-    console.log("Usuario y codigo extraido del useAuth: ",userLoguedo, codUser)
+    //console.log("Usuario y codigo extraido del useAuth: ",userLoguedo, codUser)
 
     const fetchTurnosCliente = useCallback(async () => {
         setLoading(true);
+        console.log("Codigo de usuario para traer turnos a cancelar: ", codUser);
         try{
             const response = await axios.get(`${API_URL}/clientes/misTurnosActivos/${codUser}`,{
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             const turnos = response.data.data || [];
-            setTurnos(turnos);
-            console.log("Turnos: ", turnos);
+            console.log("Turnos recibidos del backend para cancelar: ", turnos);
+            const turnosSinPago = turnos.filter((t:Turno) => !t.pago );
+            console.log("Turnos sin pago: ", turnosSinPago);
+            setTurnos(turnosSinPago);
+            console.log("Turnos: ", turnosSinPago);
         }catch(error:any){
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);

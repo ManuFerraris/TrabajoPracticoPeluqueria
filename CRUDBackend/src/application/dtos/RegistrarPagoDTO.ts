@@ -5,7 +5,7 @@ import { Turno } from "../../turno/turno.entity.js";
 export interface PagoDTO {
     metodo:'Efectivo' | 'Stripe';
     monto:number;
-    estado: 'Pendiente' | 'Pagado';
+    estado: 'Pendiente' | 'Pagado' | 'Fallido' | 'Reembolsado' | 'Expirado';
     fecha_hora:string;
     turno_codigo_turno:number;
 };

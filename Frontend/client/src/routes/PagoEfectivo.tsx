@@ -5,7 +5,7 @@ import { API_URL } from "../auth/constants.ts";
 import { useAuth } from "../auth/AuthProvider.tsx";
 import { useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { usePagoStripe } from "../pages/Pagos/hooks/usePagoStripe.tsx";
+import { usePagoStripeEfectivo } from "../pages/Pagos/hooks/usePagoStripe.tsx";
 
 type Turno = {
     codigo_turno:number;
@@ -47,7 +47,7 @@ export const PagoEfectivo = () => {
     const { user } = useAuth();
     const codPel = user?.codigo;
     const accessToken = localStorage.getItem('accessToken');
-    const { pagarTurno: pagarConStripe } = usePagoStripe();
+    const { pagarTurno: pagarConStripe } = usePagoStripeEfectivo();
 
     // Aca se traen los turnos del cliente en en estado "Activo" y que no tengan pago asociado.
     const fetchTurnoAPagar = useCallback(async (codigo_turno:number) => {

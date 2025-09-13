@@ -1,0 +1,13 @@
+1.En una terminal ejecuten:
+    stripe listen --forward-to localhost:3000/stripe-webhook
+
+    Eso deja escuchando eventos de Stripe.
+
+2.En otra terminal ya pueden ejecutar los comandos:
+    Simular un pago exitoso: stripe trigger checkout.session.completed
+
+    Simular un pago fallido: stripe trigger payment_intent.payment_failed
+
+    Simular un pago con payment_intent.succeeded: stripe trigger payment_intent.succeeded
+
+

@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY!);
 
-export function usePagoStripe () {
+export function usePagoStripeEfectivo () {
     const pagarTurno = async (codTurno:number, metodo: string, accessToken:string) => {
         try{
             console.log("Iniciando pago para el turno:", codTurno, "con método:", metodo);

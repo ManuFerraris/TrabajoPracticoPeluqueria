@@ -6,7 +6,7 @@ import { useAuth } from "../../auth/AuthProvider.tsx";
 import { useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getNombrePeluquero } from "../AltaTurno/utils/formUtils.ts";
-import { usePagoStripe } from "./hooks/usePagoStripe.tsx";
+import { usePagoStripeEfectivo } from "./hooks/usePagoStripe.tsx";
 
 type Turno = {
     codigo_turno:number;
@@ -46,7 +46,7 @@ const PagosPage = () => {
     const codCliente = user?.codigo;
     const nomCli = user?.nombre;
     const accessToken = localStorage.getItem('accessToken');
-    const { pagarTurno: pagarConStripe } = usePagoStripe();
+    const { pagarTurno: pagarConStripe } = usePagoStripeEfectivo();
 
     const fetchTurnosAPagar = useCallback(async (codCliente:number) => {
         try{
