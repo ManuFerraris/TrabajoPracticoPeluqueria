@@ -1,0 +1,14 @@
+## Flujo de creación de pagos
+
+1. Validar método y turno.
+2. Si ya existe un pago:
+   - Si es Stripe y está pendiente → regenerar sesión.
+   - Si es efectivo → devolver el pago existente.
+3. Si no existe → crear nuevo pago.
+   - Si es efectivo → devolver el pago.
+   - Si es Stripe → crear sesión y devolver `sessionId`.
+
+## Respuestas del controller
+- `tipo: "Error"` → errores de validación o negocio.
+- `tipo: "Pago"` → pago en efectivo registrado.
+- `tipo: "Stripe"` → sesión de Stripe para redireccionar.

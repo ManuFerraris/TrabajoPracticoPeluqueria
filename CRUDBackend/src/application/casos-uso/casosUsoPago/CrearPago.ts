@@ -23,11 +23,15 @@ export class CrearPago {
         };
 
         const pagoExistente = await em.findOne(Pago, { turno });
-        if (pagoExistente) {
-            errores.push('Ya existe un pago para este turno.');
-            return errores;
-        };
+        if (pagoExistente?.metodo === 'Stripe' && pagoExistente?.estado === 'Pendiente') {
+            const session = await crearSessionStripe(pagoExistente);
+            return session; // Si ya existe un pago para este turno, devolvemos el sessionId para reintentar.
+        }; // Quizas el pago fallo por algun X motivo y se quiere reintentar.
 
+        if(pagoExistente?.metodo === 'Efectivo' && pagoExistente?.estado === 'Pendiente'){
+            return pagoExistente; // Si ya existe un pago en efectivo pendiente, lo devolvemos.
+        };
+        
         const pago = await crearInstanciaPago(turno);
         await this.repo.guardar(pago);
 

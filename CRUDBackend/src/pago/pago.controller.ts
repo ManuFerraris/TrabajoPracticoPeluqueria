@@ -188,14 +188,16 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
             return;
         };
 
-        if (resultado instanceof Pago){
-            // Es un Pago
+        if (resultado instanceof Pago){ 
+            // Es un Pago en efectivo.
             res.status(200).json({ tipo: "Pago", pago: resultado });
             return;
         };
 
+        //Sino por defecto, devuelve un pago en stripe.
         res.status(200).json({ tipo: "Stripe", sessionId: resultado.id });
         return;
+
     }catch(error:any){
         console.error('Error al crear un pago.', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
