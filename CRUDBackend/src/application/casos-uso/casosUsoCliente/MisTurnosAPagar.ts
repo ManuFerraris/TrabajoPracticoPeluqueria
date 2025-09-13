@@ -9,7 +9,7 @@ export class MisTurnosAPagar{
             return `No se encontro el cliente con el codigo ${codCli}.`
         };
         const turnos = await this.repo.misTurnosActivos(cliente);
-        const turnosSinPago = turnos.filter(turno => !turno.pago);
-        return turnosSinPago;
+        const turnosSinPagoStripe = turnos.filter(turno => !turno.pago && turno.servicio.medio_pago === 'Stripe');
+        return turnosSinPagoStripe;
     };
 };
