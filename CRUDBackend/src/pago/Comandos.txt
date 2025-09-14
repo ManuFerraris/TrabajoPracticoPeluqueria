@@ -1,0 +1,9 @@
+1. npm install pdfkit
+2. npm i --save-dev @types/pdfkit
+3. npm install tslib
+4. nvm install 20
+5. nvm use 20
+6. cd node_modules/@swc/helpers
+7. npm install tslib
+8. cd CRUDBackend
+9. Correr con: npm run start:dev

@@ -7,10 +7,12 @@ import {
   getStripeSession,
   crearPago,
   historialPagosCliente,
+  generarReciboPDF
 } from './pago.controller.js';
 
 export const pagoRouter = Router();
 
+pagoRouter.get('/reciboPDF/:id', generarReciboPDF);
 pagoRouter.get('/historialPagosCliente/:codigo_cliente', historialPagosCliente);
 pagoRouter.get('/stripe-session/:id', getStripeSession);
 pagoRouter.get('/', findAll);

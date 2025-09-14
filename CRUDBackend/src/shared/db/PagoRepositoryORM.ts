@@ -12,7 +12,21 @@ export class PagoRepositoryORM implements PagoRepository {
     };
 
     async buscarPago(codigo: number): Promise<Pago | null> {
-        const pago = await this.em.findOne(Pago, {id:codigo});
+        const pago = await this.em.findOne(
+            Pago, 
+            {
+                id:codigo
+            }, 
+            { 
+                populate: [
+                    'turno', 
+                    'turno.servicio', 
+                    'turno.servicio.tipoServicio', 
+                    'turno.cliente',
+                    'turno.peluquero'
+                ],
+            },
+        );
         return pago;
     };
 

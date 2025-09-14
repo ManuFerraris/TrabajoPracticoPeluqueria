@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Stripe from 'stripe';
+import PDFDocument from "pdfkit";
 import { validarCodigo } from "../application/validarCodigo.js";
 import { MikroORM } from "@mikro-orm/core";
 import { PagoRepositoryORM } from "../shared/db/PagoRepositoryORM.js";
@@ -159,7 +160,25 @@ export const getStripeSession = async (req:Request, res:Response):Promise<void> 
     try{
         console.log("req.params.id: ", req.params.id);
         const session = await stripe.checkout.sessions.retrieve(req.params.id);
-        res.status(200).json({ payment_status: session.payment_status });
+        const pagoId = session.metadata?.pago_id;
+        console.log("pagoId extraido de metadata:", pagoId);
+        if(!pagoId){
+            res.status(404).json({ message: 'No se encontró el pago asociado a esta sesión' });
+            return;
+        };
+
+        const orm = (req.app.locals as any).orm;
+        const em = orm.em.fork();
+        const repo = new PagoRepositoryORM(em);
+        const pago = await repo.buscarPago(Number(pagoId));
+
+        if (!pago) {
+            res.status(404).json({ message: 'No se encontró el pago asociado' });
+            return;
+        };
+        console.log("Pago encontrado para devolver:", pago);
+
+        res.status(200).json({ payment_status: session.payment_status, data: pago });
         return;
     }catch(error:any){
         console.error("Error al consultar sesión de Stripe:", error.message);
@@ -236,4 +255,70 @@ export const historialPagosCliente = async (req:Request, res:Response):Promise<v
         res.status(500).json({error: 'Error interno del servidor.'});
         return;
     }
+};
+
+export async function generarReciboPDF(req: Request, res: Response):Promise<void> {
+    try{
+        const { valor: codpago, error: codError } = validarCodigo(req.params.id, 'código de pago');
+        if(codError || codpago === undefined){
+            res.status(400).json({message: codError});
+            return;
+        };
+        const orm = (req.app.locals as { orm: MikroORM}).orm;
+        const em = orm.em.fork();
+        const pagoRepo = new PagoRepositoryORM(em);
+
+        const pago = await pagoRepo.buscarPago(codpago);
+        if(!pago){
+            res.status(404).json({message: `No se encontró ningún pago con el código ${codpago}`});
+            return;
+        };
+
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=recibo_${pago.id}.pdf`);
+        doc.pipe(res);
+
+        doc.fontSize(20).text('Comprobante de Pago', { align: 'center' });
+        doc.moveDown();
+
+        doc.fontSize(12);
+        doc.text(`Fecha de emisión: ${new Date().toLocaleString()}`, { align: 'right' });
+        doc.moveDown();
+
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke(); // línea horizontal
+        doc.moveDown();
+
+        doc.text(`ID de Pago: ${pago.id}`);
+        doc.text(`Cliente: ${pago.turno.cliente.NomyApe}`);
+        doc.text(`Fecha de pago: ${new Date(pago.fecha_hora).toLocaleString()}`);
+        doc.text(`Método: ${pago.metodo}`);
+        doc.text(`Estado: ${pago.estado}`);
+        doc.moveDown();
+
+        doc.text(`Servicio: ${pago.turno.servicio.tipoServicio.nombre}`);
+        doc.text(`Fecha del turno: ${new Date(pago.turno.fecha_hora).toLocaleString()}`);
+        doc.text(`Código de turno: ${pago.turno.codigo_turno}`);
+        doc.text(`Monto total: $${pago.monto}`);
+        doc.moveDown();
+
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke(); // otra línea
+        doc.moveDown();
+
+        doc.fontSize(10).text('Este comprobante no es una factura legal. Es una constancia de pago generada por el sistema.', {
+            align: 'center',
+            width: 500
+        });
+        doc.fontSize(10).text("Colman's hairstyle, the sound of your hair ;)", {
+            align: 'center',
+            width: 500
+        });
+        
+        doc.end();
+
+    }catch(error){
+        console.error("Error generating PDF:", error);
+        res.status(500).json({message: "Error interno del servidor"});
+        return;
+    };
 };
