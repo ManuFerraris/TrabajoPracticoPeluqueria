@@ -28,11 +28,21 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-07-30.basil" });
 
 export async function crearSessionStripe(pago:Pago):Promise<Stripe.Checkout.Session>{
-    const monto = pago.monto;
+    const montoARS = pago.monto;
+    const tiPoCambioUSD = 1400; // Ejemplo: 1 USD = 1400 ARS
+
+    const montoUSD = Math.round((montoARS / tiPoCambioUSD) * 100); // Pasamos el monto a centavos de dolar.
+    
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{
-            price_data: { currency: 'usd', product_data: { name: ' Servicio de peluqueria ' }, unit_amount: monto * 100 },
+            price_data: {
+                currency: 'usd',
+                product_data: {
+                    name: ' Servicio de peluqueria '
+                },
+                unit_amount: montoUSD
+            },
             quantity: 1,
         }],
         mode: 'payment',

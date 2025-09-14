@@ -26,10 +26,19 @@ export class CrearPago {
         const pagoExistente = await em.findOne(Pago, { turno });
         if (pagoExistente?.metodo === 'Stripe' && pagoExistente?.estado === 'Pendiente') {
             const session = await crearSessionStripe(pagoExistente);
+
+            pagoExistente.recibo_enviado = true;
+            pagoExistente.fecha_envio = new Date();
+            await this.repo.guardar(pagoExistente);
+
             return session; // Si ya existe un pago para este turno, devolvemos el sessionId para reintentar.
         }; // Quizas el pago fallo por algun X motivo y se quiere reintentar.
 
         if(pagoExistente?.metodo === 'Efectivo' && pagoExistente?.estado === 'Pendiente'){
+            pagoExistente.recibo_enviado = true;
+            pagoExistente.fecha_envio = new Date();
+            await this.repo.guardar(pagoExistente);
+            
             await enviarReciboPorEmail(pagoExistente);
             return pagoExistente; // Si ya existe un pago en efectivo pendiente, lo devolvemos.
         };
