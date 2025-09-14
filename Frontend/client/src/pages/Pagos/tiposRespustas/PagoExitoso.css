@@ -14,7 +14,7 @@
 }
 
 .estado-exito h2 {
-     color: #2ecc71;
+    color: #2ecc71;
 }
 
 .estado-error h2 {
@@ -34,4 +34,18 @@ button {
 
 button:hover {
     background-color: #2980b9;
+}
+
+.boton-descarga {
+    display: inline-block;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background-color: #0077cc;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.boton-descarga:hover {
+    background-color: #005fa3;
 }
