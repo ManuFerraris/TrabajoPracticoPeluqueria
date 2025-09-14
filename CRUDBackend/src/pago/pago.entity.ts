@@ -19,6 +19,12 @@ export class Pago {
   @Property({ type: 'Date' })
   fecha_hora: Date = new Date();
 
+  @Property({ type: 'boolean' })
+  recibo_enviado: boolean = false;
+
+  @Property({ type: 'Date', nullable: true })
+  fecha_envio!: Date;
+
   @OneToOne(() => Turno)
   turno!: Rel<Turno>;
 }

@@ -13,6 +13,7 @@ import { ActualizarPago } from "../application/casos-uso/casosUsoPago/Actualizar
 import { Pago } from "./pago.entity.js";
 import { BuscarPagosCliente } from "../application/casos-uso/casosUsoPago/BuscarPagosCliente.js";
 import { ClienteRepositoryORM } from "../shared/db/ClienteRepositoryORM.js";
+import { buildReciboPDF } from "./crearRecibioPDF.js";
 
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Falta STRIPE_SECRET_KEY en las variables de entorno");
@@ -274,47 +275,10 @@ export async function generarReciboPDF(req: Request, res: Response):Promise<void
             return;
         };
 
-        const doc = new PDFDocument();
+        const pdfBuffer = await buildReciboPDF(pago);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=recibo_${pago.id}.pdf`);
-        doc.pipe(res);
-
-        doc.fontSize(20).text('Comprobante de Pago', { align: 'center' });
-        doc.moveDown();
-
-        doc.fontSize(12);
-        doc.text(`Fecha de emisión: ${new Date().toLocaleString()}`, { align: 'right' });
-        doc.moveDown();
-
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke(); // línea horizontal
-        doc.moveDown();
-
-        doc.text(`ID de Pago: ${pago.id}`);
-        doc.text(`Cliente: ${pago.turno.cliente.NomyApe}`);
-        doc.text(`Fecha de pago: ${new Date(pago.fecha_hora).toLocaleString()}`);
-        doc.text(`Método: ${pago.metodo}`);
-        doc.text(`Estado: ${pago.estado}`);
-        doc.moveDown();
-
-        doc.text(`Servicio: ${pago.turno.servicio.tipoServicio.nombre}`);
-        doc.text(`Fecha del turno: ${new Date(pago.turno.fecha_hora).toLocaleString()}`);
-        doc.text(`Código de turno: ${pago.turno.codigo_turno}`);
-        doc.text(`Monto total: $${pago.monto}`);
-        doc.moveDown();
-
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke(); // otra línea
-        doc.moveDown();
-
-        doc.fontSize(10).text('Este comprobante no es una factura legal. Es una constancia de pago generada por el sistema.', {
-            align: 'center',
-            width: 500
-        });
-        doc.fontSize(10).text("Colman's hairstyle, the sound of your hair ;)", {
-            align: 'center',
-            width: 500
-        });
-        
-        doc.end();
+        res.send(pdfBuffer);
 
     }catch(error){
         console.error("Error generating PDF:", error);

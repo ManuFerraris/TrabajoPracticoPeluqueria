@@ -8,6 +8,8 @@ export interface PagoDTO {
     estado: 'Pendiente' | 'Pagado' | 'Fallido' | 'Reembolsado' | 'Expirado';
     fecha_hora:string;
     turno_codigo_turno:number;
+    //recibo_enviado?: boolean;
+    //fecha_envio: string;
 };
 
 export async function validarPagoDTO(

@@ -43,6 +43,8 @@ interface Pago {
     monto:number;
     estado: 'Pendiente' | 'Pagado' | 'Fallido' | 'Reembolsado' | 'Expirado';
     fecha_hora:string;
+    recibo_enviado: boolean;
+    fecha_envio: string;
     turno: Turno;
 };
 
@@ -126,20 +128,19 @@ export default function HistorialPagos() {
 
     return(
         <div className="historial-pagos-container">
-            <h2 style={{ textAlign: 'center' }}>📄 Historial de Pagos</h2>
+            <h2 className="titulo-historial">Historial de Pagos</h2>
 
-            {loading && <p>Cargando pagos...</p>}
-            {error && <p className="error">{error}</p>}
+            {loading && <p className="estado-cargando">Cargando pagos...</p>}
+            {error && <p className="estado-error">{error}</p>}
 
             {!loading && pagos.length > 0 && (
-                <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="fecha">📅 Filtrar por fecha:</label>
+                <div className="filtro-fecha">
+                    <label htmlFor="fecha">Filtrar por fecha:</label>
                     <input
                         type="date"
                         id="fecha"
                         value={fechaFiltro}
                         onChange={(e) => setFechaFiltro(e.target.value)}
-                        style={{ marginLeft: '0.5rem' }}
                     />
                 </div>
             )}
@@ -149,46 +150,47 @@ export default function HistorialPagos() {
                     <table className="tabla-pagos">
                         <thead>
                             <tr>
-                                <th>🗓 Fecha Pago</th>
-                                <th>💰 Monto</th>
-                                <th>💰 Total</th>
-                                <th>💳 Método</th>
-                                <th>📌 Estado</th>
-                                <th>✂️ Servicio</th>
-                                <th>📅 Turno</th>
-                                <th>Codigo Turno</th>
-                                <th>Codigo Cliente</th>
-                            </tr> 
+                            <th>Fecha Pago</th>
+                            <th>Monto</th>
+                            <th>Total</th>
+                            <th>Método</th>
+                            <th>Estado</th>
+                            <th>Servicio</th>
+                            <th>Turno</th>
+                            <th>Env. Recibo</th>
+                            <th>Cód. Turno</th>
+                            <th>Cód. Cliente</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {pagosFiltrados.map((pago) => (
-                                <tr key={pago.id}>
-                                    <td>{new Date(pago.fecha_hora).toLocaleString()}</td>
-                                    <td>${pago.monto}</td>
-                                    <td>${pago.turno.servicio?.total ?? 0 }</td>
-                                    <td>{pago.metodo}</td>
-                                    <td>{pago.estado}</td>
-                                    <td>{pago.turno.servicio?.tipoServicio.nombre ?? 'Sin Servicio'}</td>
-                                    <td>{new Date(pago.turno.fecha_hora).toLocaleString()}</td>
-                                    <td>{pago.turno.codigo_turno}</td>
-                                    <td>{pago.turno.cliente.codigo_cliente}</td>
-                                </tr>
+                            <tr key={pago.id}>
+                                <td>{new Date(pago.fecha_hora).toLocaleString()}</td>
+                                <td>${pago.monto}</td>
+                                <td>${pago.turno.servicio?.total ?? 0}</td>
+                                <td>{pago.metodo}</td>
+                                <td>{pago.estado}</td>
+                                <td>{pago.turno.servicio?.tipoServicio.nombre ?? 'Sin Servicio'}</td>
+                                <td>{new Date(pago.turno.fecha_hora).toLocaleString()}</td>
+                                <td>{new Date(pago.fecha_envio).toLocaleString()}</td>
+                                <td>{pago.turno.codigo_turno}</td>
+                                <td>{pago.turno.cliente.codigo_cliente}</td>
+                            </tr>
                             ))}
                         </tbody>
                     </table>
+
                     {fechaFiltro && (
-                        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                            <button onClick={() => setFechaFiltro('')}>
-                                Limpiar filtro
-                            </button>
+                        <div className="boton-limpiar">
+                            <button onClick={() => setFechaFiltro('')}>Limpiar filtro</button>
                         </div>
                     )}
                 </>
             )}
 
-        {!loading && pagosFiltrados.length === 0 && (
-            <h5 style={{ textAlign: 'center' }}>No hay pagos registrados en esa fecha.</h5>
-        )}
-    </div>
+            {!loading && pagosFiltrados.length === 0 && (
+                <h5 className="mensaje-vacio">No hay pagos registrados en esa fecha.</h5>
+            )}
+        </div>
     );
 };

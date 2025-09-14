@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 import validator from 'validator'; // npm i --save-dev @types/validator
+import PDFDocument from 'pdfkit';
 import { generarHtmlRecuperacion } from './HTMLRecPassword.js';
+import { Pago } from '../../pago/pago.entity.js';
+import { buildReciboPDF } from '../../pago/crearRecibioPDF.js';
+
 dotenv.config();
 const EMAIL_USER = process.env.EMAIL_USER as string;
 const EMAIL_PASS = process.env.EMAIL_PASS as string;
@@ -46,3 +50,35 @@ export const sendPasswordResetEmail = async (email: string, token: string):Promi
   };
 };
 
+export async function enviarReciboPorEmail(pago:Pago):Promise<void> {
+  try{
+    const email = pago.turno.cliente.email;
+    if(!email){
+      console.warn(`Email inválido: ${email}`);
+      return;
+    };
+
+    if (!validator.isEmail(email)) {
+      console.warn(`Email inválido: ${email}`);
+      return;
+    };
+
+    const pdfBuffer = await buildReciboPDF(pago);
+    console.log("PDF del recibo generado: .", pdfBuffer);
+
+    await transporter.sendMail({
+      from: EMAIL_USER,
+      to: pago.turno.cliente.email,
+      subject: 'Comprobante de Pago',
+      text: 'Adjunto encontrarás tu comprobante de pago.',
+      attachments: [
+        {
+          filename: `recibo_pago_${pago.id}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    });
+  }catch(error){
+    console.error("Error al enviar el recibo por email:", error);
+  };
+};

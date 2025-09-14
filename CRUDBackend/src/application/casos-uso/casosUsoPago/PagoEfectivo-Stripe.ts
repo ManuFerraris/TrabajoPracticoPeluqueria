@@ -15,6 +15,8 @@ export async function crearInstanciaPago(turno:Turno):Promise<Pago>{
     };
     pago.metodo = medioPago;
     pago.fecha_hora = new Date();
+    pago.recibo_enviado = true;
+    pago.fecha_envio = new Date();
     pago.turno = turno;
 
     return pago;

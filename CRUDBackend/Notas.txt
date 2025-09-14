@@ -53,3 +53,13 @@ async function safeCompare(a: string, b: string): Promise<boolean> {
 };*/
 
 stripe listen --forward-to localhost:3000/stripe-webhook
+
+Generacion de PDF como comprobante:
+
+Lo más robusto es generar el PDF en el backend, dejar registro del mismo, 
+y ofrecer ambas vías:
+
+    1. [OK] El cliente puede descargarlo desde la app (como ya hacés)
+    2. [OK] El backend puede enviarlo por email si el pago fue en efectivo o 
+        si el cliente no volvió.
+    3. [ ] El sistema guarda un log: recibo_generado: true, fecha_envio, descargado_por

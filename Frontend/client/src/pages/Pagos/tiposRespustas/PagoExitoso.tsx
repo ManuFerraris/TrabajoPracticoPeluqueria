@@ -102,18 +102,20 @@ export default function PagoExitoso() {
                 <p>Tu pago fue confirmado exitosamente.</p>
 
                 {/* Botón para descargar el comprobante */}
-                {pago && (
-                <a
-                    href={`${API_URL}/pagos/reciboPDF/${pago.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="boton-descarga"
-                >
-                    📥 Descargar comprobante PDF
-                </a>
-                )}
+                <div className="botones-container">
+                    {pago && (
+                        <a
+                            href={`${API_URL}/pagos/reciboPDF/${pago.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="boton-descarga"
+                        >
+                            Descargar comprobante PDF
+                        </a>
+                    )}
 
-                <button onClick={volver}>Regresar a la App</button>
+                    <button onClick={volver}>Regresar a la App</button>
+                </div>
             </div>
             )}
 

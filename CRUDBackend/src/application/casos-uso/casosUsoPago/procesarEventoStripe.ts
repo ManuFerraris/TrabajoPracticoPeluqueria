@@ -1,4 +1,5 @@
 import { PagoRepository } from "../../interfaces/PagoRepository.js";
+import { enviarReciboPorEmail } from "../../../shared/email/emailService.js";
 import Stripe from "stripe";
 
 export class ProcesarEventoStripe {
@@ -21,6 +22,7 @@ export class ProcesarEventoStripe {
                 };
                 pago.estado = 'Pagado';
                 await this.repo.guardar(pago);
+                await enviarReciboPorEmail(pago);
                 console.log(`Pago con ID ${pagoId} actualizado a "Pagado".`);
                 break;
             };
@@ -40,6 +42,7 @@ export class ProcesarEventoStripe {
                 };
                 pago.estado = 'Pagado';
                 await this.repo.guardar(pago);
+                await enviarReciboPorEmail(pago);
                 console.log(`Pago con ID ${pagoId} actualizado a "Pagado" por payment_intent.succeeded.`);
                 break;
             };

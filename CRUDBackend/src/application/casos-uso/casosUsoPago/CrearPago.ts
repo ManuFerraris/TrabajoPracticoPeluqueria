@@ -3,6 +3,7 @@ import { PagoRepository } from "../../interfaces/PagoRepository.js";
 import { Turno } from "../../../turno/turno.entity.js";
 import { Pago } from "../../../pago/pago.entity.js";
 import { crearInstanciaPago, crearSessionStripe } from "./PagoEfectivo-Stripe.js";
+import { enviarReciboPorEmail } from "../../../shared/email/emailService.js";
 import Stripe from "stripe";
 
 export class CrearPago {
@@ -16,7 +17,7 @@ export class CrearPago {
             return errores;
         };
 
-        const turno = await em.findOne(Turno, { codigo_turno: Number(codTur) }, { populate: ['servicio'] }); // NOTAR EL POPULATE
+        const turno = await em.findOne(Turno, { codigo_turno: Number(codTur) }, { populate: ['servicio', 'servicio.tipoServicio', 'cliente', 'peluquero'] }); // NOTAR EL POPULATE
         if (!turno) {
             errores.push('Turno no encontrado.');
             return errores;
@@ -29,6 +30,7 @@ export class CrearPago {
         }; // Quizas el pago fallo por algun X motivo y se quiere reintentar.
 
         if(pagoExistente?.metodo === 'Efectivo' && pagoExistente?.estado === 'Pendiente'){
+            await enviarReciboPorEmail(pagoExistente);
             return pagoExistente; // Si ya existe un pago en efectivo pendiente, lo devolvemos.
         };
         
@@ -36,6 +38,7 @@ export class CrearPago {
         await this.repo.guardar(pago);
 
         if(pago.metodo === 'Efectivo'){
+            await enviarReciboPorEmail(pago);
             return pago;
         } else {
             const session = await crearSessionStripe(pago);
