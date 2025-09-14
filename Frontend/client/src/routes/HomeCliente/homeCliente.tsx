@@ -57,7 +57,12 @@ export default function HomeCliente() {
                                 
                                 <button onClick={() => navigate("/clientes/historial-cliente")} className="btn btn-outline-primary btn-lg py-3">
                                     <i className="bi bi-list-check me-2"></i>
-                                    Historial de Cliente
+                                    Historial de Turnos
+                                </button>
+
+                                <button onClick={() => navigate("/clientes/historial-pagos")} className="btn btn-outline-primary btn-lg py-3">
+                                    <i className="bi bi-receipt me-2"></i>
+                                    Mis Pagos
                                 </button>
                                 
                                 <button 

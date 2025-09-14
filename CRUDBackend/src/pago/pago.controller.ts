@@ -10,6 +10,8 @@ import { EliminarPago } from "../application/casos-uso/casosUsoPago/EliminarPago
 import { RegistrarPago } from "../application/casos-uso/casosUsoPago/RegistrarPago.js";
 import { ActualizarPago } from "../application/casos-uso/casosUsoPago/ActualizarPago.js";
 import { Pago } from "./pago.entity.js";
+import { BuscarPagosCliente } from "../application/casos-uso/casosUsoPago/BuscarPagosCliente.js";
+import { ClienteRepositoryORM } from "../shared/db/ClienteRepositoryORM.js";
 
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Falta STRIPE_SECRET_KEY en las variables de entorno");
@@ -203,4 +205,35 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
         res.status(500).json({ message: 'Error interno del servidor.' });
         return;
     };
+};
+
+export const historialPagosCliente = async (req:Request, res:Response):Promise<void> => {
+    try{
+        const { valor: codCliente, error: codError } = validarCodigo(req.params.codigo_cliente, 'código de cliente');
+        if (codError || codCliente === undefined) {
+            res.status(404).json({ message: codError });
+            return;
+        }
+        const orm = (req.app.locals as {orm:MikroORM}).orm;
+        const em = orm.em.fork();
+        const repoPago = new PagoRepositoryORM(em);
+        const repoCliente = new ClienteRepositoryORM(em);
+        const casouso = new BuscarPagosCliente(repoPago, repoCliente);
+
+        const pagos = await casouso.ejecutar(codCliente);
+        if(typeof pagos === 'string'){
+            res.status(404).json({ message: pagos });
+            return;
+        }
+        if(pagos.length === 0){
+            res.status(200).json({message: "No se encontraron pagos", data: pagos});
+            return;
+        };
+        res.status(200).json({ message: "Pagos encontrados", data:pagos });
+        return;
+    }catch(error:any){
+        console.error( "Error al buscar todos los pagos", error );
+        res.status(500).json({error: 'Error interno del servidor.'});
+        return;
+    }
 };

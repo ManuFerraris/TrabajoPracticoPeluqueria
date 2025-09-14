@@ -16,7 +16,7 @@ export class Pago {
   @Property({ type: 'string' })
   estado!: string;
 
-  @Property({ type: 'date' })
+  @Property({ type: 'Date' })
   fecha_hora: Date = new Date();
 
   @OneToOne(() => Turno)

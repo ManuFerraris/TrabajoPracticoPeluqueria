@@ -33,16 +33,16 @@ type Turno = {
     };
 };
 
-type Peluquero = {
+/*type Peluquero = {
     codigo_peluquero:number;
     nombre:string;
-};
+};*/
 
-export const PagoEfectivo = () => {
+export default function PagoEfectivo(){
 
     const [turno, setTurno] = useState<Turno>({} as Turno);
     const [codigo_turno, setCodigo_turno] = useState<number | null>();
-    const [peluqueros, setPeluqueros] = useState<Peluquero[]>([]);
+    //const [peluqueros, setPeluqueros] = useState<Peluquero[]>([]);
     
     const { user } = useAuth();
     const codPel = user?.codigo;
@@ -72,7 +72,7 @@ export const PagoEfectivo = () => {
         };
     }, [accessToken]);
 
-    const fetchPeluqueros = useCallback(async () => {
+    /*const fetchPeluqueros = useCallback(async () => {
         try{
             const response = await axios.get(`${API_URL}/peluqueros`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
@@ -90,7 +90,7 @@ export const PagoEfectivo = () => {
                 console.error("Error inesperado:", error);
             };
         };
-    },[accessToken]);
+    },[accessToken]);*/
 
     useEffect(()=> {
         if(!codPel){
@@ -102,8 +102,8 @@ export const PagoEfectivo = () => {
             return;
         };
         fetchTurnoAPagar(codigo_turno);
-        fetchPeluqueros();
-    }, [fetchTurnoAPagar, fetchPeluqueros, codPel, codigo_turno]);
+        /*fetchPeluqueros();*/
+    }, [fetchTurnoAPagar, /*fetchPeluqueros,*/ codPel, codigo_turno]);
 
     const confirmarAccion = async (titulo: string): Promise<boolean> => {
         const resultado = await Swal.fire({

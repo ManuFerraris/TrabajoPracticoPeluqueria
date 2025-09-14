@@ -44,7 +44,8 @@ import ClienteLayout from './layout/ClienteLayout.tsx';
 import AltaTurnoPage from './pages/AltaTurno/AltaTurnos.tsx';
 import CancelarTurno from './pages/CancelarTurno.tsx';
 import InformacionGerencialPage from './routes/InformacionGerencial/InfGeren.page.tsx';
-import { PagoEfectivo } from './routes/PagoEfectivo.tsx';
+import PagoEfectivo from './routes/PagoEfectivo.tsx';
+import HistorialPagos from './pages/historialPagos/HistorialPagos.tsx';
 
 const router = createBrowserRouter([
 
@@ -84,6 +85,7 @@ const router = createBrowserRouter([
         { path: "clientesCrud", element: <ClientesPage /> },
         { path: "informacion", element: <InformacionGerencialPage /> },
         { path: "pagar-efectivo", element: <PagoEfectivo />},
+        { path: "historial-pagos", element: <HistorialPagos /> }
       ]
     },
     {
@@ -99,7 +101,8 @@ const router = createBrowserRouter([
         { path: "editar-perfil-cliente", element: <EditarPerfilCliente /> },
         { path: "sacar-turno", element: <AltaTurnoPage /> },
         { path: "baja-turno", element: <CancelarTurno /> },
-        { path: "pagar-turno", element: <PagosPage />}
+        { path: "pagar-turno", element: <PagosPage />},
+        { path: "historial-pagos", element: <HistorialPagos /> }
       ]
     },
     {
@@ -118,7 +121,8 @@ const router = createBrowserRouter([
         { path: "historial-cliente", element: <HistorialClientePage /> },
         { path: "panel-admin-cruds", element: < PanelAdministracionCruds/>},
         { path: "editar-perfil", element: <EditarPerfil /> },
-        { path: "pagar-turno", element: <PagosPage />}
+        { path: "pagar-turno", element: <PagosPage />},
+        { path: "historial-pagos", element: <HistorialPagos /> }
       ],
     },
   ]);

@@ -5,12 +5,13 @@ import {
   update,
   remove,
   getStripeSession,
-  crearPago
+  crearPago,
+  historialPagosCliente,
 } from './pago.controller.js';
-
 
 export const pagoRouter = Router();
 
+pagoRouter.get('/historialPagosCliente/:codigo_cliente', historialPagosCliente);
 pagoRouter.get('/stripe-session/:id', getStripeSession);
 pagoRouter.get('/', findAll);
 pagoRouter.get('/:id', getOne);

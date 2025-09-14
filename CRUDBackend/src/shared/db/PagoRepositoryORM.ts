@@ -1,4 +1,5 @@
 import { Pago } from "../../pago/pago.entity.js";
+import { Cliente } from "../../cliente/clientes.entity.js";
 import { EntityManager } from "@mikro-orm/core";
 import { PagoRepository } from "../../application/interfaces/PagoRepository.js";
 
@@ -16,11 +17,25 @@ export class PagoRepositoryORM implements PagoRepository {
     };
 
     async buscarTodosLosPagos(): Promise<Pago[]> {
-        return await this.em.find(Pago, {});
+        return await this.em.find(
+            Pago,
+            {},
+            { 
+                populate: ['turno', 'turno.servicio', 'turno.servicio.tipoServicio', 'turno.cliente']
+            }
+        );
     };
 
     async eliminarPago(pago:Pago): Promise<void> {
         await this.em.removeAndFlush(pago);
         return;
+    };
+
+    async buscarMisPagos(cliente:Cliente): Promise<Pago[]> {
+        return await this.em.find(
+            Pago,
+            {turno: { cliente: cliente }},
+            { populate: ['turno', 'turno.servicio', 'turno.servicio.tipoServicio', 'turno.cliente'] }
+        );
     };
 };

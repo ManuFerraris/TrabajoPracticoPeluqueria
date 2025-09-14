@@ -97,6 +97,10 @@ export default function HomePeluquero() {
                                         <button onClick={() => navigate("/peluqueros/pagar-efectivo")} className="btn btn-outline-primary btn-lg py-3">
                                             Registrar Pago en Efectivo
                                         </button>
+
+                                        <button onClick={() => navigate("/peluqueros/historial-pagos")} className="btn btn-outline-primary btn-lg py-3">
+                                            Historial de Pagos
+                                        </button>
                                         
                                         <button onClick={() => navigate("/peluqueros/top-peluqueros")} className="btn btn-outline-success btn-lg py-3">
                                             Top 3 Peluqueros con Más Clientes

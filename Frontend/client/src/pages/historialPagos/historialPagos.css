@@ -1,0 +1,27 @@
+.historial-pagos-container {
+    padding: 2rem;
+    max-width: 900px;
+    margin: auto;
+}
+
+.tabla-pagos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.tabla-pagos th,
+.tabla-pagos td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.tabla-pagos th {
+    background-color: #f5f5f5;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
