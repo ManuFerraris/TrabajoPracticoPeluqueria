@@ -30,7 +30,7 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStr
 dotenv.config();
 const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
 
-//app.options('*', cors());
+//app.options('*', cors())
 app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas
 
 // Contexto por Request
