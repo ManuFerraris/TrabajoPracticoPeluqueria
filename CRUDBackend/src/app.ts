@@ -25,7 +25,12 @@ app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
 
 // Usar express.raw solo para este endpoint!
 app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stripe necesito el cuerpo crudo como un Buffer.
-                    
+          
+app.use((req, res, next) => {
+  console.log("Request origin:", req.headers.origin);
+  next();
+});
+
 // CORS
 dotenv.config();
 const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
