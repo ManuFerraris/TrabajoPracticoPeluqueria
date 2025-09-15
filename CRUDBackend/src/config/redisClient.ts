@@ -1,10 +1,10 @@
 import Redis from 'ioredis';
 
-const redisClient = new Redis({
-    host: process.env.REDIS_HOST,
-    port: Number(process.env.REDIS_PORT),
-    password: process.env.REDIS_PASSWORD,
-    tls: {}, // es opc. pero si Railway requiere conexión segura ya lo tiene.
-});
+const redisClient = new Redis( process.env.REDIS_URL! );
+
+/*const redisClient = new Redis({
+    host: 'localhost',
+    port: 6379,
+});*/
 
 export default redisClient;
