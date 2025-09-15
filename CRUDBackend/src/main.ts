@@ -1,6 +1,9 @@
 import app from "./app.js";
 import redisClient from "./config/redisClient.js";
 import { syncSchema } from "./shared/db/orm.js";
+import { SeedAdmin } from "./seedAdmin.js";
+import { PeluqueroRepositoryORM } from "./shared/db/PeluqueroRepositoryORM.js";
+import { orm } from "./shared/db/orm.js";
 
 async function bootstrap(){
     try{
@@ -13,6 +16,10 @@ async function bootstrap(){
         app.locals.redis = redisClient;
 
         await syncSchema(); // Sincroniza el esquema de la base de datos
+
+        app.locals.peluqueroRepo = new PeluqueroRepositoryORM(orm.em.fork());
+        const seedAdmin = new SeedAdmin(app.locals.peluqueroRepo);
+        await seedAdmin.ejecutar(); // Ejecuta la siembra del admin.
 
         app.listen(3000, () => {
             console.log('Server running on http://localhost:3000/');
