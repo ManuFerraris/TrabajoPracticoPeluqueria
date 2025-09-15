@@ -36,7 +36,7 @@ import HistorialClientePage from './pages/historialCliente/HistorialClientePage.
 //Rutas privadas (no CRUDS):
 import ProtectedRoute from './routes/protectedRoute.tsx';
 import HomeCliente from './routes/HomeCliente/homeCliente.tsx';
-import HomePeluquero from './routes/HomePeluquero/temphome.tsx';
+import HomePeluquero from './routes/HomePeluquero/HomePeluquero.tsx';
 import TopTresPeluquerosPage from './routes/topTresPeluquerosPage.tsx';
 import ListadoTurnosPage from './routes/ListadoTurnosPage.tsx';
 import PanelAdministracionCruds from './routes/PanelAdminCRUDs.tsx';
