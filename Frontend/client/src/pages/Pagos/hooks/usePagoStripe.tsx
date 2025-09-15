@@ -3,7 +3,7 @@ import { API_URL } from '../../../auth/constants.ts';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY!);
+const stripePromise = loadStripe(process.env.RA_STRIPE_PUBLIC_KEY!);
 
 export function usePagoStripeEfectivo () {
     const pagarTurno = async (codTurno:number, metodo: string, accessToken:string) => {
