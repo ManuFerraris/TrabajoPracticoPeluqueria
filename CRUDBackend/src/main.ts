@@ -2,8 +2,6 @@ import app from "./app.js";
 import redisClient from "./config/redisClient.js";
 import { syncSchema } from "./shared/db/orm.js";
 
-
-
 async function bootstrap(){
     try{
         
@@ -14,7 +12,7 @@ async function bootstrap(){
 
         app.locals.redis = redisClient;
 
-        await syncSchema();
+        await syncSchema(); // Sincroniza el esquema de la base de datos
 
         app.listen(3000, () => {
             console.log('Server running on http://localhost:3000/');
