@@ -1,5 +1,6 @@
-Proyecto - Desarrollo de Software 2024 / 2025
-Integrantes
+# Proyecto - Desarrollo de Software 2024 / 2025
+
+# Integrantes
 
 * 51482 – De Carlos David
 
@@ -7,7 +8,7 @@ Integrantes
 
 * 51937 – Ferraris Manuel
 
-Tema: Sistema de gestión para peluquería – “Colman's hairstyle”
+# Tema: Sistema de gestión para peluquería – “Colman's hairstyle”
 
 Propósito del proyecto
 
@@ -27,7 +28,8 @@ Propósito del proyecto
 
 * Panel administrativo para gestión de servicios, turnos y auditoría
 
-Funcionalidades destacadas
+# Funcionalidades destacadas
+
 * Gestión de turnos: los clientes pueden elegir fecha, horario, peluquero y servicio.
 
 * Pagos integrados: integración con Stripe para pagos online y soporte para pagos en efectivo (en sucursal).
@@ -40,7 +42,7 @@ Funcionalidades destacadas
 
 * Backend robusto: validaciones, trazabilidad, seguridad y lógica escalable.
 
-Tecnologias utilizadas
+# Tecnologias utilizadas
 
 Backend:
 
@@ -65,10 +67,7 @@ Frontend:
 * Bootstrap + Icons:	Estilos visuales y componentes responsivos
 * SweetAlert2:	Alertas visuales para feedback del usuario
 
-
-
-
-Instalacion y ejecucion del proyecto
+# Instalacion y ejecucion del proyecto
 
 
 Backend - API REST
