@@ -45,7 +45,23 @@ export default function Login() {
 
         } catch (error) {
             console.error('Error en login:', error);
-            setError(error instanceof Error ? error.message : 'Error desconocido');
+            if(axios.isAxiosError(error) && error.response){
+                const status = error.response.status;
+                if (status === 401) {
+                    setError('Credenciales inválidas. Por favor, verifica tu correo y contraseña.');
+                    return;
+                }else if (status === 403) {
+                    setError('Tu cuenta no está verificada. Por favor, verifica tu correo.');
+                    return;
+                } else if (status === 429){
+                    setError('Demasiados intentos fallidos. Por favor, intenta nuevamente más tarde.');
+                    return;
+                }else {
+                    setError('Error en el servidor. Por favor, intenta nuevamente más tarde.');
+                    console.error('Error en login - status:', status);
+                    return;
+                };
+            }
         } finally {
             setIsLoading(false);
         }
@@ -66,8 +82,8 @@ export default function Login() {
                         </div>
 
                         {error && (
-                            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                                {error}
+                            <div className="alert alert-danger alert-dismissible fade show d-flex justify-content-between align-items-center small-error" role="alert">
+                                <span className="me-2">{error}</span>
                                 <button type="button" className="btn-close" onClick={() => setError(null)}></button>
                             </div>
                         )}

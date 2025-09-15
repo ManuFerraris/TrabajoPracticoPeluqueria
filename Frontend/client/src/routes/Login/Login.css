@@ -21,3 +21,10 @@ button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
+
+.small-error {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+}
