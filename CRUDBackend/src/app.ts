@@ -5,6 +5,7 @@ import { AppError } from './shared/errors/AppError.js';
 import { orm } from './shared/db/orm.js';
 import { RequestContext } from '@mikro-orm/core';
 import dotenv from "dotenv";
+import path from 'path';
 
 // Routers
 import { peluqueroRouter } from './peluquero/peluquero.routes.js';
@@ -19,9 +20,28 @@ import { infGerenRouter } from './InformacionGerencial/InformacionGerencial.rout
 import { pagoRouter } from './pago/pago.routes.js';
 import { handleStripeWebhook } from './stripe/stripeController.js';
 
+const isDev = process.env.NODE_ENV !== 'production';
+const envPath = path.resolve(process.cwd(), isDev ? '.env.local' : '.env');
+dotenv.config({ path: envPath, override: true });
+//console.log('Cargando variables de entorno desde:', envPath);
+
 const app = express();
-app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
-                      //para que cada Controller pueda acceder de manera local.
+app.locals.orm = orm; // Guardo la instancia global en el contexto de Express para que cada Controller pueda acceder de manera local.
+
+//Extraer la variable directamente
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN as string;
+console.log('CORS origin desde app.ts:', FRONTEND_ORIGIN);
+
+// CORS aplicado antes de rutas
+app.use(cors({
+  origin: FRONTEND_ORIGIN,
+  credentials: true,
+}));
+
+app.options('*', cors({
+  origin: FRONTEND_ORIGIN,
+  credentials: true,
+}));
 
 // Usar express.raw solo para este endpoint!
 app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stripe necesito el cuerpo crudo como un Buffer.
@@ -32,11 +52,11 @@ app.use((req, res, next) => {
 });
 
 // CORS
-dotenv.config();
-const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
+//dotenv.config();
+//const FRONT_ROUTE = process.env.FRONTEND_ORIGIN as string;
 
 //app.options('*', cors())
-app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas
+//app.use(cors({origin: FRONT_ROUTE, credentials: true })); // Habilita CORS para todas las rutas
 
 // Contexto por Request
 app.use((req, res, next) => {

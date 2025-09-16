@@ -1,9 +1,14 @@
-import app from "./app.js";
-import redisClient from "./config/redisClient.js";
 import { syncSchema } from "./shared/db/orm.js";
 import { SeedAdmin } from "./seedAdmin.js";
 import { PeluqueroRepositoryORM } from "./shared/db/PeluqueroRepositoryORM.js";
 import { orm } from "./shared/db/orm.js";
+import dotenv from "dotenv";
+
+dotenv.config({ path: process.env.NODE_ENV !== 'production' ? '.env.local' : '.env' });
+console.log("Entorno detectado:", process.env.NODE_ENV);
+
+import app from "./app.js";
+import redisClient from "./config/redisClient.js";
 
 async function bootstrap(){
     try{

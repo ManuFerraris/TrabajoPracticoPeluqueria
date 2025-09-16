@@ -1,16 +1,15 @@
 import Redis from 'ioredis';
-import dotenv from "dotenv";
 
-dotenv.config();
-const REDISURL = process.env.REDIS_URL as string;
+const isDev = process.env.NODE_ENV !== 'production';
 
-const redisClient = new Redis( REDISURL, {
-    lazyConnect: true, // evitar conexión automática
-});
-
-/*const redisClient = new Redis({
-    host: 'localhost',
-    port: 6379,
-});*/
+const redisClient = isDev
+    ? new Redis({
+        host: process.env.REDIS_HOST!,
+        port: parseInt(process.env.REDIS_PORT!),
+    })
+    : new Redis(process.env.REDIS_URL!, {
+        lazyConnect: true, // evita conexión automática hasta que se llame a .connect()
+    });
+console.log(`Redis configurado en modo ${isDev ? 'desarrollo' : 'producción'}`);
 
 export default redisClient;

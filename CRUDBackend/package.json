@@ -5,7 +5,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/main.js\"",
+    "start:dev": "cross-env NODE_ENV=development tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/main.js\"",
     "build": "tsc",
     "hashear-contraseñas": "tsx src/hashearContraseñas.ts",
     "test:alta": "jest tests/AltaTurno.test.ts"
@@ -50,6 +50,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.17.3",
     "@types/validator": "^13.15.2",
+    "cross-env": "^10.0.0",
     "jest": "^30.0.5",
     "ts-jest": "^29.4.1",
     "tsc-watch": "6.2.0",
