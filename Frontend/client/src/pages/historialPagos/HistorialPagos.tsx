@@ -124,13 +124,12 @@ export default function HistorialPagos() {
         if (!fechaFiltro) return true;
 
         const fechaPago = new Date(pago.fecha_hora);
-        const filtro = new Date(fechaFiltro);
+        fechaPago.setHours(0, 0, 0, 0);
 
-        return (
-            fechaPago.getFullYear() === filtro.getFullYear() &&
-            fechaPago.getMonth() === filtro.getMonth() &&
-            fechaPago.getDate() === filtro.getDate()
-        );
+        const filtro = new Date(fechaFiltro);
+        filtro.setHours(0, 0, 0, 0);
+
+        return fechaPago.getTime() === filtro.getTime();
     });
 
     return(
