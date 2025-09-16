@@ -132,6 +132,20 @@ export default function HistorialPagos() {
         return fechaPago.getTime() === filtro.getTime();
     });
 
+    function FechaLocal({ fecha }: { fecha: string }) {
+        const fechaLocal = new Date(fecha).toLocaleString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+
+        return <>{fechaLocal}</>;
+    }
+
     return(
         <div className="historial-pagos-container">
             <h2 className="titulo-historial">Historial de Pagos</h2>
@@ -171,41 +185,14 @@ export default function HistorialPagos() {
                         <tbody>
                             {pagosFiltrados.map((pago) => (
                             <tr key={pago.id}>
-                                <td>{new Date(pago.fecha_hora).toLocaleString('es-AR', {
-                                        timeZone: 'America/Argentina/Buenos_Aires',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                    })}
-                                </td>
+                                <td><FechaLocal fecha={pago.fecha_hora}/></td>
                                 <td>${pago.monto}</td>
                                 <td>${pago.turno.servicio?.total ?? 0}</td>
                                 <td>{pago.metodo}</td>
                                 <td>{pago.estado}</td>
                                 <td>{pago.turno.servicio?.tipoServicio.nombre ?? 'Sin Servicio'}</td>
-                                <td>{new Date(pago.turno.fecha_hora).toLocaleString('es-AR', {
-                                        timeZone: 'America/Argentina/Buenos_Aires',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                    })}
-                                </td>
-                                <td>{new Date(pago.fecha_envio).toLocaleString('es-AR', {
-                                        timeZone: 'America/Argentina/Buenos_Aires',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                    })}
-                                </td>
+                                <td><FechaLocal fecha={pago.turno.fecha_hora}/></td>
+                                <td><FechaLocal fecha={pago.fecha_envio}/></td>
                                 <td>{pago.turno.codigo_turno}</td>
                                 <td>{pago.turno.cliente.codigo_cliente}</td>
                             </tr>
