@@ -14,7 +14,7 @@ export const loginRouter = Router();
 loginRouter.get('/validate-reset-token', validateResetToken);
 loginRouter.get('/validate-token', validateAccessToken);
 
-loginRouter.post('/login', login); // POST /auth/login
+loginRouter.post('/login', login); // POST /auth/login 
 loginRouter.post('/refresh-token', refreshToken); // POST /auth/refresh-token
 loginRouter.post('/logout', logout); // POST /auth/logout
 
