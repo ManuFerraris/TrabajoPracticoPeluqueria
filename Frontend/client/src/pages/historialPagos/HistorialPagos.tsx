@@ -186,8 +186,26 @@ export default function HistorialPagos() {
                                 <td>{pago.metodo}</td>
                                 <td>{pago.estado}</td>
                                 <td>{pago.turno.servicio?.tipoServicio.nombre ?? 'Sin Servicio'}</td>
-                                <td>{new Date(pago.turno.fecha_hora).toLocaleString()}</td>
-                                <td>{new Date(pago.fecha_envio).toLocaleString()}</td>
+                                <td>{new Date(pago.turno.fecha_hora).toLocaleString('es-AR', {
+                                        timeZone: 'America/Argentina/Buenos_Aires',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })}
+                                </td>
+                                <td>{new Date(pago.fecha_envio).toLocaleString('es-AR', {
+                                        timeZone: 'America/Argentina/Buenos_Aires',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })}
+                                </td>
                                 <td>{pago.turno.codigo_turno}</td>
                                 <td>{pago.turno.cliente.codigo_cliente}</td>
                             </tr>
