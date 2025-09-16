@@ -24,7 +24,7 @@ export default function Login() {
         setError(null);
 
         try {
-            const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+            const response = await axios.post(`${API_URL}/auth/login`, { email, password });
             const data = response.data
             //console.log('Datos de respuesta con axios:', data);
 
