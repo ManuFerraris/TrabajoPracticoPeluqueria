@@ -50,6 +50,7 @@ const PagosPage = () => {
 
     const fetchTurnosAPagar = useCallback(async (codCliente:number) => {
         try{
+            //console.log("Ruta establecida: ", `${API_URL}/clientes/misTurnosAPagar/${codCliente}`);
             const response = await axios.get(`${API_URL}/clientes/misTurnosAPagar/${codCliente}`, {
                 headers: { 'Authorization':  accessToken }
             });

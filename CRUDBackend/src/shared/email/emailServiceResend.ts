@@ -7,6 +7,8 @@ dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 const REMITENTE = process.env.RESEND_FROM as string;
+const baseUrl = process.env.FRONTEND_ORIGIN! as string;
+const comprobanteRoute = process.env.PDF_COMPROBANTE_ROUTE as string;
 
 if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
     throw new Error('Faltan variables de entorno para Resend');
@@ -21,7 +23,8 @@ export const sendPasswordResetEmail = async(email:string, token:string):Promise<
         throw new Error(`Token inválido: ${token}`);
     };
 
-    const resetUrl = `http://localhost:3001/reset-password/${token}`;
+    const resetUrl = `${baseUrl}/reset-password/${token}`;
+    console.log(`Enviando email de recuperación a ${email} con URL: ${resetUrl}`);
     const html = generarHtmlRecuperacion(resetUrl);
 
     //console.log(`Enviando email de recuperación a ${email} con token ${token}`);

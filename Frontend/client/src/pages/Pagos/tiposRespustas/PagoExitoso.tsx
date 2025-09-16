@@ -68,13 +68,14 @@ export default function PagoExitoso() {
         const validarPago = async () => {
             if (!sessionId) {
                 setEstado('error');
+                console.log(`Session ID no proporcionado: `, sessionId);
                 return;
             };
 
             try {
                 const response = await axios.get(`${API_URL}/pagos/stripe-session/${sessionId}`);
                 const { payment_status, data } = response.data;
-
+                console.log(`Respuesta de validación de pago: `, response.data);
                 if (payment_status === 'paid') {
                     setPago(data);
                     setEstado('pagado');

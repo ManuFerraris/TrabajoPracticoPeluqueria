@@ -8,6 +8,7 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY!);
 export function usePagoStripeEfectivo () {
     const pagarTurno = async (codTurno:number, metodo: string, accessToken:string) => {
         try{
+            //console.log("Ruta para pagar el turno: ", `${API_URL}/pagos/realizarPago/${codTurno}/${metodo}`);
             //console.log("Iniciando pago para el turno:", codTurno, "con método:", metodo);
             const response = await axios.post(`${API_URL}/pagos/realizarPago/${codTurno}/${metodo}`,
                 {}, 
@@ -17,6 +18,7 @@ export function usePagoStripeEfectivo () {
             );
             //console.log("Respuesta backend:", response.data);
             const { tipo, pago, sessionId, errores } = response.data;
+            //console.log("Tipo de pago recibido del backend:", tipo);
 
             if(tipo === "Stripe"){
                 const stripe = await stripePromise;
