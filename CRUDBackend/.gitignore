@@ -2,6 +2,7 @@
 coverage
 
 # API keys and secrets
+.env.local
 .env
 
 # dependency directory
