@@ -20,7 +20,7 @@ declare module 'express-serve-static-core' {
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    console.log('Estamos en el middleware de autenticación');
+    //console.log('Estamos en el middleware de autenticación');
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

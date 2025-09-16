@@ -159,10 +159,10 @@ export const remove = async (req:Request, res:Response):Promise<void> => {
 
 export const getStripeSession = async (req:Request, res:Response):Promise<void> => {
     try{
-        console.log("req.params.id: ", req.params.id);
+        //console.log("req.params.id: ", req.params.id);
         const session = await stripe.checkout.sessions.retrieve(req.params.id);
         const pagoId = session.metadata?.pago_id;
-        console.log("pagoId extraido de metadata:", pagoId);
+        //console.log("pagoId extraido de metadata:", pagoId);
         if(!pagoId){
             res.status(404).json({ message: 'No se encontró el pago asociado a esta sesión' });
             return;
@@ -177,7 +177,7 @@ export const getStripeSession = async (req:Request, res:Response):Promise<void> 
             res.status(404).json({ message: 'No se encontró el pago asociado' });
             return;
         };
-        console.log("Pago encontrado para devolver:", pago);
+        //console.log("Pago encontrado para devolver:", pago);
 
         res.status(200).json({ payment_status: session.payment_status, data: pago });
         return;
@@ -192,7 +192,7 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
     try{
         const { metodo } = req.params;
         const {valor:codTur, error:codError} = validarCodigo(req.params.codigo_turno, 'codigo de turno');
-        console.log("Parametros recibidos en el controller crearPago - codTur:", codTur, "metodo:", metodo);
+        //console.log("Parametros recibidos en el controller crearPago - codTur:", codTur, "metodo:", metodo);
         if(codError || codTur === undefined){
             res.status(404).json({ error: codError });
             return
@@ -204,7 +204,7 @@ export const crearPago = async (req:Request, res:Response):Promise<void> => {
         const casouso = new CrearPago(repo);
 
         const resultado = await casouso.ejecutar(codTur, metodo, em);
-        console.log("Resultado del caso de uso CrearPago:", resultado);
+        //console.log("Resultado del caso de uso CrearPago:", resultado);
         if(Array.isArray(resultado)){
             res.status(400).json({ tipo: "Error", errores: resultado });
             return;

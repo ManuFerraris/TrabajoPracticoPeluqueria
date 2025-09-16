@@ -91,7 +91,7 @@ export class AuthService{
       email: user.email,
       nombre: isCliente(user) ? user.NomyApe : user.nombre
     };
-    console.log("Payload firmado en el authService: ", payload);
+    //console.log("Payload firmado en el authService: ", payload);
     const accessToken = jwt.sign(
       payload,
       ACCESS_TOKEN_SECRET,

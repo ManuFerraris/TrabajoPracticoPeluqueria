@@ -24,7 +24,7 @@ export const sendPasswordResetEmail = async(email:string, token:string):Promise<
     const resetUrl = `http://localhost:3001/reset-password/${token}`;
     const html = generarHtmlRecuperacion(resetUrl);
 
-    console.log(`Enviando email de recuperación a ${email} con token ${token}`);
+    //console.log(`Enviando email de recuperación a ${email} con token ${token}`);
     try{
         const {data, error} = await resend.emails.send({
             from:REMITENTE,
@@ -36,7 +36,7 @@ export const sendPasswordResetEmail = async(email:string, token:string):Promise<
             console.error(`Error al enviar email a ${email}:`, error);
             throw new Error('Error al enviar el correo');
         };
-        console.log(`Email enviado correctamente a ${email}. ID: ${data?.id}`);
+        //console.log(`Email enviado correctamente a ${email}. ID: ${data?.id}`);
     }catch(error:any){
         console.error(`Error al enviar email a ${email}:`, error);
     };

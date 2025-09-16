@@ -36,17 +36,17 @@ function CancelarTurno() {
 
     const fetchTurnosCliente = useCallback(async () => {
         setLoading(true);
-        console.log("Codigo de usuario para traer turnos a cancelar: ", codUser);
+        //console.log("Codigo de usuario para traer turnos a cancelar: ", codUser);
         try{
             const response = await axios.get(`${API_URL}/clientes/misTurnosActivos/${codUser}`,{
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             const turnos = response.data.data || [];
-            console.log("Turnos recibidos del backend para cancelar: ", turnos);
+            //console.log("Turnos recibidos del backend para cancelar: ", turnos);
             const turnosSinPago = turnos.filter((t:Turno) => !t.pago );
-            console.log("Turnos sin pago: ", turnosSinPago);
+            //console.log("Turnos sin pago: ", turnosSinPago);
             setTurnos(turnosSinPago);
-            console.log("Turnos: ", turnosSinPago);
+            //console.log("Turnos: ", turnosSinPago);
         }catch(error:any){
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);

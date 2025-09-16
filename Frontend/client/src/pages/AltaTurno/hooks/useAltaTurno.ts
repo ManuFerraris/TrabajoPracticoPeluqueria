@@ -102,7 +102,7 @@ export const useAltaTurno = () => {
 
     const handleSubmit = async (e: React.FormEvent )=>{
         e.preventDefault();
-        console.log("Submit ejecutado")
+        //console.log("Submit ejecutado")
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);

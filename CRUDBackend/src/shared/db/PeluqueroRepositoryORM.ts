@@ -17,7 +17,7 @@ export class PeluqueroRepositoryORM implements PeluqueroRepository {
 
     async guardar(peluquero: Peluquero): Promise<Peluquero> {
         await this.em.persistAndFlush(peluquero);
-        console.log("Peluquero guardado y actualizado: ", peluquero)
+        //console.log("Peluquero guardado y actualizado: ", peluquero)
         return peluquero;
     };
 

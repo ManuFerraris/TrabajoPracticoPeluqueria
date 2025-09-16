@@ -20,7 +20,7 @@ cron.schedule('0 * * * *', async () => { // Corre cada hora
             if (horasRestantes <= 24 && turno.estado !== 'Cancelado') {
                 turno.estado = 'Sancionado';
                 await em.persistAndFlush(turno);
-                console.log(`Turno ${turno.codigo_turno} sancionado por no cancelarse 24 horas antes.`);
+                //console.log(`Turno ${turno.codigo_turno} sancionado por no cancelarse 24 horas antes.`);
             }
         }
     } catch (error) {

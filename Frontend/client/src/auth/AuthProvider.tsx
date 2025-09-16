@@ -77,9 +77,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             try{
                 const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {refreshToken})
-                console.log("Respuesta al refrescar token automáticamente:", response);
+                //console.log("Respuesta al refrescar token automáticamente:", response);
                 if(response.status === 200 && response.data.accessToken && response.data.user){
-                    console.log("Token refrescado automáticamente.");
+                    //console.log("Token refrescado automáticamente.");
                     const newAccessToken = response.data.accessToken;
                     const refreshUser = response.data.user
                     localStorage.setItem("accessToken", newAccessToken);
@@ -87,13 +87,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     setAccessToken(newAccessToken);
                     setUser(refreshUser);
                 } else {
-                    console.log("Respuesta inesperada al refrescar token automáticamente:", response);
+                    //console.log("Respuesta inesperada al refrescar token automáticamente:", response);
                     console.warn("Respuesta inesperada al refrescar token:", response);
                     logout();
                 };
             }catch(error:any){
                 const mensaje = error.response?.data?.message ?? error.message;
-                console.log("Error al refrescar token automáticamente:", mensaje);
+                //console.log("Error al refrescar token automáticamente:", mensaje);
                 console.error("Error al refrescar token automáticamente:", mensaje);
                 logout();
             };
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Efecto para cargar la autenticación al iniciar
     useEffect(() => {
-        console.log("AuthProvider effect ejecutado, loadAuthData iniciado.");
+        //console.log("AuthProvider effect ejecutado, loadAuthData iniciado.");
         const loadAuthData = async () => {
         try {
             const storedAccessToken = localStorage.getItem('accessToken');
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             if (storedUser) {
                 const parsedUser = JSON.parse(storedUser);
-                console.log("User cargado desde localStorage:", parsedUser);
+                //console.log("User cargado desde localStorage:", parsedUser);
                 const userNormalizado = {
                     ...parsedUser,
                     codigo: parsedUser.codigo_cliente ?? parsedUser.codigo,
@@ -167,9 +167,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.error("Error: El backend envió un accessToken o userData vacío.");
             return;
         };
-        console.log("Datos enviados para guardar en el login: ", accessToken, refreshToken, userData);
-        console.log("Guardando accessToken en localStorage:", accessToken);
-        console.log("Guardando userData en localStorage:", JSON.stringify(userData));
+        //console.log("Datos enviados para guardar en el login: ", accessToken, refreshToken, userData);
+        //console.log("Guardando accessToken en localStorage:", accessToken);
+        //console.log("Guardando userData en localStorage:", JSON.stringify(userData));
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -179,7 +179,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(userData);
         setIsAuthenticated(true);
 
-        console.log("`accessToken` guardado correctamente en localStorage.");
+        //console.log("`accessToken` guardado correctamente en localStorage.");
     };
 
     // Función para cerrar sesión

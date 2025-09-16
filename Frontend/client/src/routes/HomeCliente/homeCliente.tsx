@@ -15,7 +15,7 @@ export default function HomeCliente() {
     }, [auth.isAuthenticated, auth.user, navigate]);
 
     const handleLogout = () => {
-        console.log("Cerrando sesión...");
+        //console.log("Cerrando sesión...");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         sessionStorage.removeItem("accessToken");

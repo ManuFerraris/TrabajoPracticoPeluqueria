@@ -174,7 +174,7 @@ function LocalidadesPage(){
 
     const eliminarLocalidad = async (codigo:string):Promise<void> => {
         try{
-            console.log('Codigo de localidad recibido: ', codigo);
+            //console.log('Codigo de localidad recibido: ', codigo);
             const response = await axios.get(`${API_URL}/localidades/misClientes/${codigo}`, {
                 headers: { Authorization: `Bearer ${accessToken}` } } );
 
@@ -221,7 +221,7 @@ function LocalidadesPage(){
                     text: 'La localidad ha sido eliminada con éxito.',
                     confirmButtonText: 'Aceptar'
                 });
-                console.log('Localidad eliminado con éxito.');
+                //console.log('Localidad eliminado con éxito.');
             };
         }catch(error:any){
             console.error('Error al eliminar la localidad:', error);

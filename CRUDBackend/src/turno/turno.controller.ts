@@ -28,7 +28,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => { //FU
         const turnos = await casouso.ejecutar();
 
         if(turnos.length === 0){
-            res.status(400).json({ movimientos: [], message: 'No se encontraron turnos.' });
+            res.status(200).json({ movimientos: [], message: 'No se encontraron turnos.' });
             return;
         };
 
@@ -59,7 +59,7 @@ export const getOne = async (req: Request, res:Response ):Promise<void> => { //F
         const turno = await casouso.ejecutar(codTurno);
 
         if(!turno){
-            res.status(400).json({message: 'No se encontro el turno' });
+            res.status(200).json({message: 'No se encontro el turno' });
             return;
         };
 
@@ -190,7 +190,7 @@ export const listarTurnosFiltrados = async (req:Request, res:Response): Promise<
 
         const turnos = await casouso.ejecutar(mes.toString());
         if(turnos.length === 0){
-            res.status(404).json({ message: 'No se encontraron turnos filtrados' });
+            res.status(200).json({ message: 'No se encontraron turnos filtrados' });
             return;
         };
 
@@ -228,7 +228,7 @@ export const listarTurnosCanceladosPorMes = async(req: Request, res:Response): P
         const turnosCancelados = await casoUso.ejecutar(mes.toString());
 
         if(turnosCancelados.length === 0){
-            res.status(400).json({ message: 'No se encontraron turnos cancelados en dicho mes.'})
+            res.status(200).json({ message: 'No se encontraron turnos cancelados en dicho mes.'})
             return;
         };
 
@@ -295,7 +295,7 @@ export const cambiarEstado = async (req:Request, res:Response):Promise<void> => 
         const resultado = await casouso.ejecutar(codTur, estado);
 
         if(typeof resultado === 'string'){
-            res.status(404).json({ message: resultado });
+            res.status(400).json({ message: resultado });
             return;
         };
 
@@ -344,8 +344,8 @@ export const altaTurno = async (req:Request, res:Response):Promise<void> => {
             }
         };
 
-        console.log("Resultado listo para enviar:", resultado);
-        console.log("Resultado serializado: ", TurnoConServicioDTO);
+        //console.log("Resultado listo para enviar:", resultado);
+        //console.log("Resultado serializado: ", TurnoConServicioDTO);
 
         res.status(201).json({data: TurnoConServicioDTO});
         return;

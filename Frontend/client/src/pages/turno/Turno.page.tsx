@@ -59,7 +59,7 @@ function TurnosPage(){
                     }
                 });
                 const turnos = response.data.data || []
-                console.log('Turnos traidos del backend:',response, turnos);
+                //console.log('Turnos traidos del backend:',response, turnos);
                 setTurnos(turnos);
             }catch(error:any){
                 setError(error.response?.data?.message || error.message);
@@ -236,7 +236,7 @@ function TurnosPage(){
 
     const cambiarEstadoTurno = async (codigo_turno: number, nuevoEstado: string) => {
         try {
-            console.log("Estado que se manda al backend: ", nuevoEstado)
+            //console.log("Estado que se manda al backend: ", nuevoEstado)
             const response = await axios.put(`${API_URL}/turnos/${codigo_turno}/estado`, {
                 estado: nuevoEstado
                 },
@@ -256,7 +256,7 @@ function TurnosPage(){
                     : t
                 )
             );
-            console.log('Estado actualizado: ', data.estado);
+            //console.log('Estado actualizado: ', data.estado);
         } catch (error: any) {
             console.error('Error al cambiar estado:', error.message);
         };

@@ -41,10 +41,10 @@ export const sendPasswordResetEmail = async (email: string, token: string):Promi
     html: html,
   };
 
-  console.log(`Intentando enviar email de recuperación a ${email} con token ${token}`);
+  //console.log(`Intentando enviar email de recuperación a ${email} con token ${token}`);
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email enviado correctamente a ${email}: ${info.response}`);
+    //console.log(`Email enviado correctamente a ${email}: ${info.response}`);
   } catch (error) {
     console.error(`Error al enviar email a ${email}:`, error);
   };
@@ -64,7 +64,7 @@ export async function enviarReciboPorEmail(pago:Pago):Promise<void> {
     };
 
     const pdfBuffer = await buildReciboPDF(pago);
-    console.log("PDF del recibo generado: .", pdfBuffer);
+    //console.log("PDF del recibo generado: .", pdfBuffer);
 
     await transporter.sendMail({
       from: EMAIL_USER,

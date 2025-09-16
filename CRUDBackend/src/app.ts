@@ -27,7 +27,7 @@ app.locals.orm = orm; // Guardo la instancia global en el contexto de Express
 app.post('/stripe-webhook', express.raw({ type: 'application/json' }), handleStripeWebhook); // para stripe necesito el cuerpo crudo como un Buffer.
           
 app.use((req, res, next) => {
-  console.log("Request origin:", req.headers.origin);
+  //console.log("Request origin:", req.headers.origin);
   next();
 });
 

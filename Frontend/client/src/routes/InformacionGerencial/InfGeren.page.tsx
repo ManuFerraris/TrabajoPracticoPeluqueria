@@ -38,7 +38,7 @@ export default function InformacionGerencialPage() {
                 { headers: { 'Authorization': accessToken } }
             );
             const datos = response.data.data;
-            console.log(datos);
+            //console.log(datos);
             setCantTurnosAten(datos.cantTurnosAten || 0);
             setCantTurnosCancel(datos.cantTurnosCancel || 0);
             setIngNeto(datos.ingNeto || 0);
@@ -64,7 +64,7 @@ export default function InformacionGerencialPage() {
                 { headers: { 'Authorization': accessToken } }
             );
             const datos = response.data.data;
-            console.log(datos);
+            //console.log(datos);
             setResumenPeluqueros(datos.peluqueros || []);
             setCantTurnosADom(datos.cantTurnosADom || 0);
             setPorcTurnosADom(datos.porcTotal || 0);
@@ -86,7 +86,7 @@ export default function InformacionGerencialPage() {
                 { headers: { 'Authorization': accessToken } }
             );
             const datos = response.data.data;
-            console.log(datos);
+            //console.log(datos);
             setCantTotalClientes(datos.cantTotalClientes);
             setCantClientesNuevos(datos.cantClientesNuevos);
             setCancelaciones(datos.clientesCancelaciones);

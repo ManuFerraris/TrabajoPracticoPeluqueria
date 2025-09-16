@@ -24,7 +24,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
 
         const peluqueros = await casouso.ejecutar();
         if(peluqueros.length === 0){
-            res.status(404).json({ message: "Peluquero no encontrado." })
+            res.status(200).json({ message: "Peluqueros no encontrados.", data: peluqueros })
             return;
         };
 
@@ -53,7 +53,7 @@ export const getOne = async (req:Request, res:Response):Promise<void> => {
 
         const peluquero = await casouso.ejecutar(codigoPel);
         if(!peluquero){
-            res.status(404).json({ message: 'No se encontro el peluquero.' });
+            res.status(200).json({ message: 'No se encontro el peluquero.', data:peluquero });
             return;
         };
 
@@ -175,7 +175,7 @@ export const top3Peluqueros = async (req:Request, res:Response):Promise<void> =>
 
         const peluqueros = await casouso.ejecutar();
         if(peluqueros.length === 0){
-            res.status(404).json({ message: "Peluquero no encontrado." })
+            res.status(200).json({ message: "Peluquero no encontrado." })
             return;
         };
 
@@ -215,7 +215,7 @@ export const getMisTurnos = async (req:Request, res:Response):Promise<void> => {
         };
 
         const resultado = await casouso.ejecutar(codigo_peluquero);
-        console.log("Resultado del metodo: ", resultado);
+        //console.log("Resultado del metodo: ", resultado);
         if(typeof resultado === 'string'){
             res.status(404).json({ message: resultado });
             return;

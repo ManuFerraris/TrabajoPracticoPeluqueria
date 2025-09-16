@@ -110,7 +110,7 @@ function ServiciosPage(){
             setTurno(servicioSeleccionado.turno?.codigo_turno || '');
             setTotal(servicioSeleccionado.total || 0);
             setCodigo_tipo(servicioSeleccionado.tipo_servicio_codigo || '');
-            console.log("Servicio seleccionado:", servicioSeleccionado);
+            //console.log("Servicio seleccionado:", servicioSeleccionado);
         }
     }, [servicioSeleccionado]);
 

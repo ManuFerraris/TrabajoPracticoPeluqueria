@@ -115,9 +115,9 @@ export default function Signup() {
                     timer: 1500
                 });
 
-                console.log("Respuesta completa del backend:", response.data);
-                console.log("accessToken recibido:", response.data?.accessToken);
-                console.log("userData recibido:", response.data?.data);
+                //console.log("Respuesta completa del backend:", response.data);
+                //console.log("accessToken recibido:", response.data?.accessToken);
+                //console.log("userData recibido:", response.data?.data);
 
                 const userData = response.data?.data; 
                 const accessToken = response.data?.accessToken; 

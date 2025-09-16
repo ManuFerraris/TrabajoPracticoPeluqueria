@@ -11,10 +11,10 @@ export class IngresosMensuales {
         const desde = new Date(anioNum, mesNum -1, 1);
         const hasta = new Date(anioNum, mesNum, 1);
 
-        console.log("Desde y hasta: ", desde, hasta);
+        //console.log("Desde y hasta: ", desde, hasta);
         const serviciosCobrados = await this.repo.obtenerMontoTotalMensual(desde, hasta);
 
-        console.log(serviciosCobrados);
+        //console.log(serviciosCobrados);
         
         const total = serviciosCobrados.reduce((sum:number, servicio:Servicio) => {
             return sum + (servicio.total ?? 0);

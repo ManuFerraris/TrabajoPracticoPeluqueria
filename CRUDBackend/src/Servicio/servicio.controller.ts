@@ -21,7 +21,7 @@ export const findAll = async (req: Request, res: Response):Promise<void> => {
 
         const servicios = await casouso.ejecutar();
         if(servicios.length === 0) {
-            res.status(400).json({ message: 'No se encontraron servicios', data: servicios })
+            res.status(200).json({ message: 'No se encontraron servicios', data: servicios })
             return;
         };
 
@@ -62,7 +62,7 @@ export const getOne = async (req: Request, res: Response):Promise<void> => {
         const servicio = await casouso.ejecutar(codigoNumero);
 
         if(!servicio){
-            res.status(400).json({message: 'No se encontro el Servicio' });
+            res.status(200).json({message: 'No se encontro el Servicio' });
             return;
         };
 

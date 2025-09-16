@@ -73,7 +73,7 @@ export default function HistorialPagos() {
             });
             const pagosRecibidos = response.data.data || [];
             setPagos(pagosRecibidos);
-            console.log("Todos los pagos recibidos:", pagosRecibidos);
+            //console.log("Todos los pagos recibidos:", pagosRecibidos);
             if (pagosRecibidos.length === 0) {
                 Swal.fire('Historial vacío', 'Aún no hay pagos realizados.', 'info');
             };
@@ -88,7 +88,7 @@ export default function HistorialPagos() {
     const fetchPagosCliente = useCallback(async (userCodigo: string) => {
         setLoading(true);
         if((rol !== 'admin' && rol !== 'cliente') || !accessToken || !userCodigo) {
-            console.log("No autorizado: rol, accessToken, userCodigo: ", rol, accessToken, userCodigo);
+            //console.log("No autorizado: rol, accessToken, userCodigo: ", rol, accessToken, userCodigo);
             setError('No autorizado');
             setLoading(false);
             return;
@@ -99,7 +99,7 @@ export default function HistorialPagos() {
             });
             const pagosRecibidos = response.data.data || [];
             setPagos(pagosRecibidos);
-            console.log("Pagos del cliente recibidos:", pagosRecibidos);
+            //console.log("Pagos del cliente recibidos:", pagosRecibidos);
             if (pagosRecibidos.length === 0) {
                 Swal.fire('Historial vacío', 'Aún no tenés pagos realizados.', 'info');
             };

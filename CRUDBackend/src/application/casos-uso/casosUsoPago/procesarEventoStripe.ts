@@ -23,12 +23,12 @@ export class ProcesarEventoStripe {
                 pago.estado = 'Pagado';
                 await this.repo.guardar(pago);
                 await enviarReciboPorEmail(pago);
-                console.log(`Pago con ID ${pagoId} actualizado a "Pagado".`);
+                //console.log(`Pago con ID ${pagoId} actualizado a "Pagado".`);
                 break;
             };
 
             case 'payment_intent.succeeded': {
-                console.log('Pago exitoso recibido. Se esta implementado...');
+                //console.log('Pago exitoso recibido. Se esta implementado...');
                 const intento = event.data.object as Stripe.PaymentIntent;
                 const pagoId = intento.metadata?.pago_id;
                 if(!pagoId){
@@ -43,7 +43,7 @@ export class ProcesarEventoStripe {
                 pago.estado = 'Pagado';
                 await this.repo.guardar(pago);
                 await enviarReciboPorEmail(pago);
-                console.log(`Pago con ID ${pagoId} actualizado a "Pagado" por payment_intent.succeeded.`);
+                //console.log(`Pago con ID ${pagoId} actualizado a "Pagado" por payment_intent.succeeded.`);
                 break;
             };
 
@@ -61,7 +61,7 @@ export class ProcesarEventoStripe {
                 };
                 pago.estado = 'Fallido';
                 await this.repo.guardar(pago);
-                console.log(`Pago con ID ${pagoId} actualizado a "Fallido".`);
+                //console.log(`Pago con ID ${pagoId} actualizado a "Fallido".`);
                 break;
             };
 
@@ -79,7 +79,7 @@ export class ProcesarEventoStripe {
                 };
                 pago.estado = 'Reembolsado';
                 await this.repo.guardar(pago);
-                console.log(`Pago con ID ${pagoId} actualizado a "Reembolsado".`);
+                //console.log(`Pago con ID ${pagoId} actualizado a "Reembolsado".`);
                 break;
             };
             
@@ -97,7 +97,7 @@ export class ProcesarEventoStripe {
                 };
                 pago.estado = 'Expirado';
                 await this.repo.guardar(pago);
-                console.log(`Pago con ID ${pagoId} actualizado a "Expirado".`);
+                //console.log(`Pago con ID ${pagoId} actualizado a "Expirado".`);
                 break;
             };
             default: console.log(`Evento no manejado (aun): ${event.type}`);

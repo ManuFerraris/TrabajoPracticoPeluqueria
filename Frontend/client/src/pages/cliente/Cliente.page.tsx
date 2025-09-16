@@ -83,7 +83,7 @@ function ClientesPage(){
             });
             const clientes = response.data.data || [];
 
-            console.log('Clientes traidos del backend: ', clientes);
+            //console.log('Clientes traidos del backend: ', clientes);
             setClientes(clientes);
 
         } catch (error:any) {
@@ -107,7 +107,7 @@ function ClientesPage(){
                     headers: { Authorization: `Bearer ${accessToken}` }}
                 );
                 const localidades = response.data.data || [];
-                console.log('Localidades traidas del backend: ', localidades);
+                //console.log('Localidades traidas del backend: ', localidades);
                 setLocalidades(localidades);
             } catch (error:any) {
                 console.error('Error al obtener las localidades:', error);
@@ -126,7 +126,7 @@ function ClientesPage(){
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             const localidadCompleta = res.data.data;
-            console.log('Localidad traida: ', localidadCompleta);
+            //console.log('Localidad traida: ', localidadCompleta);
             setLocalidad(localidadCompleta);
         }catch(error: any){
             console.error('Error al obtener la localidad: ', error);
@@ -135,7 +135,7 @@ function ClientesPage(){
 
     useEffect(() => {
         if (clienteSeleccionado) {
-            console.log('Datos cliente seleccionado: ', clienteSeleccionado);
+            //console.log('Datos cliente seleccionado: ', clienteSeleccionado);
             setDni(clienteSeleccionado?.dni ?? '');
             setNomyape(clienteSeleccionado?.NomyApe ?? '');
             setEmail(clienteSeleccionado?.email ?? '');
@@ -193,7 +193,7 @@ function ClientesPage(){
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("handleSubmit fue ejecutado");
+        //console.log("handleSubmit fue ejecutado");
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -268,7 +268,7 @@ function ClientesPage(){
     const eliminarCliente = async (codigo_cliente: string) => {
         try{
             // Consulta si la cliente tiene algun turno guardado
-            console.log("Codigo de cliente enviado: ", codigo_cliente);
+            //console.log("Codigo de cliente enviado: ", codigo_cliente);
             const response = await axios.get(`${API_URL}/clientes/misTurnosActivos/${codigo_cliente}`, {
                 headers: { Authorization: `Bearer ${accessToken}` } } );
             
@@ -315,7 +315,7 @@ function ClientesPage(){
                     confirmButtonText: 'Aceptar'
                 });
 
-                console.log('Cliente eliminado con éxito.');
+                //console.log('Cliente eliminado con éxito.');
             };
         }catch (error: any) {
             console.error('Error al eliminar el cliente:', error);

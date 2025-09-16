@@ -172,14 +172,14 @@ function PeluqueroList() {
             if (password) {
                 dataToSend.password = password;
             };
-            console.log("Payload enviado:", {
+            /*console.log("Payload enviado:", {
                     nombre,
                     fecha_Ingreso,
                     tipo,
                     rol,
                     email,
                     password,
-                });
+                });*/
 
             await axios.put(`${API_URL}/peluqueros/${peluqueroSeleccionado.codigo_peluquero}`, dataToSend, {
                 headers: { Authorization: `Bearer ${accessToken}` }
@@ -193,14 +193,14 @@ function PeluqueroList() {
                 timer: 1500
             });
             } else {
-                console.log("Payload enviado:", {
+                /*console.log("Payload enviado:", {
                     nombre,
                     fecha_Ingreso,
                     tipo,
                     rol,
                     email,
                     password,
-                });
+                });*/
                 const nuevoPeluquero: Peluquero = {
                     codigo_peluquero: 0, // se ignora en backend
                     nombre,
@@ -240,7 +240,7 @@ function PeluqueroList() {
 
     const eliminarPeluquero = async (codigo_peluquero: number) => {
         try {
-            console.log("Codigo de peluquero enviado: ", codigo_peluquero);
+            //console.log("Codigo de peluquero enviado: ", codigo_peluquero);
             const response = await axios.get(`${API_URL}/peluqueros/misTurnos/${codigo_peluquero}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
@@ -289,7 +289,7 @@ function PeluqueroList() {
                     confirmButtonText: 'Aceptar'
                 });
 
-                console.log('Peluquero eliminado con éxito.');
+                //console.log('Peluquero eliminado con éxito.');
             };
         } catch (error: any) {
             console.error('Error al eliminar el peluquero:', error);

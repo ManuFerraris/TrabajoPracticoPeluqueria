@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { MikroORM } from "@mikro-orm/mysql";
 import { LocalidadRepositoryORM } from "../shared/db/LocalidadRepositoryORM.js";
 import { ListarLocalidades } from "../application/casos-uso/casosUsoLocalidad/ListarLocalidades.js";
@@ -19,7 +19,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
         const localidades = await casouso.ejecutar();
 
         if(localidades.length === 0){
-            res.status(404).json({ message: 'No hay localidades cargadas'});
+            res.status(200).json({ message: 'No hay localidades cargadas', data: localidades });
             return;
         };
 
@@ -49,7 +49,7 @@ export const getOne = async (req:Request, res:Response):Promise<void> => {
         const localidad = await casouso.ejecutar(codLoc);
 
         if(!localidad){
-            res.status(404).json({ message: `Localidad con codigo ${codLoc} no encontrada` });
+            res.status(200).json({ message: `Localidad con codigo ${codLoc} no encontrada` });
             return;
         };
 

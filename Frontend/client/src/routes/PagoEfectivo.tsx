@@ -55,15 +55,15 @@ export default function PagoEfectivo(){
             const response = await axios.get(`${API_URL}/turnos/${codigo_turno}`, {
                 headers: { 'Authorization':  accessToken }
             });
-            console.log("Respuesta completa recibida del backend: ", response);
+            //console.log("Respuesta completa recibida del backend: ", response);
             const turno = response.data || [];
-            console.log("Turnos sin pagos: ", turno);
+            //console.log("Turnos sin pagos: ", turno);
             if(turno){
                 setTurno(turno);
                 setCodigo_turno(turno.codigo_turno);
             };
         }catch(error: any){
-            console.log("Ha ocurrido un error inerperado", error);
+            //console.log("Ha ocurrido un error inerperado", error);
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);
             } else {
@@ -78,12 +78,12 @@ export default function PagoEfectivo(){
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             const peluqueros = response.data.data || [];
-            console.log("Peluqueros obtenidos: ", peluqueros);
+            //console.log("Peluqueros obtenidos: ", peluqueros);
             if(peluqueros.length > 0){
                 setPeluqueros(peluqueros);
             };
         }catch(error:any){
-            console.log("Ha ocurrido un error inerperado", error);
+            //console.log("Ha ocurrido un error inerperado", error);
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);
             } else {
@@ -118,7 +118,7 @@ export default function PagoEfectivo(){
     };
 
     const pagarTurno = async (codTurno:number, metodo:string, accessToken:string | null) => {
-        console.log("Datos para realizar el pego:, codTurno, metodo, token: ", codTurno, metodo, accessToken);
+        //console.log("Datos para realizar el pego:, codTurno, metodo, token: ", codTurno, metodo, accessToken);
         if(!accessToken){
             Swal.fire("Error", "No se encontró el token de acceso", "error");
             return;
@@ -186,7 +186,7 @@ export default function PagoEfectivo(){
                             "¿Confirmas el pago?"
                         );
                         if (confirmado) {
-                            console.log("Iniciando pago para el turno:", codigo_turno);
+                            //console.log("Iniciando pago para el turno:", codigo_turno);
                             pagarTurno(codigo_turno, "Efectivo", accessToken);
                             setCodigo_turno(null);
                         };

@@ -35,7 +35,7 @@ function EditarPerfilCliente() {
                     });
             
                     const cliente = response.data.data;
-                    console.log("Cliente traido del backend: ", cliente);
+                    //console.log("Cliente traido del backend: ", cliente);
                     setFormData({
                         NomyApe: cliente.NomyApe || "",
                         dni: cliente.dni || "",
@@ -75,7 +75,7 @@ function EditarPerfilCliente() {
                 const response = await axios.put(`${API_URL}/clientes/${user.codigo}`, formData, {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
-                console.log("Respuesta del backend: ", response.data);
+                //console.log("Respuesta del backend: ", response.data);
                 if(response.status === 200){
                     setMensaje("Cambios guardados correctamente.");
                 }else{

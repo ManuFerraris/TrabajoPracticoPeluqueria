@@ -18,7 +18,7 @@ export const findAll = async (req:Request, res:Response):Promise<void> => {
 
         const tipoServicios = await casouso.ejecutar();
         if(tipoServicios.length === 0){
-            res.status(400).json({ message: 'No se encontraron tipos de servicios.' });
+            res.status(200).json({ message: 'No se encontraron tipos de servicios.' });
             return;
         };
 
@@ -47,7 +47,7 @@ export const getOne = async (req:Request, res:Response):Promise<void> => {
 
         const tipoServicio = await casouso.ejecutar(codVal);
         if(!tipoServicio){
-            res.status(400).json({ message: `No se encontro el tipo de servicio con codigo ${codVal}.` });
+            res.status(200).json({ message: `No se encontro el tipo de servicio con codigo ${codVal}.` });
             return;
         };
 
@@ -116,30 +116,6 @@ export const update = async (req:Request, res:Response):Promise<void> => {
         return;
     };
 };
-/*
-async function update(req: Request, res: Response) {
-    try {
-        const codigo_tipo = Number(req.params.codigo_tipo);
-        if (isNaN(codigo_tipo)) {
-            return res.status(400).json({ message: 'Código de tipo de servicio inválido' });
-        }
-
-        const tipoServicio = await em.findOne(TipoServicio, { codigo_tipo });
-        if (!tipoServicio) {
-            return res.status(404).json({ message: 'Tipo de servicio no encontrado' });
-        }
-
-        const { nombre, descripcion, duracion_estimada, precio_base } = req.body.sanitizedInput;
-
-        // Actualizar los demás campos
-        em.assign(tipoServicio, { nombre, descripcion, duracion_estimada, precio_base });
-        await em.flush();
-
-        return res.status(200).json({ message: 'Tipo de servicio actualizado correctamente', data: tipoServicio });
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
-    }
-}*/
 
 export const remove = async (req:Request, res:Response):Promise<void> => {
     try{

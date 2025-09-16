@@ -25,7 +25,7 @@ export async function crearTurnoDesdeDTO(
     };
         
     const fechaTurno = new Date(dto.fecha_hora);
-    console.log("Fecha turno: ", fechaTurno);
+    //console.log("Fecha turno: ", fechaTurno);
     if (isNaN(fechaTurno.getTime())) {
         errores.push("La fecha y hora no es válida.");
         return errores;

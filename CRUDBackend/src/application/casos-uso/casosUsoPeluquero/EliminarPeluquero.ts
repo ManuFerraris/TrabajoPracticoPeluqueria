@@ -15,7 +15,7 @@ export class EliminarPeluquero {
         };
 
         if(Array.isArray(peluquero.turnos) && peluquero.turnos.length > 0 ){
-            console.log(peluquero.turnos);
+            //console.log(peluquero.turnos);
             errores.push('El peluquero tiene turnos asignados.');
             return errores;
         };

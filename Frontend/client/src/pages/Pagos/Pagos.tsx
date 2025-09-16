@@ -53,14 +53,14 @@ const PagosPage = () => {
             const response = await axios.get(`${API_URL}/clientes/misTurnosAPagar/${codCliente}`, {
                 headers: { 'Authorization':  accessToken }
             });
-            console.log("Respuesta completa recibida del backend: ", response);
+            //console.log("Respuesta completa recibida del backend: ", response);
             const turnos = response.data.data || [];
-            console.log("Turnos sin pagos: ", turnos);
+            //console.log("Turnos sin pagos: ", turnos);
             if(turnos.length > 0){
                 setTurnos(turnos);
             };
         }catch(error: any){
-            console.log("Ha ocurrido un error inerperado", error);
+            //console.log("Ha ocurrido un error inerperado", error);
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);
             } else {
@@ -79,7 +79,7 @@ const PagosPage = () => {
                 setPeluqueros(peluqueros);
             };
         }catch(error:any){
-            console.log("Ha ocurrido un error inerperado", error);
+            console.warn("Ha ocurrido un error inerperado", error);
             if (error.response && error.response.data && Array.isArray(error.response.data.errores)) {
                 console.error(error.response.data.errores);
             } else {
@@ -90,7 +90,7 @@ const PagosPage = () => {
 
     useEffect(()=> {
         if(!codCliente){
-            console.log("El codigo del cliente logueado es undefined");
+            console.warn("El codigo del cliente logueado es undefined");
             return;
         };
         fetchTurnosAPagar(codCliente)
@@ -112,7 +112,7 @@ const PagosPage = () => {
     };
 
     const pagarTurno = async (codTurno:number, metodo:string, accessToken:string | null) => {
-        console.log("Datos para realizar el pego:, codTurno, metodo, token: ", codTurno, metodo, accessToken);
+        //console.log("Datos para realizar el pego:, codTurno, metodo, token: ", codTurno, metodo, accessToken);
         if(!accessToken){
             Swal.fire("Error", "No se encontró el token de acceso", "error");
             return;

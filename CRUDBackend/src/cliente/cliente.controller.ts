@@ -24,7 +24,7 @@ export const findAll = async(req:Request, res:Response):Promise<void> => {
 
         const clientes = await casouso.ejecutar();
         if(clientes.length === 0){
-            res.status(404).json({ message: 'No se encontraron clientes registrados.' });
+            res.status(200).json({ message: 'No se encontraron clientes registrados.' });
             return;
         };
 
@@ -51,7 +51,7 @@ export const getOne = async (req:Request, res:Response):Promise<void> => {
 
         const cliente = await casouso.ejecutar(codVal);
         if(!cliente){
-            res.status(404).json({ message: `No se encontro el cliente con el codigo ${codVal}.` });
+            res.status(200).json({ message: `No se encontro el cliente con el codigo ${codVal}.` });
             return;
         };
 
