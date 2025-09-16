@@ -113,11 +113,6 @@ function LocalidadesPage(){
         return errors;
     };
 
-    //Mensaje de carga:
-    if(localidades.length === 0){
-        return <p>Cargando Localidades...</p>
-    };
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const validationErrors = validateForm();
