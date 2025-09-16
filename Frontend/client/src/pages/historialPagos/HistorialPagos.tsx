@@ -122,8 +122,9 @@ export default function HistorialPagos() {
 
     const pagosFiltrados = pagos.filter((pago) => {
         if (!fechaFiltro) return true;
-            const fechaPago = new Date(pago.fecha_hora).toISOString().split('T')[0];
-        return fechaPago === fechaFiltro;
+            const fechaPago = new Date(pago.fecha_hora).toLocaleDateString('es-AR');
+            const fechaFiltroFormateada = new Date(fechaFiltro).toLocaleDateString('es-AR');
+        return fechaPago === fechaFiltroFormateada;
     });
 
     return(
