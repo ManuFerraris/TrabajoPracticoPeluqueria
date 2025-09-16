@@ -1,9 +1,7 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useCallback } from "react";
-import dotenv from 'dotenv';
 
-dotenv.config();
 const API_URL = process.env.REACT_APP_API_URL!;
 
 // Datos que se van a almaecenar mientras el usuario este autenticado, se almacenaran en el localStorage
