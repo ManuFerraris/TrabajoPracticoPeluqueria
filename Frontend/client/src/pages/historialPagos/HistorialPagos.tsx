@@ -171,7 +171,16 @@ export default function HistorialPagos() {
                         <tbody>
                             {pagosFiltrados.map((pago) => (
                             <tr key={pago.id}>
-                                <td>{new Date(pago.fecha_hora).toLocaleString()}</td>
+                                <td>{new Date(pago.fecha_hora).toLocaleString('es-AR', {
+                                        timeZone: 'America/Argentina/Buenos_Aires',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })}
+                                </td>
                                 <td>${pago.monto}</td>
                                 <td>${pago.turno.servicio?.total ?? 0}</td>
                                 <td>{pago.metodo}</td>
