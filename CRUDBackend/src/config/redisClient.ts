@@ -1,6 +1,7 @@
 import Redis from 'ioredis';
 
 const isDev = process.env.NODE_ENV !== 'production';
+console.log("Entorno detectado en redisClient.ts:", process.env.NODE_ENV);
 
 const redisClient = isDev
     ? new Redis({
