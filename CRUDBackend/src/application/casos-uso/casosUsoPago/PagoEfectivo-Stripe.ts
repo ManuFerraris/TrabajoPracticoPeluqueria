@@ -2,6 +2,8 @@ import { Pago } from "../../../pago/pago.entity.js";
 import { Turno } from "../../../turno/turno.entity.js";
 import Stripe from 'stripe';
 
+const FRONTEND_URL = process.env.FRONTEND_ORIGIN as string;
+
 export async function crearInstanciaPago(turno:Turno):Promise<Pago>{
     const monto = turno.servicio.total;
     const medioPago = turno.servicio.medio_pago 
@@ -46,8 +48,8 @@ export async function crearSessionStripe(pago:Pago):Promise<Stripe.Checkout.Sess
             quantity: 1,
         }],
         mode: 'payment',
-        success_url: `http://localhost:3001/pago-exitoso?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `http://localhost:3001/pago-cancelado`,
+        success_url: `${FRONTEND_URL}/pago-exitoso?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${FRONTEND_URL}/pago-cancelado`,
         metadata: {
             pago_id: pago.id
         }
