@@ -20,7 +20,7 @@ export class BuscarPagosCliente {
 
         const pagosCliente = await this.pagoRepo.buscarMisPagos(cliente);
         if(!pagosCliente || pagosCliente.length === 0){
-            return 'No se encontraron pagos para el cliente especificado.';
+            return pagosCliente; // Retorna array vacío si no hay pagos.
         };
         return pagosCliente;
     };

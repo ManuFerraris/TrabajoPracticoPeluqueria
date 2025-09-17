@@ -101,11 +101,40 @@ export default function HistorialPagos() {
             setPagos(pagosRecibidos);
             //console.log("Pagos del cliente recibidos:", pagosRecibidos);
             if (pagosRecibidos.length === 0) {
+                console.log("El historial de pagos del cliente está vacío: ", pagosRecibidos);
                 Swal.fire('Historial vacío', 'Aún no tenés pagos realizados.', 'info');
             };
-        }catch(error){
-            console.error("Error obteniendo el historial del cliente:", error);
-            Swal.fire('Error', 'No se pudo obtener el historial de pagos del cliente.', 'error');
+        }catch (error: any) {
+            console.error('Error al guardar el cliente:', error);
+
+            const errores = error.response?.data?.errores;
+            const mensaje = error.response?.data?.message || error.message;
+
+            if (Array.isArray(errores)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores de validación',
+                    html: `<ul style="text-align:left;">${errores.map((err: string) => `<li>${err}</li>`).join('')}</ul>`,
+                    confirmButtonText: 'Corregir',
+                    position: 'center'
+                });
+            } else if (typeof errores === 'string') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    text: errores,
+                    confirmButtonText: 'Aceptar',
+                    position: 'center'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje || 'Hubo un problema al guardar el Cliente.',
+                    confirmButtonText: 'Aceptar',
+                    position: 'center'
+                });
+            };
         }finally{
             setLoading(false);
         };

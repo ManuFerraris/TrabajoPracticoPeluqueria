@@ -94,13 +94,7 @@ export default function Signup() {
         e.preventDefault();
 
         if(!validateForm()) {
-            Swal.fire({
-                icon: "warning",
-                title: "Formulario incompleto",
-                html: `<ul style="text-align:left;">${Object.values(errors).map((err) => `<li>${err}</li>`).join('')}</ul>`,
-                confirmButtonText: "Corregir",
-                position: "center"
-            });
+            console.warn("Errores de validación:", errors);
             return;
         };
 
