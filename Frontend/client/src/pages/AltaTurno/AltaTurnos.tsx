@@ -28,6 +28,17 @@ const AltaTurnoPage = () => {
         confirmarTurno
     } = useAltaTurno()
 
+    function formatearHoraLocal(fechaUTC: string): string {
+        return new Date(fechaUTC).toLocaleTimeString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    }
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
@@ -154,8 +165,7 @@ const AltaTurnoPage = () => {
                     <h5>¿Confirmás tu turno?</h5>
                     <ul>
                         <li><strong>Peluquero:</strong> {getNombrePeluquero(peluqueros , payloadConfirmacion.turno.codigo_peluquero)}</li>
-                        <li><strong>Fecha:</strong> {payloadConfirmacion.turno.fecha_hora}</li>
-                        <li><strong>Horario:</strong> {horarioSeleccionado}</li>
+                        <li><strong>Fecha:</strong> {formatearHoraLocal(payloadConfirmacion.turno.fecha_hora)}</li>
                         <li><strong>Servicio:</strong> {getNombreTipoServicio(tiposServicios , payloadConfirmacion.servicio.tipo_servicio_codigo)}</li>
                         <li><strong>Tipo de turno:</strong> {payloadConfirmacion.turno.tipo_turno}</li>
                         <li><strong>Medio de pago:</strong> {payloadConfirmacion.servicio.medio_pago}</li>

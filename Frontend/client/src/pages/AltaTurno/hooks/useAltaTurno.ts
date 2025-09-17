@@ -117,12 +117,15 @@ export const useAltaTurno = () => {
             Swal.fire("Error", "La fecha seleccionada no es válida", "error");
             return;
         };
-        const fechaHoraCompleta = `${fecha_hora}T${horarioSeleccionado}:00`;
+        const [year, month, day] = fecha_hora.split("-").map(Number); // ej: "2025-09-17"
+        const [hour, minute] = horarioSeleccionado.split(":").map(Number); // ej: "08:00"
+        const fechaUTC = new Date(Date.UTC(year, month - 1, day, hour + 3, minute));
+        //const fechaHoraCompleta = `${fecha_hora}T${horarioSeleccionado}:00`;
         const turnoDTO = {
             tipo_turno,
             codigo_cliente,
             codigo_peluquero,
-            fecha_hora: fechaHoraCompleta,
+            fecha_hora: fechaUTC.toISOString(), // ahora sí, en UTC real
         };
 
         const servicioDTO = {
