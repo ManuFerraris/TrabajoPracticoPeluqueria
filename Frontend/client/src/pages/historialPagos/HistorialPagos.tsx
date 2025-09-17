@@ -152,13 +152,15 @@ export default function HistorialPagos() {
     const pagosFiltrados = pagos.filter((pago) => {
         if (!fechaFiltro) return true;
 
-        const fechaPago = new Date(pago.fecha_hora);
-        fechaPago.setHours(0, 0, 0, 0);
+        const fechaPagoLocal = new Date(pago.fecha_hora).toLocaleDateString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires'
+        });
 
-        const filtro = new Date(fechaFiltro);
-        filtro.setHours(0, 0, 0, 0);
+        const fechaFiltroLocal = new Date(fechaFiltro).toLocaleDateString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires'
+        });
 
-        return fechaPago.getTime() === filtro.getTime();
+        return fechaPagoLocal === fechaFiltroLocal;
     });
 
     function FechaLocal({ fecha }: { fecha: string }) {
