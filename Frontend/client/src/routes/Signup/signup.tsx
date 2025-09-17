@@ -94,7 +94,13 @@ export default function Signup() {
         e.preventDefault();
 
         if(!validateForm()) {
-            console.error("Errores de validación:", errors);
+            Swal.fire({
+                icon: "warning",
+                title: "Formulario incompleto",
+                html: `<ul style="text-align:left;">${Object.values(errors).map((err) => `<li>${err}</li>`).join('')}</ul>`,
+                confirmButtonText: "Corregir",
+                position: "center"
+            });
             return;
         };
 
@@ -142,26 +148,30 @@ export default function Signup() {
                     const destino = getRutaInicioPorRol(auth.user?.rol || '');
                     navigate(destino, {replace: true});
                 };
-            }else{
-                //console.log("Error al crear el usuario", response.data);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ha ocurrido un problema en el alta.',
-                    confirmButtonText: 'Aceptar',
-                    position: 'center'
-                });
-                // Manejar errores específicos del backend
-            };
+            }
         } catch(error: any){
             console.error("Error al crear usuario:", error.response?.data || error.message);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.response?.data?.message || "Ha ocurrido un problema en el alta.",
-                confirmButtonText: "Aceptar",
-                position: "center"
-            });
+            
+            const errores = error.response?.data?.errores;
+            const mensaje = error.response?.data?.message;
+
+            if (Array.isArray(errores)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Errores de validación",
+                    html: `<ul style="text-align:left;">${errores.map((err: string) => `<li>${err}</li>`).join('')}</ul>`,
+                    confirmButtonText: "Aceptar",
+                    position: "center"
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: mensaje || "Ha ocurrido un problema en el alta.",
+                    confirmButtonText: "Aceptar",
+                    position: "center"
+                });
+            }
         } finally {
             setIsSubmitting(false);
         };
