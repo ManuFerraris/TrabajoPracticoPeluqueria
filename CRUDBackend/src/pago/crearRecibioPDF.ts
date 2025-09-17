@@ -43,7 +43,7 @@ export async function buildReciboPDF(pago: Pago): Promise<Buffer> {
 
         doc.text(`Peluquero: ${pago.turno.peluquero.nombre}`);
         doc.text(`Servicio: ${pago.turno.servicio.tipoServicio.nombre}`);
-        doc.text(`Fecha del turno: ${pago.turno.fecha_hora}`);
+        doc.text(`Fecha del turno: ${formatearFechaLocal(pago.turno.fecha_hora)}`);
         doc.text(`Código de turno: ${pago.turno.codigo_turno}`);
         doc.text(`Monto total: $${pago.monto}`);
         doc.moveDown();
