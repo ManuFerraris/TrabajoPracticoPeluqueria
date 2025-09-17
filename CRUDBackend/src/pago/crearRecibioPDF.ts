@@ -1,6 +1,15 @@
 import PDFDocument from 'pdfkit';
 import { Pago } from './pago.entity.js';
 
+function formatearFechaLocal(fechaUTC: Date | string): string {
+    const fecha = typeof fechaUTC === 'string' ? new Date(fechaUTC) : fechaUTC;
+    return new Intl.DateTimeFormat('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        dateStyle: 'short',
+        timeStyle: 'short',
+    }).format(fecha);
+};
+
 // Función para construir el PDF del recibo y poder usar en llamadas de stripe y efectivo.
 export async function buildReciboPDF(pago: Pago): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -27,14 +36,14 @@ export async function buildReciboPDF(pago: Pago): Promise<Buffer> {
 
         doc.text(`ID de Pago: ${pago.id}`);
         doc.text(`Cliente: ${pago.turno.cliente.NomyApe}`);
-        doc.text(`Fecha de pago: ${new Date(pago.fecha_hora).toLocaleString()}`);
+        doc.text(`Fecha de pago: ${formatearFechaLocal(pago.fecha_hora)}`);
         doc.text(`Método: ${pago.metodo}`);
         doc.text(`Estado: ${pago.estado}`);
         doc.moveDown();
 
         doc.text(`Peluquero: ${pago.turno.peluquero.nombre}`);
         doc.text(`Servicio: ${pago.turno.servicio.tipoServicio.nombre}`);
-        doc.text(`Fecha del turno: ${new Date(pago.turno.fecha_hora).toLocaleString()}`);
+        doc.text(`Fecha del turno: ${pago.turno.fecha_hora}`);
         doc.text(`Código de turno: ${pago.turno.codigo_turno}`);
         doc.text(`Monto total: $${pago.monto}`);
         doc.moveDown();
