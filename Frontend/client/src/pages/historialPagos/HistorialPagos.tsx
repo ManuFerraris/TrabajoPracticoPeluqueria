@@ -149,18 +149,24 @@ export default function HistorialPagos() {
         };
     }, [fetchPagos, fetchPagosCliente, rol, userCodigo]);
 
+    function getFechaLocalISO(fecha: string | Date): string {
+        const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
+        const fechaLocal = new Intl.DateTimeFormat('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(fechaObj);
+
+        const [dia, mes, año] = fechaLocal.split('/');
+        return `${año}-${mes}-${dia}`;
+    };
+
     const pagosFiltrados = pagos.filter((pago) => {
         if (!fechaFiltro) return true;
 
-        const fechaPagoLocal = new Date(pago.fecha_hora).toLocaleDateString('es-AR', {
-            timeZone: 'America/Argentina/Buenos_Aires'
-        });
-
-        const fechaFiltroLocal = new Date(fechaFiltro).toLocaleDateString('es-AR', {
-            timeZone: 'America/Argentina/Buenos_Aires'
-        });
-
-        return fechaPagoLocal === fechaFiltroLocal;
+        const fechaPagoLocal = getFechaLocalISO(pago.fecha_hora);
+        return fechaPagoLocal === fechaFiltro;
     });
 
     function FechaLocal({ fecha }: { fecha: string }) {
