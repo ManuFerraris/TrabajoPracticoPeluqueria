@@ -161,14 +161,29 @@ function TipoServicioPage(){
             }
             await getTipoServicio();
             resetForm();
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Hubo un problema al guardar el tipo de servicio.',
-                confirmButtonText: 'Aceptar',
-                position: 'center'
-            });
+        } catch (error: any) {
+            console.error('Error al guardar el tipo de servicio:', error);
+
+            const errores = error.response?.data?.errores;
+            const mensaje = error.response?.data?.message;
+
+            if (Array.isArray(errores)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores de validación',
+                    html: `<ul style="text-align:left;">${errores.map((err: string) => `<li>${err}</li>`).join('')}</ul>`,
+                    confirmButtonText: 'Corregir',
+                    position: 'center'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje || 'Hubo un problema al guardar el tipo de servicio.',
+                    confirmButtonText: 'Aceptar',
+                    position: 'center'
+                });
+            };
         };
     };
 
@@ -253,7 +268,12 @@ function TipoServicioPage(){
                 </div>
     
                 <div className="card-body d-flex flex-column" style={{ maxHeight: 'calc(100vh - 100px)', overflow: 'hidden' }}>
-                    <div className="form-container" style={{ padding: '20px', boxSizing: 'border-box' }}>
+                    <div className="form-container" style={{
+                        padding: '20px',
+                        boxSizing: 'border-box',
+                        maxHeight: '40vh',
+                        overflowY: 'auto'
+                        }}>
                         <form onSubmit={handleSubmit}>
                             <div className="row mb-3">
 
@@ -322,7 +342,11 @@ function TipoServicioPage(){
                         </form>
                     </div>
     
-                    <div className="table-container" style={{ flex: 1, overflowY: 'auto', marginTop: '20px' }}>
+                    <div className="table-container" style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        maxHeight: '60vh'
+                    }}>
                         <table className="table table-hover">
                             <thead className="table-primary sticky-top">
                                 <tr>
@@ -331,7 +355,7 @@ function TipoServicioPage(){
                                     <th scope="col">Descripcion</th>
                                     <th scope="col">Duracion Estimada</th>
                                     <th scope="col">Precio base</th>
-                                    <th scope="col">Acciones</th>
+                                    <th scope="col" className='text-center'>Acciones</th>
                                 </tr>
                             </thead>
 
@@ -345,8 +369,10 @@ function TipoServicioPage(){
                                             <td>{val.duracion_estimada}</td>
                                             <td>{val.precio_base}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setTsseleccionado(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarTipoServicio(String(val.codigo_tipo))}>Eliminar</button>
+                                                <div className="d-flex justify-content-center gap-2 mt-3">
+                                                    <button className="btn btn-primary btn-sm" onClick={() => { setTsseleccionado(val); setEditar(true); }}>Editar</button>
+                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarTipoServicio(String(val.codigo_tipo))}>Eliminar</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

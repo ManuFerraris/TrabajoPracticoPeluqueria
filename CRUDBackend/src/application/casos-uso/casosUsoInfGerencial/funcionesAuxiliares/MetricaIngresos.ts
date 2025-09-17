@@ -1,7 +1,7 @@
 import { Turno } from "../../../../turno/turno.entity.js";
 
 export function MetricaIngresos(turnos:Turno[]):{ingNeto:number, ingBruto:number, promIngPorTurno:number}{
-    const EUR_TO_ARS = 1000;
+    const EUR_TO_ARS = 1400;
     const COSTO_STRIPE = 0.0325;
     const FIJO_STRIPE_ARS = 0.25 * EUR_TO_ARS;
 

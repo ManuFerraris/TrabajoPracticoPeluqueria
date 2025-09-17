@@ -145,14 +145,28 @@ function LocalidadesPage(){
             await getLocalidades();
             resetForm();
         } catch (error: any) {
-            console.error('Error al guardar guardar la localidad:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Hubo un problema al guardar la localidad.',
-                confirmButtonText: 'Aceptar',
-                position: 'center'
-            });
+            console.error('Error al guardar la localidad:', error);
+
+            const errores = error.response?.data?.errores;
+            const mensaje = error.response?.data?.message;
+
+            if (Array.isArray(errores)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores de validación',
+                    html: `<ul style="text-align:left;">${errores.map((err: string) => `<li>${err}</li>`).join('')}</ul>`,
+                    confirmButtonText: 'Corregir',
+                    position: 'center'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje || 'Hubo un problema al guardar la localidad.',
+                    confirmButtonText: 'Aceptar',
+                    position: 'center'
+                });
+            };
         };
     };
 
@@ -303,7 +317,7 @@ function LocalidadesPage(){
                                         onChange={(event) => setDescripcion(event.target.value)}
                                         className="form-control"
                                         value={descripcion || ""}
-                                        placeholder="Descripcion (opcional)"
+                                        placeholder="Descripcion"
                                     />
                                     {errors.descripcion && <div className="text-danger">{errors.descripcion}</div>}
                                 </div>

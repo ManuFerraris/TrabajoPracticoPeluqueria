@@ -253,15 +253,29 @@ function ClientesPage(){
             }
             loadClientes();
             resetForm();
-        }catch (error) {
+        }catch (error: any) {
             console.error('Error al guardar el cliente:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Hubo un problema al guardar el Cliente.',
-                confirmButtonText: 'Aceptar',
-                position: 'center'
-            });
+
+            const errores = error.response?.data?.errores;
+            const mensaje = error.response?.data?.message;
+
+            if (Array.isArray(errores)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores de validación',
+                    html: `<ul style="text-align:left;">${errores.map((err: string) => `<li>${err}</li>`).join('')}</ul>`,
+                    confirmButtonText: 'Corregir',
+                    position: 'center'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje || 'Hubo un problema al guardar el Cliente.',
+                    confirmButtonText: 'Aceptar',
+                    position: 'center'
+                });
+            };
         };
     };
 
@@ -335,13 +349,13 @@ function ClientesPage(){
 
     return (
         <div className="container-fluid d-flex flex-column justify-content-center align-items-center vh-100">
-            <div className="card shadow-lg w-100" style={{ maxWidth: '1200px' }}>
+            <div className="card shadow-lg w-90" style={{ maxWidth: '1400px' }}>
                 <div className="card-header text-center bg-primary text-white">
                     <h3>Alta de Clientes</h3>
                 </div>
     
                 <div className="card-body d-flex flex-column" style={{ maxHeight: 'calc(100vh - 50px)', overflow: 'hidden' }}>
-                    <div className="form-container" style={{ padding: '20px', boxSizing: 'border-box' }}>
+                    <div className="form-container" style={{ padding: '20px', boxSizing: 'border-box', maxHeight: '40vh', overflowY: 'auto' }}>
                         <form onSubmit={handleSubmit}>
                             <div className="row mb-3">
 
@@ -399,7 +413,7 @@ function ClientesPage(){
                                         onChange={(event) => setTelefono(event.target.value)}
                                         className="form-control"
                                         value={telefono || ""}
-                                        placeholder="Telefono (opcional)"
+                                        placeholder="Telefono"
                                     />
                                 </div>
 
@@ -443,13 +457,15 @@ function ClientesPage(){
                                             <button type="button" className='btn btn-secondary m-2' onClick={() => {setEditar(false); resetForm()}}>Cancelar</button>
                                         </div>
                                         :
-                                        <button type="submit" className='btn btn-success'>Registrar</button>
+                                        <div className="text-center mt-3">
+                                            <button type="submit" className="btn btn-success">Registrar</button>
+                                        </div>
                                 }
                             </div>
                         </form>
                     </div>
     
-                    <div className="table-container" style={{ flex: 1, overflowY: 'auto'}}>
+                    <div className="table-container" style={{ flex: 1, overflowY: 'auto', maxHeight: '60vh'}}>
                         <table className="table table-hover">
                             <thead className="table-primary sticky-top">
                                 <tr>
@@ -476,8 +492,10 @@ function ClientesPage(){
                                             <td>{val.direccion}</td>
                                             <td>{val.telefono}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm" onClick={() => { setClienteSeleccionado(val); setEditar(true); }}>Editar</button>
-                                                <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarCliente(String(val.codigo_cliente))}>Eliminar</button>
+                                                <div className="d-flex justify-content-center gap-2 mt-3">
+                                                    <button className="btn btn-primary btn-sm" onClick={() => { setClienteSeleccionado(val); setEditar(true); }}>Editar</button>
+                                                    <button className="btn btn-danger btn-sm ms-2" onClick={() => eliminarCliente(String(val.codigo_cliente))}>Eliminar</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

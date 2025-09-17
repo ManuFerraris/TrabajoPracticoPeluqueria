@@ -26,7 +26,7 @@ export class ResumenPorPeluquero{
         const turnos = await this.repoTurno.buscarPorFecha(fechaDesde, fechaHasta);
         if(turnos.length === 0){
             return {
-                estado: 404,
+                estado: 200,
                 mensaje: `No se encontraron turnos entre las fechas ${fechaDesde} y ${fechaHasta}.`,
                 datos: null,
             };
@@ -37,7 +37,7 @@ export class ResumenPorPeluquero{
         const peluqueros = await this.repoPel.getAllPeluqueros();
         if(peluqueros.length === 0){
             return {
-                estado: 404,
+                estado: 200,
                 mensaje: `No se encontraron peluqueros registrados.`,
                 datos: null,
             };

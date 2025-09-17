@@ -32,7 +32,7 @@ export class ComportamientoClientes{
         const clientes = await this.repoCli.obtenerClientes();
         if(clientes.length === 0){
             return {
-                estado:404,
+                estado:200,
                 mensaje: 'No se encontraron clientes.',
                 datos:null
             };
