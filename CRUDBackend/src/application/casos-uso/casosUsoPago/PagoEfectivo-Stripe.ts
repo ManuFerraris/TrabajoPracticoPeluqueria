@@ -59,6 +59,7 @@ export async function crearSessionStripe(pago:Pago):Promise<Stripe.Checkout.Sess
             pago_id: pago.id
         }
     });
+    console.log('ID del pago antes de crear sesión:', pago.id);
     //console.log("Session creada: ", session.success_url, session.cancel_url);
     return session;
 };

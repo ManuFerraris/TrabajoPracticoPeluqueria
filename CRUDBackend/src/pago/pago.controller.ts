@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import Stripe from 'stripe';
-import PDFDocument from "pdfkit";
 import { validarCodigo } from "../application/validarCodigo.js";
 import { MikroORM } from "@mikro-orm/core";
 import { PagoRepositoryORM } from "../shared/db/PagoRepositoryORM.js";

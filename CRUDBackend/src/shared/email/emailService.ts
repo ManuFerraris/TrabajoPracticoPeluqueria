@@ -1,14 +1,18 @@
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 import validator from 'validator'; // npm i --save-dev @types/validator
-import PDFDocument from 'pdfkit';
 import { generarHtmlRecuperacion } from './HTMLRecPassword.js';
 import { Pago } from '../../pago/pago.entity.js';
 import { buildReciboPDF } from '../../pago/crearRecibioPDF.js';
+import path from 'path';
 
-dotenv.config();
+const isDev = process.env.NODE_ENV !== 'production';
+const envPath = path.resolve(process.cwd(), isDev ? '.env.local' : '.env');
+dotenv.config({ path: envPath, override: true });
+
 const EMAIL_USER = process.env.EMAIL_USER as string;
 const EMAIL_PASS = process.env.EMAIL_PASS as string;
+const baseUrl = process.env.FRONTEND_ORIGIN! as string;
 
 // Configuración del transporte de correo
 const transporter = nodemailer.createTransport({
@@ -31,7 +35,8 @@ export const sendPasswordResetEmail = async (email: string, token: string):Promi
     throw new Error(`Token inválido: ${token}`);
   };
 
-  const resetUrl = `http://localhost:3001/reset-password/${token}`;
+  const resetUrl = `${baseUrl}/reset-password/${token}`;
+  //console.log(`Enviando email de recuperación a ${email} con URL: ${resetUrl}`);
   const html = generarHtmlRecuperacion(resetUrl);
 
   const mailOptions = {

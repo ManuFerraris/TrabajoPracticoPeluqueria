@@ -30,7 +30,7 @@ export class CrearPago {
             pagoExistente.recibo_enviado = true;
             pagoExistente.fecha_envio = new Date();
             await this.repo.guardar(pagoExistente);
-
+            console.log('Pago existente antes de devolver sesión (ok):', pagoExistente);
             return session; // Si ya existe un pago para este turno, devolvemos el sessionId para reintentar.
         }; // Quizas el pago fallo por algun X motivo y se quiere reintentar.
 
